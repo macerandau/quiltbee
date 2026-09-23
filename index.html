@@ -59,8 +59,20 @@ svg.block polygon{stroke:var(--seam);stroke-width:.025;stroke-linejoin:round;cur
 svg.block polygon:hover{stroke:var(--cheddar);stroke-width:.05}
 .toolbar{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 .stat{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.8rem;color:var(--muted)}
-.repeat{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:6px}
-svg.rep{width:min(100%,300px);aspect-ratio:1;background:var(--panel2);border-radius:6px}
+.quilt{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule);display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:14px}
+@media (max-width:760px){.quilt{grid-template-columns:1fr}}
+.quilt h2{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:600}
+svg.rep{width:100%;max-height:520px;background:var(--panel2);border-radius:6px;display:block}
+.qc{display:flex;flex-direction:column;gap:10px;font-size:.85rem}
+.qc .grp{display:grid;grid-template-columns:auto 1fr;gap:6px 8px;align-items:center}
+.qc .grp label{color:var(--muted);font-size:.8rem}
+.qc select{width:100%}
+.qc input[type=number]{width:64px}
+.qc .inl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.border{display:grid;grid-template-columns:auto 64px 1fr auto;gap:6px;align-items:center}
+.border .lbl{color:var(--muted);font-size:.8rem;white-space:nowrap}
+.border button{padding:2px 7px}
+.qsize{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.8rem;color:var(--muted)}
 .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
 .cut{font-size:.85rem}
 .cut h3{font-size:.9rem;margin:10px 0 3px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600}
@@ -132,10 +144,26 @@ kbd{font:.75rem "IBM Plex Mono",monospace;border:1px solid var(--rule);border-ra
       <p class="tip" id="tip"></p>
       <div class="msg" id="msg"></div>
     </div>
-    <div class="repeat">
-      <h2 style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;font-weight:600">Repeat preview</h2>
-      <svg class="rep" id="rep" viewBox="0 0 12 12" aria-label="Block repeated three by three"></svg>
-      <label style="font-size:.85rem;display:flex;gap:6px;align-items:center"><input type="checkbox" id="alt"> Turn every other block a quarter turn</label>
+    <div class="quilt">
+      <div>
+        <h2>Quilt</h2>
+        <svg class="rep" id="rep" viewBox="0 0 12 12" aria-label="Quilt layout with sashing and borders"></svg>
+        <div class="qsize" id="qsize" style="margin-top:6px;text-align:center"></div>
+      </div>
+      <div class="qc">
+        <div class="grp">
+          <label for="rows">Rows</label><div class="inl"><input type="number" id="rows" min="1" max="20" value="3"> <label for="cols" style="margin-left:6px">Columns</label> <input type="number" id="cols" min="1" max="20" value="3"></div>
+          <label for="alt">Alternate</label><label class="inl" style="color:var(--ink)"><input type="checkbox" id="alt"> turn every other block</label>
+        </div>
+        <div class="grp">
+          <label for="sash">Sashing</label><div class="inl"><input type="number" id="sash" min="0" max="12" step="0.25" value="2"> in <select id="sashf" aria-label="Sashing fabric" style="flex:1;min-width:90px"></select></div>
+          <label for="corner">Cornerstones</label><div class="inl"><input type="checkbox" id="corner" checked> <select id="cornerf" aria-label="Cornerstone fabric" style="flex:1;min-width:90px"></select></div>
+        </div>
+        <div>
+          <div class="row" style="justify-content:space-between;margin-bottom:6px"><span style="color:var(--muted);font-size:.8rem">Borders, inner to outer</span><button id="addborder">+ Border</button></div>
+          <div id="borders" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -143,7 +171,6 @@ kbd{font:.75rem "IBM Plex Mono",monospace;border:1px solid var(--rule);border-ra
   <section class="pane">
     <h2>Cutting list</h2>
     <div class="row">
-      <label class="f">Blocks in quilt <input type="number" id="blocks" min="1" max="400" value="1"></label>
       <span class="stat" id="unitstat"></span>
     </div>
     <div class="cut" id="cut"></div>
@@ -183,14 +210,16 @@ const DEFAULT_FABRICS = [
   {name:'Indigo', color:'#2E3F73'}, {name:'Muslin', color:'#F1E9D6'}, {name:'Cheddar', color:'#D9A21B'},
   {name:'Brown', color:'#8A5A44'}, {name:'Sage', color:'#7E9573'}, {name:'Cranberry', color:'#9A3B3B'},
 ];
-let S = { n:4, size:12, cells:[], fabrics:DEFAULT_FABRICS.map(f=>({...f})), alt:false, blocks:1 };
+let S = { n:4, size:12, cells:[], fabrics:DEFAULT_FABRICS.map(f=>({...f})), alt:false, quilt:{rows:3,cols:3,sash:2,sashF:1,corner:true,cornerF:2,borders:[{w:4,f:0}]} };
+const blocksCount=()=>Math.max(1,(S.quilt.rows|0))*Math.max(1,(S.quilt.cols|0));
 let tool = {kind:'unit', t:'hst'};
 let undoStack=[], redoStack=[];
 const $ = id => document.getElementById(id);
 
 function blankCells(n){ return Array.from({length:n},()=>Array(n).fill(null)); }
-function snapshot(){ undoStack.push(JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics})); if (undoStack.length>60) undoStack.shift(); redoStack.length=0; }
-function restore(json){ const o=JSON.parse(json); S.n=o.n; S.size=o.size; S.cells=o.cells; S.fabrics=o.fabrics; syncControls(); render(); }
+const snapState=()=>JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,quilt:S.quilt});
+function snapshot(){ undoStack.push(snapState()); if (undoStack.length>60) undoStack.shift(); redoStack.length=0; }
+function restore(json){ const o=JSON.parse(json); S.n=o.n; S.size=o.size; S.cells=o.cells; S.fabrics=o.fabrics; if (o.quilt) S.quilt=o.quilt; syncControls(); render(); }
 
 function clearUnitAt(r,c){
   const cell=S.cells[r]?.[c]; if (!cell) return;
@@ -253,16 +282,44 @@ function blockMarkup(){
 function render(){
   const svg=$('svg'); svg.setAttribute('viewBox',`0 0 ${S.n} ${S.n}`);
   svg.innerHTML = defs()+`<g id="blockg">${blockMarkup()}</g>`;
-  const rep=$('rep'); const N=S.n; rep.setAttribute('viewBox',`0 0 ${3*N} ${3*N}`);
-  let u='';
-  for (let i=0;i<3;i++) for (let j=0;j<3;j++){ const rot = S.alt && ((i+j)%2) ? 90 : 0; u+=`<use href="#blockg" transform="translate(${j*N} ${i*N}) rotate(${rot} ${N/2} ${N/2})"/>`; }
-  rep.innerHTML=u;
+  renderQuilt();
   const unit=S.size/S.n;
   $('stat').textContent = `${S.n} × ${S.n} grid · ${S.size}" finished block · each unit ${fmt(unit)}" finished`;
-  $('unitstat').textContent = `unit ${fmt(unit)}" finished`;
+  $('unitstat').textContent = `${blocksCount()} block${blocksCount()>1?'s':''} · unit ${fmt(unit)}" finished`;
   renderCut(); renderUnits(); renderFabrics(); renderSaved();
   $('undo').disabled = !undoStack.length; $('redo').disabled = !redoStack.length;
-  try { localStorage.setItem('qb_current', JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,alt:S.alt,blocks:S.blocks})); } catch(e){}
+  try { localStorage.setItem('qb_current', JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,alt:S.alt,quilt:S.quilt})); } catch(e){}
+}
+function quiltDims(){
+  const q=S.quilt, B=S.size, rows=Math.max(1,q.rows|0), cols=Math.max(1,q.cols|0), sash=Math.max(0,+q.sash||0);
+  const innerW=cols*B+(cols-1)*sash, innerH=rows*B+(rows-1)*sash;
+  const bsum=q.borders.reduce((a,b)=>a+Math.max(0,+b.w||0),0);
+  return {B,rows,cols,sash,innerW,innerH,W:innerW+2*bsum,H:innerH+2*bsum,bsum};
+}
+function renderQuilt(){
+  const q=S.quilt, d=quiltDims(), rep=$('rep');
+  rep.setAttribute('viewBox',`0 0 ${d.W} ${d.H}`);
+  let out='', acc=0;
+  for (let i=q.borders.length-1;i>=0;i--){ const w=Math.max(0,+q.borders[i].w||0); if(!w) continue; out+=`<rect x="${acc}" y="${acc}" width="${d.W-2*acc}" height="${d.H-2*acc}" fill="${fill(q.borders[i].f)}"/>`; acc+=w; }
+  const ox=d.bsum, oy=d.bsum;
+  if (d.sash>0) out+=`<rect x="${ox}" y="${oy}" width="${d.innerW}" height="${d.innerH}" fill="${fill(q.sashF)}"/>`;
+  if (d.sash>0 && q.corner) for (let r=0;r<d.rows-1;r++) for (let c=0;c<d.cols-1;c++) out+=`<rect x="${ox+(c+1)*d.B+c*d.sash}" y="${oy+(r+1)*d.B+r*d.sash}" width="${d.sash}" height="${d.sash}" fill="${fill(q.cornerF)}"/>`;
+  const k=d.B/S.n;
+  for (let r=0;r<d.rows;r++) for (let c=0;c<d.cols;c++){ const x=ox+c*(d.B+d.sash), y=oy+r*(d.B+d.sash); const rot=S.alt&&((r+c)%2)?90:0; out+=`<use href="#blockg" transform="translate(${x} ${y}) scale(${k}) rotate(${rot} ${S.n/2} ${S.n/2})"/>`; }
+  acc=0; for (let i=q.borders.length-1;i>=0;i--){ const w=Math.max(0,+q.borders[i].w||0); if(!w) continue; out+=`<rect x="${acc}" y="${acc}" width="${d.W-2*acc}" height="${d.H-2*acc}" fill="none" stroke="var(--seam)" stroke-width="${Math.max(.08,d.W/500)}"/>`; acc+=w; }
+  rep.innerHTML=out;
+  $('qsize').textContent=`Finished quilt ${fmt(d.W)}" × ${fmt(d.H)}" · ${d.rows} × ${d.cols} blocks of ${d.B}"`;
+  renderQuiltControls();
+}
+function fabricOptions(sel){ return S.fabrics.map((f,i)=>`<option value="${i}" ${i===sel?'selected':''}>${esc(f.name)}</option>`).join(''); }
+function renderQuiltControls(){
+  const q=S.quilt;
+  if (document.activeElement && document.activeElement.closest && document.activeElement.closest('.qc')) return;
+  $('rows').value=q.rows; $('cols').value=q.cols; $('sash').value=q.sash; $('corner').checked=!!q.corner; $('alt').checked=!!S.alt;
+  $('sashf').innerHTML=fabricOptions(q.sashF); $('cornerf').innerHTML=fabricOptions(q.cornerF);
+  $('sashf').disabled=!(+q.sash>0); $('corner').disabled=!(+q.sash>0); $('cornerf').disabled=!(+q.sash>0&&q.corner);
+  $('borders').innerHTML = q.borders.length ? q.borders.map((b,i)=>`<div class="border"><span class="lbl">${i+1}.</span><input type="number" min="0" max="20" step="0.25" value="${b.w}" data-bw="${i}" aria-label="Border ${i+1} width"><select data-bf="${i}" aria-label="Border ${i+1} fabric">${fabricOptions(b.f)}</select><button data-bdel="${i}" title="Remove border">×</button></div>`).join('') : '<span class="tip" style="margin:0">No borders.</span>';
+  $('addborder').disabled = q.borders.length>=3;
 }
 function unitIcon(t){
   const g=geom(t,0); const cols=['var(--indigo)','var(--cheddar)','var(--cheddar)','var(--indigo)'];
@@ -286,7 +343,7 @@ const EIGHTHS=['','⅛','¼','⅜','½','⅝','¾','⅞'];
 function fmt(x){ const e=Math.round(x*8); if (Math.abs(x*8-e)<0.02){ const w=Math.floor(e/8), r=e%8; return (w||!r?w:'')+EIGHTHS[r]; } return x.toFixed(2); }
 function fmtYd(y){ return fmt(y)+' yd'; }
 function cutData(){
-  const u=S.size/S.n, B=Math.max(1,S.blocks|0);
+  const u=S.size/S.n, B=blocksCount(), q=S.quilt, d=quiltDims();
   const acc=S.fabrics.map(()=>({halves:0,quarters:0,geese:0,sky:0,pieces:{}}));
   const addPiece=(fi,label,w,h,n)=>{ const a=acc[fi]; if(!a) return; const k=label+'|'+w+'|'+h; a.pieces[k]=a.pieces[k]||{label,w,h,n:0}; a.pieces[k].n+=n; };
   for (let r=0;r<S.n;r++) for (let c=0;c<S.n;c++){ const cell=S.cells[r][c]; if (!cell||cell.cover) continue;
@@ -300,21 +357,32 @@ function cutData(){
       case 'fg': acc[f[0]] && acc[f[0]].geese++; acc[f[1]] && acc[f[1]].sky++; acc[f[2]] && acc[f[2]].sky++; break;
     }
   }
+  const extra=S.fabrics.map(()=>[]);
+  if (d.sash>0){
+    const sw=d.sash+.5;
+    extra[q.sashF]?.push({label:'sashing strip between blocks',w:sw,h:d.B+.5,n:d.rows*(d.cols-1)});
+    if (q.corner){ extra[q.sashF]?.push({label:'sashing strip between rows',w:sw,h:d.B+.5,n:(d.rows-1)*d.cols}); extra[q.cornerF]?.push({label:'cornerstone',w:sw,h:sw,n:(d.rows-1)*(d.cols-1)}); }
+    else if (d.rows>1) extra[q.sashF]?.push({label:'sashing strip across a row, pieced from width-of-fabric strips',w:sw,h:d.innerW+.5,n:d.rows-1,long:true});
+  }
+  let iw=d.innerW, ih=d.innerH;
+  q.borders.forEach((b,i)=>{ const w=Math.max(0,+b.w||0); if(!w) return; const bw=w+.5;
+    extra[b.f]?.push({label:`border ${i+1} side, pieced from width-of-fabric strips`,w:bw,h:ih+.5,n:2,long:true});
+    iw+=2*w; extra[b.f]?.push({label:`border ${i+1} top and bottom, pieced from width-of-fabric strips`,w:bw,h:iw+.5,n:2,long:true}); ih+=2*w; });
   return acc.map((a,i)=>{
-    const pieces=Object.values(a.pieces).map(p=>({...p,n:p.n*B}));
+    const pieces=Object.values(a.pieces).map(p=>({...p,n:p.n*B})).concat(extra[i]);
     if (a.halves) pieces.push({label:`square for half-square triangles (each makes 2)`,w:u+.875,h:u+.875,n:Math.ceil(a.halves*B/2)});
     if (a.quarters) pieces.push({label:`square for quarter-square triangles (each makes 4)`,w:u+1.25,h:u+1.25,n:Math.ceil(a.quarters*B/4)});
     if (a.geese) pieces.push({label:`square for geese (each makes 4)`,w:2*u+1.25,h:2*u+1.25,n:Math.ceil(a.geese*B/4)});
     if (a.sky) pieces.push({label:`square for geese sky (each makes 2)`,w:u+.875,h:u+.875,n:Math.ceil(a.sky*B/2)});
-    let len=0; pieces.forEach(p=>{ const per=Math.max(1,Math.floor(40/p.w)); const strips=Math.ceil(p.n/per); len+=strips*p.h; });
+    let len=0; pieces.forEach(p=>{ if (p.long){ len+=Math.ceil(p.n*p.h/40)*p.w; return; } const per=Math.max(1,Math.floor(40/p.w)); const strips=Math.ceil(p.n/per); len+=strips*p.h; });
     const yards = pieces.length ? Math.ceil(len/36*8)/8 : 0;
     return {i, fabric:S.fabrics[i], pieces, yards};
   }).filter(x=>x.pieces.length);
 }
 function renderCut(){
-  const data=cutData(); const B=Math.max(1,S.blocks|0);
+  const data=cutData(); const B=blocksCount(); const d=quiltDims();
   if (!data.length){ $('cut').innerHTML='<p class="tip">Place some units to see the cutting list.</p>'; $('txt').value=''; return; }
-  let html='', txt=`Cutting list · ${S.n}x${S.n} block, ${S.size}" finished, ${B} block${B>1?'s':''}\n`;
+  let html='', txt=`Cutting list · ${S.n}x${S.n} block, ${S.size}" finished · ${d.rows}x${d.cols} blocks, quilt ${fmt(d.W)}" x ${fmt(d.H)}"\n`;
   let total=0;
   data.forEach(d=>{ total+=d.yards;
     html+=`<h3><span><span class="sw" style="background:${d.fabric.img?`url(${d.fabric.img}) center/cover`:d.fabric.color}"></span>${esc(d.fabric.name)}</span><span class="yd">${fmtYd(d.yards)}</span></h3><ul>`;
@@ -322,9 +390,12 @@ function renderCut(){
     d.pieces.forEach(p=>{ const line=`${p.n} × ${fmt(p.w)}" × ${fmt(p.h)}" ${p.label}`; html+=`<li><span class="mono">${p.n} ×</span> ${fmt(p.w)}" × ${fmt(p.h)}" <span style="color:var(--muted)">${p.label}</span></li>`; txt+=`  ${line}\n`; });
     html+='</ul>';
   });
-  html+=`<div class="total"><span>Total fabric</span><span class="mono">${fmtYd(total)}</span></div>`;
-  html+=`<p class="note">Cut sizes include ¼" seams. Yardage assumes 40" usable width, cut in strips, rounded up to ⅛ yd. No backing, batting or binding.</p>`;
-  txt+=`\nTotal ${fmtYd(total)}\n(Seams ¼". 40" usable width. No backing, batting, binding.)`;
+  const perim=2*(d.W+d.H)+12, bindStrips=Math.ceil(perim/40), bindYd=Math.ceil(bindStrips*2.5/36*8)/8;
+  const backPanels=Math.ceil((d.W+8)/40), backYd=Math.ceil(backPanels*(d.H+8)/36*8)/8;
+  html+=`<div class="total"><span>Total, top</span><span class="mono">${fmtYd(total)}</span></div>`;
+  html+=`<ul style="margin-top:6px"><li><span class="mono">${bindStrips} ×</span> 2½" width-of-fabric strips <span style="color:var(--muted)">binding, ${fmtYd(bindYd)}</span></li><li><span class="mono">${backPanels} ×</span> ${fmt(d.H+8)}" width-of-fabric panel${backPanels>1?'s':''} <span style="color:var(--muted)">backing, ${fmtYd(backYd)}</span></li></ul>`;
+  html+=`<p class="note">Cut sizes include ¼" seams. Yardage assumes 40" usable width, cut in strips, rounded up to ⅛ yd. Backing allows 4" overhang each side. No batting.</p>`;
+  txt+=`\nTotal, top ${fmtYd(total)}\nBinding: ${bindStrips} x 2.5" WOF strips (${fmtYd(bindYd)})\nBacking: ${backPanels} x ${fmt(d.H+8)}" WOF panel(s) (${fmtYd(backYd)})\n(Seams 1/4". 40" usable width. No batting.)`;
   $('cut').innerHTML=html; $('txt').value=txt;
 }
 
@@ -367,7 +438,7 @@ $('svg').addEventListener('click', evt=>{
 });
 $('units').addEventListener('click', e=>{ const b=e.target.closest('[data-t]'); if(!b) return; tool={kind:'unit',t:b.dataset.t}; $('tip').innerHTML=`<b>${UNITS[tool.t].name}</b> selected. Tap a cell to place it; tap it again to rotate.`; renderUnits(); renderFabrics(); });
 $('fabrics').addEventListener('click', e=>{
-  const del=e.target.closest('[data-del]'); if (del){ snapshot(); const i=+del.dataset.del; S.fabrics.splice(i,1); for (const row of S.cells) for (const cell of row) if (cell&&cell.f) cell.f=cell.f.map(x=> x===i?0 : x>i? x-1 : x); if (tool.kind==='fabric') tool={kind:'unit',t:'hst'}; render(); return; }
+  const del=e.target.closest('[data-del]'); if (del){ snapshot(); const i=+del.dataset.del; S.fabrics.splice(i,1); for (const row of S.cells) for (const cell of row) if (cell&&cell.f) cell.f=cell.f.map(x=> x===i?0 : x>i? x-1 : x); const rm=x=> x===i?0 : x>i? x-1 : x; S.quilt.sashF=rm(S.quilt.sashF); S.quilt.cornerF=rm(S.quilt.cornerF); S.quilt.borders.forEach(b=>b.f=rm(b.f)); if (tool.kind==='fabric') tool={kind:'unit',t:'hst'}; render(); return; }
   const ph=e.target.closest('[data-photo]'); if (ph){ pickPhoto(+ph.dataset.photo); return; }
   if (e.target.matches('input')) return;
   const f=e.target.closest('[data-i]'); if(!f) return; tool={kind:'fabric',i:+f.dataset.i}; $('tip').innerHTML=`<b>${esc(S.fabrics[tool.i].name)}</b> selected. Tap any patch to color it.`; renderUnits(); renderFabrics();
@@ -396,8 +467,25 @@ $('rotblock').onclick=()=>{ snapshot(); const n=S.n; const old=S.cells; S.cells=
   for (let r=0;r<n;r++) for (let c=0;c<n;c++){ const u=old[r][c]; if(!u||u.cover) continue; const g0=geom(u.t,u.rot); const nr=(u.rot+1)%4; // anchor moves: new col = n - r - h, new row = c
     placeUnit(c, n-r-g0.h, u.t, nr, u.f); }
   render(); };
-$('alt').onchange=()=>{ S.alt=$('alt').checked; render(); };
-$('blocks').oninput=()=>{ S.blocks=Math.max(1,+$('blocks').value||1); renderCut(); };
+function quiltInput(e){
+  const q=S.quilt, t=e.target; if (!t.closest('.qc')) return;
+  if (t.id==='rows') q.rows=Math.min(20,Math.max(1,+t.value||1));
+  else if (t.id==='cols') q.cols=Math.min(20,Math.max(1,+t.value||1));
+  else if (t.id==='sash') q.sash=Math.max(0,+t.value||0);
+  else if (t.id==='sashf') q.sashF=+t.value;
+  else if (t.id==='corner') q.corner=t.checked;
+  else if (t.id==='cornerf') q.cornerF=+t.value;
+  else if (t.id==='alt') S.alt=t.checked;
+  else if (t.dataset.bw!==undefined) q.borders[+t.dataset.bw].w=Math.max(0,+t.value||0);
+  else if (t.dataset.bf!==undefined) q.borders[+t.dataset.bf].f=+t.value;
+  else return;
+  render();
+}
+const qc=document.querySelector('.qc');
+qc.addEventListener('input', quiltInput);
+qc.addEventListener('change', e=>{ if (e.target.matches('select,input[type=checkbox]')) quiltInput(e); e.target.blur(); renderQuiltControls(); });
+$('addborder').onclick=()=>{ if (S.quilt.borders.length>=3) return; snapshot(); const pool=[0,2,3,5]; S.quilt.borders.push({w:S.quilt.borders.length?4:2, f:pool[S.quilt.borders.length%pool.length]}); render(); };
+$('borders').addEventListener('click', e=>{ const b=e.target.closest('[data-bdel]'); if(!b) return; snapshot(); S.quilt.borders.splice(+b.dataset.bdel,1); render(); });
 $('copy').onclick=async()=>{ const t=$('txt'); try{ await navigator.clipboard.writeText(t.value); $('copied').textContent='Copied.'; }catch(e){ t.hidden=false; t.select(); $('copied').textContent='Select and copy the text below.'; } setTimeout(()=>$('copied').textContent='',2500); };
 $('save').onclick=()=>{ const name=$('name').value.trim()||`Block ${new Date().toLocaleDateString()}`; const list=loadSaved(); list.unshift({name,n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics}); try{ localStorage.setItem('qb_saved',JSON.stringify(list.slice(0,40))); }catch(e){ $('msg').textContent='Could not save on this device.'; } $('name').value=''; renderSaved(); };
 $('saved').addEventListener('click', e=>{ const l=e.target.closest('[data-load]'); const d=e.target.closest('[data-rm]'); const list=loadSaved();
@@ -408,9 +496,9 @@ document.addEventListener('keydown', e=>{ if ((e.metaKey||e.ctrlKey) && e.key===
 
 // ---------- boot ----------
 let restored=false;
-try { const c=JSON.parse(localStorage.getItem('qb_current')||'null'); if (c && c.cells && c.cells.length===c.n){ S.n=c.n; S.size=c.size; S.cells=c.cells; S.fabrics=c.fabrics; S.alt=!!c.alt; S.blocks=c.blocks||1; restored=true; } } catch(e){}
+try { const c=JSON.parse(localStorage.getItem('qb_current')||'null'); if (c && c.cells && c.cells.length===c.n){ S.n=c.n; S.size=c.size; S.cells=c.cells; S.fabrics=c.fabrics; S.alt=!!c.alt; if (c.quilt && c.quilt.borders) S.quilt=c.quilt; restored=true; } } catch(e){}
 if (!restored){ PRESETS.sawtooth(); }
-syncControls(); $('alt').checked=S.alt; $('blocks').value=S.blocks;
+syncControls();
 $('tip').innerHTML='<b>Half-square</b> selected. Tap a cell to place it; tap it again to rotate.';
 render();
 })();
