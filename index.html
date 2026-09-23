@@ -18,14 +18,17 @@
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible","Trebuchet MS",Verdana,sans-serif;font-size:var(--fs);line-height:1.45;padding:0 18px;display:flex;flex-direction:column;overflow:hidden}
-header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 0 8px;width:100%;max-width:1400px;margin:0 auto;flex:none}
+header{display:grid;grid-template-columns:300px minmax(320px,1fr) 340px;gap:14px;align-items:center;padding:10px 0 8px;width:100%;max-width:1400px;margin:0 auto;flex:none}
+.brandrow{display:flex;align-items:center;gap:10px;min-width:0}
+header .views{justify-self:start}
+header .actions{justify-self:end}
 .brand{display:flex;align-items:center;gap:10px}
 .brand svg{width:34px;height:34px;flex:none}
 h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:700;letter-spacing:-.005em}
-.views{display:flex;border:1px solid var(--rule2);border-radius:999px;padding:3px;background:var(--panel);margin-left:6px}
+.views{display:flex;border:1px solid var(--rule2);border-radius:999px;padding:3px;background:var(--panel)}
 .views button{border:none;border-radius:999px;min-height:36px;padding:2px 18px;background:transparent;font-weight:700;color:var(--muted)}
 .views button.on{background:var(--rose);color:#fff}
-.actions{margin-left:auto;display:flex;gap:8px}
+.actions{display:flex;gap:8px}
 .pop{position:fixed;top:62px;right:20px;z-index:30;width:min(360px,calc(100vw - 32px));background:#fff;border:1px solid var(--rule2);border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(60,40,40,.14)}
 .pop h2{margin-bottom:8px}
 #printsheet{display:none}
@@ -62,6 +65,7 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
 .mbar{display:none}
 @media (max-width:1000px){
   .app{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:10px;padding-block:4px 0}
+  header{display:flex;justify-content:space-between}
   .views{display:none}
   .pane.center{height:min(50vh,calc(100vw - 36px));order:0}
   .pane.left{order:1}
@@ -143,8 +147,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
 </style>
 
 <header>
-  <div class="brand" aria-hidden="true"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#F3EAD9"/><polygon points="41.2,32.0 36.6,40.0 27.4,40.0 22.8,32.0 27.4,24.0 36.6,24.0" fill="#EFD27A"/><polygon points="56.1,40.6 51.5,48.6 42.3,48.6 37.7,40.6 42.3,32.6 51.5,32.6" fill="#B85C72"/><polygon points="41.2,49.2 36.6,57.2 27.4,57.2 22.8,49.2 27.4,41.2 36.6,41.2" fill="#B85C72"/><polygon points="26.3,40.6 21.7,48.6 12.5,48.6 7.9,40.6 12.5,32.6 21.7,32.6" fill="#B85C72"/><polygon points="26.3,23.4 21.7,31.4 12.5,31.4 7.9,23.4 12.5,15.4 21.7,15.4" fill="#B85C72"/><polygon points="41.2,14.8 36.6,22.8 27.4,22.8 22.8,14.8 27.4,6.8 36.6,6.8" fill="#B85C72"/><polygon points="56.1,23.4 51.5,31.4 42.3,31.4 37.7,23.4 42.3,15.4 51.5,15.4" fill="#B85C72"/></svg></div>
-  <h1>Quilt Bee</h1>
+  <div class="brandrow"><div class="brand" aria-hidden="true"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#F3EAD9"/><polygon points="41.2,32.0 36.6,40.0 27.4,40.0 22.8,32.0 27.4,24.0 36.6,24.0" fill="#EFD27A"/><polygon points="56.1,40.6 51.5,48.6 42.3,48.6 37.7,40.6 42.3,32.6 51.5,32.6" fill="#B85C72"/><polygon points="41.2,49.2 36.6,57.2 27.4,57.2 22.8,49.2 27.4,41.2 36.6,41.2" fill="#B85C72"/><polygon points="26.3,40.6 21.7,48.6 12.5,48.6 7.9,40.6 12.5,32.6 21.7,32.6" fill="#B85C72"/><polygon points="26.3,23.4 21.7,31.4 12.5,31.4 7.9,23.4 12.5,15.4 21.7,15.4" fill="#B85C72"/><polygon points="41.2,14.8 36.6,22.8 27.4,22.8 22.8,14.8 27.4,6.8 36.6,6.8" fill="#B85C72"/><polygon points="56.1,23.4 51.5,31.4 42.3,31.4 37.7,23.4 42.3,15.4 51.5,15.4" fill="#B85C72"/></svg></div><h1>Quilt Bee</h1></div>
   <nav class="views" aria-label="View">
     <button type="button" data-view="block" class="on">Block</button>
     <button type="button" data-view="quilt">Quilt</button>
