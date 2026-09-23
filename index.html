@@ -18,6 +18,33 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
 .views{display:flex;border:1px solid var(--rule2);border-radius:999px;padding:3px;background:var(--panel);margin-left:6px}
 .views button{border:none;border-radius:999px;min-height:36px;padding:2px 18px;background:transparent;font-weight:700;color:var(--muted)}
 .views button.on{background:var(--rose);color:#fff}
+.actions{margin-left:auto;display:flex;gap:8px}
+.pop{position:fixed;top:62px;right:20px;z-index:30;width:min(360px,calc(100vw - 32px));background:#fff;border:1px solid var(--rule2);border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(60,40,40,.14)}
+.pop h2{margin-bottom:8px}
+#printsheet{display:none}
+@media print{
+  @page{margin:14mm}
+  body{overflow:visible;height:auto;display:block;padding:0;background:#fff;color:#000;font-size:11pt}
+  header,.app,.mbar,.pop{display:none!important}
+  #printsheet{display:block}
+  .ps-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid #000;padding-bottom:4pt;margin-bottom:10pt}
+  .ps-head h1{font-size:18pt;margin:0}
+  .ps-figs{display:flex;gap:18pt;align-items:flex-start;margin-bottom:12pt}
+  .ps-figs figure{margin:0;text-align:center;font-size:9.5pt}
+  .ps-figs svg{width:62mm;height:auto;display:block;margin:0 auto 3pt}
+  .ps-figs .quiltfig svg{width:86mm}
+  .ps-cols{columns:2;column-gap:16pt}
+  .ps-fab{break-inside:avoid;margin-bottom:9pt}
+  .ps-fab h3{font-size:11.5pt;margin:0 0 3pt;display:flex;justify-content:space-between;border-bottom:1px solid #999;padding-bottom:2pt}
+  .ps-fab .sw{display:inline-block;width:10pt;height:10pt;border:1px solid #444;vertical-align:-1pt;margin-right:5pt;background-size:cover}
+  .ps-fab table{border-collapse:collapse;width:100%;font-size:10pt}
+  .ps-fab td{padding:1.5pt 3pt;vertical-align:top}
+  .ps-fab td.n{text-align:right;white-space:nowrap;font-weight:700;width:2.2em}
+  .ps-fab td.sz{white-space:nowrap;width:9em}
+  .ps-total{border-top:2px solid #000;margin-top:8pt;padding-top:4pt;font-weight:700;display:flex;justify-content:space-between;font-size:11.5pt}
+  .ps-note{font-size:9pt;color:#333;margin-top:6pt}
+}
+@media (max-width:1000px){ .actions{margin-left:auto} .actions button{padding:6px 10px} }
 .app{display:grid;grid-template-columns:300px minmax(320px,1fr) 340px;gap:14px;padding-block:6px 12px;width:100%;max-width:1400px;margin:0 auto;flex:1;min-height:0}
 .pane{background:var(--panel);border:1.5px dashed var(--rule2);border-radius:14px;padding:14px;overflow-y:auto;overflow-x:hidden;min-height:0;overscroll-behavior:contain}
 .pane.center{display:flex;flex-direction:column;overflow:hidden;background:transparent;border:none;padding:4px 0}
@@ -87,11 +114,6 @@ svg.rep{height:100%;width:auto;max-width:100%;background:var(--panel2);border-ra
 .qc{display:flex;flex-direction:column;gap:10px}
 .brow{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:6px;align-items:center}
 .brow .lab{grid-column:1 / -1;font-size:.95rem;color:var(--muted);margin-top:2px}
-.savebox{background:var(--rose-soft);border:1px solid var(--rose-line);border-radius:var(--radius);padding:12px}
-.savebox h2{margin-bottom:8px}
-.savebox .row{flex-wrap:nowrap}
-.savebox input[type=text]{flex:1;min-width:0}
-.savebox .tip{margin-top:6px}
 .saved{display:flex;flex-direction:column;gap:4px;margin-top:8px}
 .saved .it{display:flex;gap:6px;align-items:center;font-size:1rem;background:#fff;border-radius:7px;padding:3px 4px 3px 10px}
 .saved .it span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -120,7 +142,29 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
     <button type="button" data-view="block" class="on">Block</button>
     <button type="button" data-view="quilt">Quilt</button>
   </nav>
+  <div class="actions">
+    <button type="button" id="openbtn">Open</button>
+    <button type="button" id="savebtn" class="primary">Save</button>
+    <button type="button" id="printbtn">Print</button>
+  </div>
 </header>
+<div class="pop" id="savepop" hidden>
+  <h2>Save this block</h2>
+  <div class="field"><label for="name">Name</label><input type="text" id="name" placeholder="Give it a name"></div>
+  <div class="row" style="margin-top:10px"><button class="primary" id="save">Save</button><button id="savecancel">Cancel</button><span class="tip" id="savedmsg" style="margin:0"></span></div>
+  <p class="tip">Saved on this device only. Saving with the same name replaces the earlier copy.</p>
+</div>
+<div class="pop" id="openpop" hidden>
+  <h2>Saved blocks</h2>
+  <div class="saved" id="saved"></div>
+  <p class="tip" id="opentip">Nothing saved yet. Use Save to keep a block.</p>
+</div>
+<div class="pop" id="printpop" hidden>
+  <h2>Print or save as PDF</h2>
+  <p class="tip" style="margin:0 0 10px">Prints the block, the quilt layout and the full cutting list on one sheet. In the print window choose “Save as PDF” to keep a copy.</p>
+  <div class="row"><button class="primary" id="printgo">Print</button><button id="printcancel">Cancel</button></div>
+  <p class="tip" id="printnote"></p>
+</div>
 
 <div class="app" id="app" data-view="block" data-mview="canvas">
   <!-- LEFT: design controls -->
@@ -204,14 +248,8 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
 
   <!-- RIGHT: saving and cutting list -->
   <section class="pane right">
-    <div class="savebox">
-      <h2>Save this block</h2>
-      <div class="row"><input type="text" id="name" placeholder="Give it a name"><button class="primary" id="save">Save</button></div>
-      <div class="saved" id="saved"></div>
-      <p class="tip">Saved on this device only.</p>
-    </div>
-    <div class="section">
-      <div class="h2row"><h2>Pieces to cut</h2><button id="copy" class="small">Copy list</button></div>
+    <div>
+      <div class="h2row"><h2>Pieces to cut</h2><div class="row" style="gap:6px"><button id="copy" class="small">Copy list</button><button id="print2" class="small">Print</button></div></div>
       <div class="stat" id="unitstat" style="text-align:left"></div>
       <div class="stat" id="copied" style="text-align:left"></div>
       <div class="cut" id="cut"></div>
@@ -219,6 +257,8 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
     </div>
   </section>
 </div>
+
+<section id="printsheet" aria-hidden="true"></section>
 
 <nav class="mbar" aria-label="Sections">
   <button type="button" data-m="block" class="on">Block</button>
@@ -491,7 +531,8 @@ function renderCut(){
 function loadSaved(){ try { return JSON.parse(localStorage.getItem('qb_saved')||'[]'); } catch(e){ return []; } }
 function renderSaved(){
   const list=loadSaved();
-  $('saved').innerHTML = list.length ? list.map((b,i)=>`<div class="it"><span>${esc(b.name)} <span class="stat">${b.n}×${b.n}</span></span><button data-load="${i}">Open</button><button data-rm="${i}">×</button></div>`).join('') : '';
+  $('saved').innerHTML = list.length ? list.map((b,i)=>`<div class="it"><span>${esc(b.name)} <span class="stat">${b.n}×${b.n}, ${b.size}"</span></span><button data-load="${i}" class="small">Open</button><button data-rm="${i}" class="small" title="Delete">Delete</button></div>`).join('') : '';
+  const ot=$('opentip'); if (ot) ot.hidden=!!list.length;
 }
 
 // ---------- interaction ----------
@@ -580,9 +621,37 @@ qc.addEventListener('change', e=>{ if (e.target.matches('select,input[type=check
 $('addborder').onclick=()=>{ if (S.quilt.borders.length>=3) return; snapshot(); const pool=[0,2,3,5]; S.quilt.borders.push({w:S.quilt.borders.length?4:2, f:pool[S.quilt.borders.length%pool.length]}); render(); };
 $('borders').addEventListener('click', e=>{ const b=e.target.closest('[data-bdel]'); if(!b) return; snapshot(); S.quilt.borders.splice(+b.dataset.bdel,1); render(); });
 $('copy').onclick=async()=>{ const t=$('txt'); try{ await navigator.clipboard.writeText(t.value); $('copied').textContent='Copied.'; }catch(e){ t.hidden=false; t.select(); $('copied').textContent='Select and copy the text below.'; } setTimeout(()=>$('copied').textContent='',2500); };
-$('save').onclick=()=>{ const name=$('name').value.trim()||`Block ${new Date().toLocaleDateString()}`; const list=loadSaved(); list.unshift({name,n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics}); try{ localStorage.setItem('qb_saved',JSON.stringify(list.slice(0,40))); }catch(e){ $('msg').textContent='Could not save on this device.'; } $('name').value=''; renderSaved(); };
+let curName='';
+const POPS=['savepop','openpop','printpop'];
+function openPop(id){ POPS.forEach(k=>$(k).hidden = k!==id); if (id==='savepop'){ $('name').value=curName; $('savedmsg').textContent=''; setTimeout(()=>$('name').focus(),0); } if (id==='openpop') renderSaved(); if (id==='printpop') $('printnote').textContent = (window.self!==window.top) ? 'Printing is blocked inside this preview. Open the app in its own browser tab (Safari or Chrome) and it will work there.' : ''; }
+function closePops(){ POPS.forEach(k=>$(k).hidden=true); }
+$('savebtn').onclick=()=>openPop($('savepop').hidden?'savepop':null);
+$('openbtn').onclick=()=>openPop($('openpop').hidden?'openpop':null);
+$('printbtn').onclick=()=>openPop($('printpop').hidden?'printpop':null);
+$('print2').onclick=()=>openPop('printpop');
+$('savecancel').onclick=closePops; $('printcancel').onclick=closePops;
+document.addEventListener('pointerdown', e=>{ if (!e.target.closest('.pop') && !e.target.closest('.actions') && e.target.id!=='print2') closePops(); });
+document.addEventListener('keydown', e=>{ if (e.key==='Escape') closePops(); });
+$('name').addEventListener('keydown', e=>{ if (e.key==='Enter') $('save').click(); });
+$('save').onclick=()=>{ const name=$('name').value.trim()||`Block ${new Date().toLocaleDateString()}`; const list=loadSaved(); const entry={name,n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,quilt:S.quilt,when:Date.now()}; const i=list.findIndex(b=>b.name===name); if (i>=0) list[i]=entry; else list.unshift(entry); try{ localStorage.setItem('qb_saved',JSON.stringify(list.slice(0,40))); curName=name; $('savedmsg').textContent='Saved.'; setTimeout(closePops,700); }catch(e){ $('savedmsg').textContent='Could not save on this device.'; } renderSaved(); };
+$('printgo').onclick=()=>{ buildPrintSheet(); closePops(); setTimeout(()=>window.print(),50); };
+window.addEventListener('beforeprint', buildPrintSheet);
+function buildPrintSheet(){
+  const data=cutData(), d=quiltDims(), B=blocksCount();
+  const title=curName || 'Quilt block';
+  const blockSvg=`<svg viewBox="0 0 ${S.n} ${S.n}" xmlns="http://www.w3.org/2000/svg">${defs().replace(/pat(\d+)/g,'ppat$1')}<g id="blockg-print">${blockMarkup().replace(/url\(#pat(\d+)\)/g,'url(#ppat$1)')}</g></svg>`;
+  const quiltSvg=`<svg viewBox="${$('rep').getAttribute('viewBox')}" xmlns="http://www.w3.org/2000/svg">${$('rep').innerHTML.replaceAll('#blockg','#blockg-print').replace(/url\(#pat(\d+)\)/g,'url(#ppat$1)').replaceAll('var(--seam)','#fff')}</svg>`;
+  let fabs=data.map(f=>`<div class="ps-fab"><h3><span><span class="sw" style="background:${f.fabric.img?`url(${f.fabric.img}) center/cover`:f.fabric.color}"></span>${esc(f.fabric.name)}</span><span>${fmtYd(f.yards)}</span></h3><table>${f.pieces.map(p=>`<tr><td class="n">${p.n}</td><td class="sz">${fmt(p.w)}" × ${fmt(p.h)}"</td><td>${p.label}</td></tr>`).join('')}</table></div>`).join('');
+  const total=data.reduce((a,f)=>a+f.yards,0);
+  const perim=2*(d.W+d.H)+12, bindStrips=Math.ceil(perim/40), bindYd=Math.ceil(bindStrips*2.5/36*8)/8, backPanels=Math.ceil((d.W+8)/40), backYd=Math.ceil(backPanels*(d.H+8)/36*8)/8;
+  $('printsheet').innerHTML=`<div class="ps-head"><h1>${esc(title)}</h1><span>${new Date().toLocaleDateString()}</span></div>
+    <div class="ps-figs"><figure>${blockSvg}<figcaption>${S.n} × ${S.n} block, ${S.size}" finished, units ${fmt(S.size/S.n)}"</figcaption></figure><figure class="quiltfig">${quiltSvg}<figcaption>Quilt ${fmt(d.W)}" × ${fmt(d.H)}" · ${B} blocks${d.onpoint?' set on point':''}${d.sash?` · ${fmt(d.sash)}" sashing`:''}</figcaption></figure></div>
+    <div class="ps-cols">${fabs}<div class="ps-fab"><h3><span>Binding and backing</span></h3><table><tr><td class="n">${bindStrips}</td><td class="sz">2½" strips</td><td>binding, width of fabric, ${fmtYd(bindYd)}</td></tr><tr><td class="n">${backPanels}</td><td class="sz">${fmt(d.H+8)}" panel${backPanels>1?'s':''}</td><td>backing, width of fabric, ${fmtYd(backYd)}</td></tr></table></div></div>
+    <div class="ps-total"><span>Fabric for the top</span><span>${fmtYd(total)}</span></div>
+    <p class="ps-note">Cut sizes include ¼" seams. Yardage assumes 40" usable width, cut in strips, rounded up to ⅛ yd. Backing allows 4" overhang each side. No batting.</p>`;
+}
 $('saved').addEventListener('click', e=>{ const l=e.target.closest('[data-load]'); const d=e.target.closest('[data-rm]'); const list=loadSaved();
-  if (l){ snapshot(); const b=list[+l.dataset.load]; S.n=b.n; S.size=b.size; S.cells=b.cells; S.fabrics=b.fabrics; syncControls(); render(); }
+  if (l){ snapshot(); const b=list[+l.dataset.load]; S.n=b.n; S.size=b.size; S.cells=b.cells; S.fabrics=b.fabrics; if (b.quilt) S.quilt=Object.assign({setting:'straight',setF:1},b.quilt); curName=b.name; syncControls(); render(); closePops(); }
   if (d){ list.splice(+d.dataset.rm,1); try{ localStorage.setItem('qb_saved',JSON.stringify(list)); }catch(e){} renderSaved(); } });
 function syncControls(){ $('grid').value=S.n; $('size').value=S.size; }
 document.addEventListener('keydown', e=>{ if ((e.metaKey||e.ctrlKey) && e.key==='z'){ e.preventDefault(); (e.shiftKey?$('redo'):$('undo')).click(); } });
