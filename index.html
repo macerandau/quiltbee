@@ -195,7 +195,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
       </div>
     </div>
     <div class="only-quilt">
-      <h2>Quilt layout</h2>
+      <div class="h2row"><h2>Quilt layout</h2><button id="resetquilt" class="small" title="Go back to the starting layout">Reset layout</button></div>
       <div class="qc">
         <div class="field"><label for="setting">Setting</label><select id="setting"><option value="straight">Straight rows</option><option value="onpoint">On point (diamonds)</option></select></div>
         <div class="field" id="setrow"><label for="setf">Setting triangle fabric</label><select id="setf"></select></div>
@@ -582,6 +582,8 @@ $('fabrics').addEventListener('input', e=>{
   if (e.target.dataset.name!==undefined){ S.fabrics[+e.target.dataset.name].name=e.target.value; renderCut(); }
 });
 $('fabrics').addEventListener('change', e=>{ if (e.target.dataset.color!==undefined) colorDrag=false; });
+const DEFAULT_QUILT=()=>({rows:3,cols:3,sash:2,sashF:1,corner:true,cornerF:2,borders:[{w:4,f:0}],setting:'straight',setF:1});
+$('resetquilt').onclick=()=>{ snapshot(); S.quilt=DEFAULT_QUILT(); S.alt=false; render(); };
 $('resetfab').onclick=()=>{ snapshot(); S.fabrics=DEFAULT_FABRICS.map(f=>({...f})); for (const row of S.cells) for (const cell of row) if (cell&&cell.f) cell.f=cell.f.map(x=>Math.min(x,S.fabrics.length-1)); S.quilt.sashF=1; S.quilt.cornerF=2; S.quilt.setF=1; S.quilt.borders.forEach((b,i)=>b.f=[0,3,4][i%3]); if (tool.kind==='fabric') tool={kind:'unit',t:'hst'}; render(); };
 $('addfab').onclick=()=>{ snapshot(); const pool=['#4B6A88','#C96F3A','#6D5B8C','#B9B38A','#3F5F4A','#D5C3A5']; S.fabrics.push({name:'Fabric '+(S.fabrics.length+1), color:pool[S.fabrics.length%pool.length]}); tool={kind:'fabric',i:S.fabrics.length-1}; render(); };
 function pickPhoto(i){
