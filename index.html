@@ -131,6 +131,14 @@ svg.rep{height:100%;width:auto;max-width:100%;background:var(--panel2);padding:1
 .saved .it{display:flex;gap:6px;align-items:center;font-size:1rem;background:#fff;border-radius:7px;padding:3px 4px 3px 10px}
 .saved .it span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cut{font-size:1rem}
+.lock{background:var(--rose-soft);border:1px solid var(--rose-line);border-radius:var(--radius);padding:14px;margin-top:8px}
+.lock h3{font-family:"Fraunces",Georgia,serif;font-size:1.15rem;margin:0 0 6px}
+.lock p{margin:0 0 10px;line-height:1.45}
+.lock .row{gap:8px}
+.band{display:inline-block;padding:1px 9px;border-radius:999px;background:var(--panel2);color:var(--ink);font-size:.9rem;margin-left:6px;vertical-align:1px}
+.band.free{background:#E3EBDF;color:#3E5A42}
+.band.plus{background:var(--rose-soft);color:var(--rose)}
+.plusbadge{font-size:.8rem;font-weight:700;color:var(--rose);border:1px solid var(--rose-line);border-radius:999px;padding:1px 8px;margin-left:8px;vertical-align:3px}
 .cut h3{font-size:1.05rem;margin:14px 0 4px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:700}
 .cut h3 .sw{width:18px;height:18px;border-radius:4px;border:1px solid var(--rule2);display:inline-block;vertical-align:-3px;margin-right:8px;background-size:cover}
 .cut h3 .yd{color:var(--rose);white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -168,6 +176,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
   <h2>Saved blocks</h2>
   <div class="saved" id="saved"></div>
   <p class="tip" id="opentip">Nothing saved yet. Use Save to keep a block.</p>
+  <p class="tip"><button id="resetplus" class="small">Prototype: reset unlock and free throw</button></p>
 </div>
 <div class="pop" id="printpop" hidden>
   <h2>Print or save as PDF</h2>
@@ -252,7 +261,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
     <div class="stage only-quilt">
       <div class="canvaswrap"><svg class="rep" id="rep" viewBox="0 0 12 12" aria-label="Quilt layout with sashing and borders"></svg></div>
       <div class="qsize" id="qsize"></div>
-      <p class="hint" id="hint">Set rows, columns, sashing and borders on the left. The cutting list updates as you go.</p>
+      <p class="hint" id="hint">Set rows, columns, sashing and borders on the left. Baby and lap quilts are free, and so is your first throw.</p>
     </div>
   </section>
 
@@ -433,7 +442,8 @@ function renderQuilt(){
   }
   acc=0; for (let i=q.borders.length-1;i>=0;i--){ const w=Math.max(0,+q.borders[i].w||0); if(!w) continue; out+=`<rect x="${acc}" y="${acc}" width="${d.W-2*acc}" height="${d.H-2*acc}" fill="none" stroke="var(--seam)" stroke-width="${Math.max(.08,d.W/500)}"/>`; acc+=w; }
   rep.innerHTML=out;
-  $('qsize').textContent=`Finished quilt ${fmtAbout(d.W)}" × ${fmtAbout(d.H)}" · ${d.blocks} blocks of ${d.B}"${d.onpoint?' set on point':''}`;
+  const g=gate(); const cls=g.locked?'plus':'free';
+  $('qsize').innerHTML=`Finished quilt ${fmtAbout(d.W)}" × ${fmtAbout(d.H)}" · ${d.blocks} blocks of ${d.B}"${d.onpoint?' set on point':''}<span class="band ${cls}">${g.b.label}${g.locked?' · Plus':g.isFree?' · your free throw':g.claimable?' · free once saved':' · free'}</span>`;
   renderQuiltControls();
 }
 function fabricOptions(sel){ return S.fabrics.map((f,i)=>`<option value="${i}" ${i===sel?'selected':''}>${esc(f.name)}</option>`).join(''); }
@@ -520,6 +530,9 @@ function cutData(){
   }).filter(x=>x.pieces.length);
 }
 function renderCut(){
+  const g=gate();
+  if (g.locked){ $('cut').innerHTML=lockHtml(g); $('txt').value=''; $('copy').disabled=true; $('print2').disabled=true; return; }
+  $('copy').disabled=false; $('print2').disabled=false;
   const data=cutData(); const B=blocksCount(); const d=quiltDims();
   if (!data.length){ $('cut').innerHTML='<p class="tip">Place some pieces on the block to see what to cut.</p>'; $('txt').value=''; return; }
   let html='', txt=`Cutting list · ${S.n}x${S.n} block, ${S.size}" finished · ${B} blocks, quilt ${fmtAbout(d.W)}" x ${fmtAbout(d.H)}"\n`;
@@ -635,8 +648,35 @@ $('addborder').onclick=()=>{ if (S.quilt.borders.length>=3) return; snapshot(); 
 $('borders').addEventListener('click', e=>{ const b=e.target.closest('[data-bdel]'); if(!b) return; snapshot(); S.quilt.borders.splice(+b.dataset.bdel,1); render(); });
 $('copy').onclick=async()=>{ const t=$('txt'); try{ await navigator.clipboard.writeText(t.value); $('copied').textContent='Copied.'; }catch(e){ t.hidden=false; t.select(); $('copied').textContent='Select and copy the text below.'; } setTimeout(()=>$('copied').textContent='',2500); };
 let curName='';
+// ---------- size gate (prototype of the free / Plus split) ----------
+const PRICE='$19.99';
+let plus=false, freeThrow='';
+try { plus=localStorage.getItem('qb_plus')==='1'; freeThrow=localStorage.getItem('qb_freethrow')||''; } catch(e){}
+function band(d){ const L=Math.max(d.W,d.H); return L<=65 ? {key:'lap',label:'Baby or lap size',free:true} : L<=80 ? {key:'throw',label:'Throw size',free:false} : {key:'bed',label:L<=95?'Bed size (twin)':L<=112?'Bed size (queen)':'Bed size (king)',free:false}; }
+function gate(){
+  const d=quiltDims(), b=band(d);
+  if (plus || b.key==='lap') return {b,locked:false};
+  if (b.key==='throw'){
+    if (!freeThrow) return {b,locked:false,claimable:true};
+    if (curName && curName===freeThrow) return {b,locked:false,isFree:true};
+    return {b,locked:true,reason:`Your free throw is “${esc(freeThrow)}”. Open it to keep working on it for free, or unlock Quilt Bee Plus for more throws and every bed size.`};
+  }
+  return {b,locked:true,reason:'Bed-size quilts are part of Quilt Bee Plus.'};
+}
+function lockHtml(g){
+  return `<div class="lock"><h3>Quilt Bee Plus</h3><p>${g.reason}</p><p>Baby and lap quilts are free, and so is your first throw. Bed sizes and more throws are ${PRICE}, once.</p>
+    <div class="row"><button class="primary" id="unlock">Unlock for ${PRICE}</button>${g.b.key==='throw'&&freeThrow?`<button id="openfree">Open “${esc(freeThrow)}”</button>`:''}</div>
+    <p class="tip">Prototype: the unlock button pretends to buy. Nothing is charged.</p></div>`;
+}
+function setPlus(v){ plus=v; try{ localStorage.setItem('qb_plus',v?'1':'0'); }catch(e){} renderBadge(); render(); }
+function renderBadge(){ const h=document.querySelector('h1'); let b=h.querySelector('.plusbadge'); if (plus){ if(!b){ b=document.createElement('span'); b.className='plusbadge'; b.textContent='Plus'; h.appendChild(b);} } else if (b) b.remove(); }
+document.addEventListener('click', e=>{
+  if (e.target.id==='unlock'){ setPlus(true); closePops(); }
+  if (e.target.id==='openfree'){ const list=loadSaved(); const i=list.findIndex(x=>x.name===freeThrow); if (i>=0){ snapshot(); const b=list[i]; S.n=b.n; S.size=b.size; S.cells=b.cells; S.fabrics=b.fabrics; if (b.quilt) S.quilt=Object.assign({setting:'straight',setF:3},b.quilt); curName=b.name; syncControls(); render(); closePops(); } }
+  if (e.target.id==='resetplus'){ setPlus(false); freeThrow=''; try{ localStorage.removeItem('qb_freethrow'); }catch(e){} render(); }
+});
 const POPS=['savepop','openpop','printpop'];
-function openPop(id){ POPS.forEach(k=>$(k).hidden = k!==id); if (id==='savepop'){ $('name').value=curName; $('savedmsg').textContent=''; setTimeout(()=>$('name').focus(),0); } if (id==='openpop') renderSaved(); if (id==='printpop') $('printnote').textContent = (window.self!==window.top) ? 'Printing is blocked inside this preview. Open the app in its own browser tab (Safari or Chrome) and it will work there.' : ''; }
+function openPop(id){ POPS.forEach(k=>$(k).hidden = k!==id); if (id==='savepop'){ $('name').value=curName; $('savedmsg').textContent=''; setTimeout(()=>$('name').focus(),0); } if (id==='openpop') renderSaved(); if (id==='printpop'){ $('printpop').querySelectorAll('.lock').forEach(x=>x.remove()); $('printgo').disabled=false; } if (id==='printpop') $('printnote').textContent = (window.self!==window.top) ? 'Printing is blocked inside this preview. Open the app in its own browser tab (Safari or Chrome) and it will work there.' : ''; }
 function closePops(){ POPS.forEach(k=>$(k).hidden=true); }
 $('savebtn').onclick=()=>openPop($('savepop').hidden?'savepop':null);
 $('openbtn').onclick=()=>openPop($('openpop').hidden?'openpop':null);
@@ -646,10 +686,11 @@ $('savecancel').onclick=closePops; $('printcancel').onclick=closePops;
 document.addEventListener('pointerdown', e=>{ if (!e.target.closest('.pop') && !e.target.closest('.actions') && e.target.id!=='print2') closePops(); });
 document.addEventListener('keydown', e=>{ if (e.key==='Escape') closePops(); });
 $('name').addEventListener('keydown', e=>{ if (e.key==='Enter') $('save').click(); });
-$('save').onclick=()=>{ const name=$('name').value.trim()||`Block ${new Date().toLocaleDateString()}`; const list=loadSaved(); const entry={name,n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,quilt:S.quilt,when:Date.now()}; const i=list.findIndex(b=>b.name===name); if (i>=0) list[i]=entry; else list.unshift(entry); try{ localStorage.setItem('qb_saved',JSON.stringify(list.slice(0,40))); curName=name; $('savedmsg').textContent='Saved.'; setTimeout(closePops,700); }catch(e){ $('savedmsg').textContent='Could not save on this device.'; } renderSaved(); };
-$('printgo').onclick=()=>{ buildPrintSheet(); closePops(); setTimeout(()=>window.print(),50); };
+$('save').onclick=()=>{ const name=$('name').value.trim()||`Block ${new Date().toLocaleDateString()}`; const list=loadSaved(); const entry={name,n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,quilt:S.quilt,when:Date.now()}; const i=list.findIndex(b=>b.name===name); if (i>=0) list[i]=entry; else list.unshift(entry); try{ localStorage.setItem('qb_saved',JSON.stringify(list.slice(0,40))); curName=name; let msg='Saved.'; const g=gate(); if (g.claimable){ freeThrow=name; try{ localStorage.setItem('qb_freethrow',name); }catch(e){} msg='Saved. This is your free throw.'; } $('savedmsg').textContent=msg; setTimeout(closePops, msg.length>7?1600:700); render(); }catch(e){ $('savedmsg').textContent='Could not save on this device.'; } renderSaved(); };
+$('printgo').onclick=()=>{ const g=gate(); if (g.locked){ $('printpop').querySelector('.tip').insertAdjacentHTML('beforebegin', lockHtml(g)); $('printgo').disabled=true; return; } buildPrintSheet(); closePops(); setTimeout(()=>window.print(),50); };
 window.addEventListener('beforeprint', buildPrintSheet);
 function buildPrintSheet(){
+  const gg=gate(); if (gg.locked){ $('printsheet').innerHTML=`<div class="ps-head"><h1>Quilt Bee</h1></div><p>${gg.reason} Baby and lap quilts are free, and so is your first throw. Bed sizes and more throws are ${PRICE}, once.</p>`; return; }
   const data=cutData(), d=quiltDims(), B=blocksCount();
   const title=curName || 'Quilt block';
   const blockSvg=`<svg viewBox="0 0 ${S.n} ${S.n}" xmlns="http://www.w3.org/2000/svg">${defs().replace(/pat(\d+)/g,'ppat$1')}<g id="blockg-print">${blockMarkup().replace(/url\(#pat(\d+)\)/g,'url(#ppat$1)')}</g></svg>`;
@@ -676,6 +717,7 @@ if (!restored){ PRESETS.sawtooth(); }
 else { const OLD=['#2E3F73','#F1E9D6','#D9A21B','#8A5A44','#7E9573','#9A3B3B']; if (S.fabrics.length===6 && S.fabrics.every((f,i)=>!f.img && (f.color||'').toUpperCase()===OLD[i])) S.fabrics=DEFAULT_FABRICS.map(f=>({...f})); }
 syncControls();
 try { setView(localStorage.getItem('qb_view')||'block'); } catch(e){ setView('block'); }
+renderBadge();
 $('tip').innerHTML='<b>Half triangle</b> is picked. Tap a square on the block to place it. Tap it again to turn it.';
 render();
 })();
