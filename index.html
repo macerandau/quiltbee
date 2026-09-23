@@ -5,7 +5,7 @@
 <style>
 :root{
   color-scheme:light;
-  --bg:#FAF6EE; --panel:#FFFDF9; --panel2:#F3EDE2; --ink:#2E2A33; --muted:#665F6B; --rule:#E4DACD; --rule2:#D2C5B4;
+  --bg:#FAF6EE; --panel:#FFFDF9; --panel2:#E6DDCF; --ink:#2E2A33; --muted:#665F6B; --rule:#E4DACD; --rule2:#D2C5B4;
   --rose:#A94B60; --rose-soft:#F8E7EA; --rose-line:#E3B9C3; --sage:#6F8F73; --butter:#F3D98C; --red:#9E3B3B;
   --icon-a:#B85C72; --icon-b:#F6EFE2; --seam:#FFFDF9;
   --fs:17px; --ctl:42px; --radius:10px;
@@ -94,20 +94,22 @@ button.small{min-height:34px;padding:2px 10px;font-size:.95rem}
 .fabrics{display:flex;flex-direction:column;gap:4px}
 .fab{display:grid;grid-template-columns:36px minmax(0,1fr);gap:4px 10px;align-items:center;padding:4px 6px;border:2px solid transparent;border-radius:var(--radius);cursor:pointer}
 .fab.on{border-color:var(--rose);background:var(--rose-soft)}
-.fab .sw{width:36px;height:36px;border-radius:7px;border:1px solid var(--rule2);background-size:cover}
+.fab .sw{position:relative;width:36px;height:36px;border-radius:7px;border:1px solid var(--rule2);background-size:cover;overflow:hidden;cursor:pointer}
+.fab .sw input[type=color]{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;padding:0;cursor:pointer;pointer-events:none}
+.fab.on .sw input[type=color]{pointer-events:auto}
 .fab input[type=text]{min-height:36px;padding:4px 8px;font-size:1rem;background:transparent;border-color:transparent}
 .fab.on input[type=text]{background:#fff;border-color:var(--rule2)}
 .fab .tools{display:none;grid-column:2;gap:6px;align-items:center;flex-wrap:wrap}
+.fab .tools .tip{flex:1 1 100%;font-size:.9rem}
 .fab.on .tools{display:flex}
-.fab input[type=color]{width:34px;height:34px;padding:0;border:1px solid var(--rule2);border-radius:6px;background:none;cursor:pointer}
 .fab .tools button{min-height:34px;padding:2px 10px;font-size:.95rem}
 .tip{font-size:.95rem;color:var(--muted);margin:8px 0 0;line-height:1.4}
 .tip b{color:var(--ink)}
-svg.block{height:100%;width:auto;max-width:100%;aspect-ratio:1;touch-action:manipulation;background:var(--panel2);border-radius:var(--radius);display:block;box-shadow:0 1px 0 var(--rule2)}
+svg.block{height:100%;width:auto;max-width:100%;aspect-ratio:1;touch-action:manipulation;background:var(--panel2);padding:14px;border:1px solid var(--rule2);border-radius:var(--radius);display:block}
 svg.block .empty{fill:var(--panel2);stroke:var(--rule2);stroke-width:.02;stroke-dasharray:.06 .05}
 svg.block polygon{stroke:var(--seam);stroke-width:.025;stroke-linejoin:round;cursor:pointer}
 svg.block polygon:hover{stroke:var(--rose);stroke-width:.05}
-svg.rep{height:100%;width:auto;max-width:100%;background:var(--panel2);border-radius:var(--radius);display:block;box-shadow:0 1px 0 var(--rule2)}
+svg.rep{height:100%;width:auto;max-width:100%;background:var(--panel2);padding:14px;border:1px solid var(--rule2);border-radius:var(--radius);display:block}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .stat{font-size:.95rem;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
 .qsize{font-size:.95rem;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center;flex:none}
@@ -174,7 +176,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
     <div class="only-block">
       <h2>Block</h2>
       <div class="two">
-        <div class="field"><label for="grid">Grid</label><select id="grid"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+        <div class="field"><label for="grid">Grid</label><select id="grid"><option value="2">2 × 2</option><option value="3">3 × 3</option><option value="4" selected>4 × 4</option><option value="5">5 × 5</option><option value="6">6 × 6</option><option value="7">7 × 7</option><option value="8">8 × 8</option></select></div>
         <div class="field"><label for="size">Finished size</label><select id="size"><option value="6">6 inches</option><option value="8">8 inches</option><option value="9">9 inches</option><option value="10">10 inches</option><option value="12" selected>12 inches</option><option value="15">15 inches</option><option value="16">16 inches</option></select></div>
       </div>
       <div class="field" style="margin-top:8px"><label for="preset">Start from a classic block</label><select id="preset">
@@ -200,13 +202,13 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
         <div class="field"><label for="setting">Setting</label><select id="setting"><option value="straight">Straight rows</option><option value="onpoint">On point (diamonds)</option></select></div>
         <div class="field" id="setrow"><label for="setf">Setting triangle fabric</label><select id="setf"></select></div>
         <div class="two">
-          <div class="field"><label for="rows">Rows</label><input type="number" id="rows" min="1" max="20" value="3"></div>
-          <div class="field"><label for="cols">Columns</label><input type="number" id="cols" min="1" max="20" value="3"></div>
+          <div class="field"><label for="rows">Rows</label><input type="number" inputmode="numeric" id="rows" min="1" max="20" value="3"></div>
+          <div class="field"><label for="cols">Columns</label><input type="number" inputmode="numeric" id="cols" min="1" max="20" value="3"></div>
         </div>
         <label class="check"><input type="checkbox" id="alt"> Turn every other block</label>
         <div class="section" style="margin-top:6px">
           <div class="two">
-            <div class="field"><label for="sash">Sashing width</label><input type="number" id="sash" min="0" max="12" step="0.25" value="2"></div>
+            <div class="field"><label for="sash">Sashing width</label><input type="number" inputmode="decimal" id="sash" min="0" max="12" step="0.25" value="2"></div>
             <div class="field"><label for="sashf">Sashing fabric</label><select id="sashf"></select></div>
           </div>
           <p class="tip" style="margin-top:4px">Inches between blocks. Use 0 for none.</p>
@@ -293,7 +295,7 @@ const DEFAULT_FABRICS = [
   {name:'Rose', color:'#B85C72'}, {name:'Cream', color:'#F6EFE2'}, {name:'Butter', color:'#EFD27A'},
   {name:'Sage', color:'#8AA58A'}, {name:'Denim', color:'#5B79A6'}, {name:'Plum', color:'#7A5578'},
 ];
-let S = { n:4, size:12, cells:[], fabrics:DEFAULT_FABRICS.map(f=>({...f})), alt:false, quilt:{rows:3,cols:3,sash:2,sashF:1,corner:true,cornerF:2,borders:[{w:4,f:0}],setting:'straight',setF:1} };
+let S = { n:4, size:12, cells:[], fabrics:DEFAULT_FABRICS.map(f=>({...f})), alt:false, quilt:{rows:3,cols:3,sash:2,sashF:1,corner:true,cornerF:2,borders:[{w:4,f:0}],setting:'straight',setF:3} };
 const onPoint=()=>S.quilt.setting==='onpoint';
 const blocksCount=()=>{ const d=quiltDims(); return d.blocks; };
 let tool = {kind:'unit', t:'hst'};
@@ -425,7 +427,7 @@ function renderQuilt(){
   }
   acc=0; for (let i=q.borders.length-1;i>=0;i--){ const w=Math.max(0,+q.borders[i].w||0); if(!w) continue; out+=`<rect x="${acc}" y="${acc}" width="${d.W-2*acc}" height="${d.H-2*acc}" fill="none" stroke="var(--seam)" stroke-width="${Math.max(.08,d.W/500)}"/>`; acc+=w; }
   rep.innerHTML=out;
-  $('qsize').textContent=`Finished quilt ${fmt(d.W)}" × ${fmt(d.H)}" · ${d.blocks} blocks of ${d.B}"${d.onpoint?' set on point':''}`;
+  $('qsize').textContent=`Finished quilt ${fmtAbout(d.W)}" × ${fmtAbout(d.H)}" · ${d.blocks} blocks of ${d.B}"${d.onpoint?' set on point':''}`;
   renderQuiltControls();
 }
 function fabricOptions(sel){ return S.fabrics.map((f,i)=>`<option value="${i}" ${i===sel?'selected':''}>${esc(f.name)}</option>`).join(''); }
@@ -437,7 +439,7 @@ function renderQuiltControls(){
   $('setrow').hidden=!onPoint(); $('rows').step=$('cols').step=onPoint()?2:1;
   $('sashf').innerHTML=fabricOptions(q.sashF); $('cornerf').innerHTML=fabricOptions(q.cornerF);
   $('sashf').disabled=!(+q.sash>0); $('corner').disabled=!(+q.sash>0); $('cornerf').disabled=!(+q.sash>0&&q.corner);
-  $('borders').innerHTML = q.borders.length ? q.borders.map((b,i)=>`<div class="brow"><span class="lab">Border ${i+1} · width in inches, then fabric</span><input type="number" min="0" max="20" step="0.25" value="${b.w}" data-bw="${i}" aria-label="Border ${i+1} width"><select data-bf="${i}" aria-label="Border ${i+1} fabric">${fabricOptions(b.f)}</select><button data-bdel="${i}" class="small" title="Remove border">Remove</button></div>`).join('') : '<p class="tip" style="margin:0">No borders yet.</p>';
+  $('borders').innerHTML = q.borders.length ? q.borders.map((b,i)=>`<div class="brow"><span class="lab">Border ${i+1}: width in inches, fabric</span><input type="number" inputmode="decimal" min="0" max="20" step="0.25" value="${b.w}" data-bw="${i}" aria-label="Border ${i+1} width"><select data-bf="${i}" aria-label="Border ${i+1} fabric">${fabricOptions(b.f)}</select><button data-bdel="${i}" class="small" title="Remove border">Remove</button></div>`).join('') : '<p class="tip" style="margin:0">No borders yet.</p>';
   $('addborder').disabled = q.borders.length>=3;
 }
 function unitIcon(t){
@@ -450,9 +452,9 @@ function renderUnits(){
 }
 function renderFabrics(){
   $('fabrics').innerHTML = S.fabrics.map((f,i)=>`<div class="fab ${tool.kind==='fabric'&&tool.i===i?'on':''}" data-i="${i}">
-    <div class="sw" style="background:${f.img?`url(${f.img}) center/cover`:f.color}" title="Select fabric"></div>
+    <label class="sw" style="background:${f.img?`url(${f.img}) center/cover`:f.color}" title="${tool.kind==='fabric'&&tool.i===i?'Tap to change the color':'Tap to pick this fabric'}"><input type="color" value="${f.color}" data-color="${i}" aria-label="Color of ${esc(f.name)}"></label>
     <input type="text" value="${esc(f.name)}" data-name="${i}" aria-label="Fabric name">
-    <div class="tools"><input type="color" value="${f.color}" data-color="${i}" title="Change color" aria-label="Color"><button data-photo="${i}" title="Use a photo of the fabric">Use a photo</button>${S.fabrics.length>2?`<button data-del="${i}" title="Remove this fabric">Remove</button>`:''}</div>
+    <div class="tools"><span class="tip" style="margin:0">Tap the swatch to change the color.</span><button data-photo="${i}" title="Use a photo of the fabric">Photo</button>${S.fabrics.length>2?`<button data-del="${i}" title="Remove this fabric">Remove</button>`:''}</div>
   </div>`).join('');
 }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
@@ -460,6 +462,8 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').r
 // ---------- cutting list & yardage ----------
 const EIGHTHS=['','⅛','¼','⅜','½','⅝','¾','⅞'];
 function fmt(x){ const e=Math.round(x*8); if (Math.abs(x*8-e)<0.02){ const w=Math.floor(e/8), r=e%8; return (w||!r?w:'')+EIGHTHS[r]; } return x.toFixed(2); }
+const up8=x=>Math.ceil(x*8-1e-6)/8;                 // cut sizes round UP to the nearest eighth
+function fmtAbout(x){ const e=Math.round(x*8); return (Math.abs(x*8-e)<0.02?'':'about ')+fmt(e/8); }
 function fmtYd(y){ return fmt(y)+' yd'; }
 function cutData(){
   const u=S.size/S.n, B=blocksCount(), q=S.quilt, d=quiltDims();
@@ -499,7 +503,7 @@ function cutData(){
     extra[b.f]?.push({label:`border ${i+1} side, pieced from width-of-fabric strips`,w:bw,h:ih+.5,n:2,long:true});
     iw+=2*w; extra[b.f]?.push({label:`border ${i+1} top and bottom, pieced from width-of-fabric strips`,w:bw,h:iw+.5,n:2,long:true}); ih+=2*w; });
   return acc.map((a,i)=>{
-    const pieces=Object.values(a.pieces).map(p=>({...p,n:p.n*B})).concat(extra[i]);
+    const pieces=Object.values(a.pieces).map(p=>({...p,n:p.n*B})).concat(extra[i]).map(p=>({...p,w:up8(p.w),h:up8(p.h)}));
     if (a.halves) pieces.push({label:`square for half-square triangles (each makes 2)`,w:u+.875,h:u+.875,n:Math.ceil(a.halves*B/2)});
     if (a.quarters) pieces.push({label:`square for quarter-square triangles (each makes 4)`,w:u+1.25,h:u+1.25,n:Math.ceil(a.quarters*B/4)});
     if (a.geese) pieces.push({label:`square for geese (each makes 4)`,w:2*u+1.25,h:2*u+1.25,n:Math.ceil(a.geese*B/4)});
@@ -512,7 +516,7 @@ function cutData(){
 function renderCut(){
   const data=cutData(); const B=blocksCount(); const d=quiltDims();
   if (!data.length){ $('cut').innerHTML='<p class="tip">Place some pieces on the block to see what to cut.</p>'; $('txt').value=''; return; }
-  let html='', txt=`Cutting list · ${S.n}x${S.n} block, ${S.size}" finished · ${d.rows}x${d.cols} blocks, quilt ${fmt(d.W)}" x ${fmt(d.H)}"\n`;
+  let html='', txt=`Cutting list · ${S.n}x${S.n} block, ${S.size}" finished · ${B} blocks, quilt ${fmtAbout(d.W)}" x ${fmtAbout(d.H)}"\n`;
   let total=0;
   data.forEach(d=>{ total+=d.yards;
     html+=`<h3><span><span class="sw" style="background:${d.fabric.img?`url(${d.fabric.img}) center/cover`:d.fabric.color}"></span>${esc(d.fabric.name)}</span><span class="yd">${fmtYd(d.yards)}</span></h3><ul>`;
@@ -572,8 +576,7 @@ $('fabrics').addEventListener('click', e=>{
   const del=e.target.closest('[data-del]'); if (del){ snapshot(); const i=+del.dataset.del; S.fabrics.splice(i,1); for (const row of S.cells) for (const cell of row) if (cell&&cell.f) cell.f=cell.f.map(x=> x===i?0 : x>i? x-1 : x); const rm=x=> x===i?0 : x>i? x-1 : x; S.quilt.sashF=rm(S.quilt.sashF); S.quilt.cornerF=rm(S.quilt.cornerF); S.quilt.setF=rm(S.quilt.setF??1); S.quilt.borders.forEach(b=>b.f=rm(b.f)); if (tool.kind==='fabric') tool={kind:'unit',t:'hst'}; render(); return; }
   const ph=e.target.closest('[data-photo]'); if (ph){ pickPhoto(+ph.dataset.photo); return; }
   const f=e.target.closest('[data-i]'); if(!f) return;
-  if (e.target.matches('input') && f.classList.contains('on')) return;   // editing the picked fabric's name or color
-  if (e.target.matches('input[type=color]')) return;
+  if (f.classList.contains('on') && (e.target.matches('input') || e.target.closest('.sw'))) return;   // editing the picked fabric
   tool={kind:'fabric',i:+f.dataset.i}; $('tip').innerHTML=`<b>${esc(S.fabrics[tool.i].name)}</b> is picked. Tap any patch on the block to color it.`; renderUnits(); renderFabrics();
 });
 let colorDrag=false;
@@ -582,9 +585,9 @@ $('fabrics').addEventListener('input', e=>{
   if (e.target.dataset.name!==undefined){ S.fabrics[+e.target.dataset.name].name=e.target.value; renderCut(); }
 });
 $('fabrics').addEventListener('change', e=>{ if (e.target.dataset.color!==undefined) colorDrag=false; });
-const DEFAULT_QUILT=()=>({rows:3,cols:3,sash:2,sashF:1,corner:true,cornerF:2,borders:[{w:4,f:0}],setting:'straight',setF:1});
+const DEFAULT_QUILT=()=>({rows:3,cols:3,sash:2,sashF:1,corner:true,cornerF:2,borders:[{w:4,f:0}],setting:'straight',setF:3});
 $('resetquilt').onclick=()=>{ snapshot(); S.quilt=DEFAULT_QUILT(); S.alt=false; render(); };
-$('resetfab').onclick=()=>{ snapshot(); S.fabrics=DEFAULT_FABRICS.map(f=>({...f})); for (const row of S.cells) for (const cell of row) if (cell&&cell.f) cell.f=cell.f.map(x=>Math.min(x,S.fabrics.length-1)); S.quilt.sashF=1; S.quilt.cornerF=2; S.quilt.setF=1; S.quilt.borders.forEach((b,i)=>b.f=[0,3,4][i%3]); if (tool.kind==='fabric') tool={kind:'unit',t:'hst'}; render(); };
+$('resetfab').onclick=()=>{ snapshot(); S.fabrics=DEFAULT_FABRICS.map(f=>({...f})); for (const row of S.cells) for (const cell of row) if (cell&&cell.f) cell.f=cell.f.map(x=>Math.min(x,S.fabrics.length-1)); S.quilt.sashF=1; S.quilt.cornerF=2; S.quilt.setF=3; S.quilt.borders.forEach((b,i)=>b.f=[0,3,4][i%3]); if (tool.kind==='fabric') tool={kind:'unit',t:'hst'}; render(); };
 $('addfab').onclick=()=>{ snapshot(); const pool=['#4B6A88','#C96F3A','#6D5B8C','#B9B38A','#3F5F4A','#D5C3A5']; S.fabrics.push({name:'Fabric '+(S.fabrics.length+1), color:pool[S.fabrics.length%pool.length]}); tool={kind:'fabric',i:S.fabrics.length-1}; render(); };
 function pickPhoto(i){
   const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*';
@@ -612,7 +615,7 @@ function quiltInput(e){
   else if (t.id==='corner') q.corner=t.checked;
   else if (t.id==='cornerf') q.cornerF=+t.value;
   else if (t.id==='alt') S.alt=t.checked;
-  else if (t.id==='setting'){ snapshot(); q.setting=t.value; q.setF??=1; if (onPoint()){ if (q.rows%2===0) q.rows+=1; if (q.cols%2===0) q.cols+=1; } }
+  else if (t.id==='setting'){ snapshot(); q.setting=t.value; q.setF??=3; if (onPoint()){ if (q.rows%2===0) q.rows+=1; if (q.cols%2===0) q.cols+=1; } }
   else if (t.id==='setf') q.setF=+t.value;
   else if (t.dataset.bw!==undefined) q.borders[+t.dataset.bw].w=Math.max(0,+t.value||0);
   else if (t.dataset.bf!==undefined) q.borders[+t.dataset.bf].f=+t.value;
@@ -649,7 +652,7 @@ function buildPrintSheet(){
   const total=data.reduce((a,f)=>a+f.yards,0);
   const perim=2*(d.W+d.H)+12, bindStrips=Math.ceil(perim/40), bindYd=Math.ceil(bindStrips*2.5/36*8)/8, backPanels=Math.ceil((d.W+8)/40), backYd=Math.ceil(backPanels*(d.H+8)/36*8)/8;
   $('printsheet').innerHTML=`<div class="ps-head"><h1>${esc(title)}</h1><span>${new Date().toLocaleDateString()}</span></div>
-    <div class="ps-figs"><figure>${blockSvg}<figcaption>${S.n} × ${S.n} block, ${S.size}" finished, units ${fmt(S.size/S.n)}"</figcaption></figure><figure class="quiltfig">${quiltSvg}<figcaption>Quilt ${fmt(d.W)}" × ${fmt(d.H)}" · ${B} blocks${d.onpoint?' set on point':''}${d.sash?` · ${fmt(d.sash)}" sashing`:''}</figcaption></figure></div>
+    <div class="ps-figs"><figure>${blockSvg}<figcaption>${S.n} × ${S.n} block, ${S.size}" finished, units ${fmt(S.size/S.n)}"</figcaption></figure><figure class="quiltfig">${quiltSvg}<figcaption>Quilt ${fmtAbout(d.W)}" × ${fmtAbout(d.H)}" · ${B} blocks${d.onpoint?' set on point':''}${d.sash?` · ${fmt(d.sash)}" sashing`:''}</figcaption></figure></div>
     <div class="ps-cols">${fabs}<div class="ps-fab"><h3><span>Binding and backing</span></h3><table><tr><td class="n">${bindStrips}</td><td class="sz">2½" strips</td><td>binding, width of fabric, ${fmtYd(bindYd)}</td></tr><tr><td class="n">${backPanels}</td><td class="sz">${fmt(d.H+8)}" panel${backPanels>1?'s':''}</td><td>backing, width of fabric, ${fmtYd(backYd)}</td></tr></table></div></div>
     <div class="ps-total"><span>Fabric for the top</span><span>${fmtYd(total)}</span></div>
     <p class="ps-note">Cut sizes include ¼" seams. Yardage assumes 40" usable width, cut in strips, rounded up to ⅛ yd. Backing allows 4" overhang each side. No batting.</p>`;
