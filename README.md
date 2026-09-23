@@ -1,6 +1,6 @@
-# quiltblock
+# Quilt Bee
 
-Prototype quilt block editor. Single-file web app, no build step.
+Quilt block designer and quilt planner. Single-file web app, no build step.
 
 - `index.html` — the editor. Open it in a browser, or publish as an artifact.
   Live prototype: https://claude.ai/artifact/5pTVtrjS2gbTQBPRsYTk4Z
