@@ -62,6 +62,12 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
 .app{display:grid;grid-template-columns:300px minmax(320px,1fr) 340px;gap:14px;padding-block:6px 12px;width:100%;max-width:1400px;margin:0 auto;flex:1;min-height:0}
 .pane{background:var(--panel);border:1.5px dashed var(--rule2);border-radius:14px;padding:14px;overflow-y:auto;overflow-x:hidden;min-height:0;overscroll-behavior:contain}
 .pane.center{display:flex;flex-direction:column;overflow:hidden;background:transparent;border:none;padding:4px 0}
+.pane.left{display:flex;flex-direction:column}
+.pane.left > .only-block:first-child{order:1}
+.pane.left > .palsec{order:2}
+.pane.left > .piecesec{order:3}
+.pane.left > .only-quilt{order:1}
+.app[data-view="quilt"] .pane.left > .palsec{order:4}
 .app[data-view="block"] .only-quilt{display:none}
 .app[data-view="quilt"] .only-block{display:none}
 .stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:8px}
@@ -257,6 +263,16 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
         <option value="pinwheel">Pinwheel</option>
         <option value="blank">Blank grid</option>
       </select></div>
+    </div>
+    <div class="section palsec">
+      <div class="h2row"><h2>Colors and fabrics</h2><button id="resetfab" class="small" title="Go back to the starting colors">Reset</button></div>
+      <div class="paltabs" id="paltabs"><button type="button" data-tab="colors" class="on">Colors</button><button type="button" data-tab="prints">Prints</button></div>
+      <div class="palgrid" id="palgrid"></div>
+      <div class="paintrow" id="paintrow"></div>
+      <p class="tip" id="bgline"></p>
+      <p class="tip">Pick a color, then a piece, and tap a square. Two-patch pieces use the background for their second color. Tap any patch to recolor it.</p>
+    </div>
+    <div class="only-block piecesec">
       <div class="section">
         <h2>Pieces</h2>
         <div class="units" id="units"></div>
@@ -287,14 +303,6 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
           <div id="borders" style="display:flex;flex-direction:column;gap:6px"></div>
         </div>
       </div>
-    </div>
-    <div class="section">
-      <div class="h2row"><h2>Colors and fabrics</h2><button id="resetfab" class="small" title="Go back to the starting colors">Reset</button></div>
-      <div class="paltabs" id="paltabs"><button type="button" data-tab="colors" class="on">Colors</button><button type="button" data-tab="prints">Prints</button></div>
-      <div class="palgrid" id="palgrid"></div>
-      <div class="paintrow" id="paintrow"></div>
-      <p class="tip" id="bgline"></p>
-      <p class="tip">Pick a color, then a piece, and tap a square. Two-patch pieces use the background for their second color. Tap any patch to recolor it.</p>
     </div>
   </section>
 
@@ -400,7 +408,7 @@ function qfill(i){ return fillRef(i,'qpat'); }      // quilt canvas (inches)
 let swatchSeq=0;
 function swatchHtml(i,px,extraClass){ const f=S.fabrics[i]; if(!f) return ''; const id='sw'+(swatchSeq++); const s=`width:${px}px;height:${px}px`;
   if (!f.print||f.print==='solid') return `<span class="swatch ${extraClass||''}" style="${s};background:${f.color}"></span>`;
-  return `<span class="swatch ${extraClass||''}" style="${s}"><svg viewBox="0 0 1.5 1.5" width="${px}" height="${px}"><defs>${patternDef(id,f,1)}</defs><rect width="1.5" height="1.5" fill="url(#${id})"/></svg></span>`; }
+  const v=px<28?1:1.5; return `<span class="swatch ${extraClass||''}" style="${s}"><svg viewBox="0 0 ${v} ${v}" width="${px}" height="${px}"><defs>${patternDef(id,f,1)}</defs><rect width="${v}" height="${v}" fill="url(#${id})"/></svg></span>`; }
 function paintFabric(){ return (tool.kind==='fabric') ? tool.i : (S.lastPaint ?? 0); }
 function pieceFabrics(t){ const p=paintFabric(), b=S.bg; return UNITS[t].f.map(x=> x===0?p:b); }
 function findOrAddFabric(color,print,img){ let i=S.fabrics.findIndex(f=>f.color===color&&(f.print||'solid')===print&&!img); if (i<0){ S.fabrics.push({color,print,img:img||null}); i=S.fabrics.length-1; } return i; }
@@ -468,14 +476,14 @@ const PRESETS = {
 };
 
 // ---------- rendering ----------
-function blockMarkup(){
+function blockMarkup(pfx='pat'){
   let out='';
   for (let r=0;r<S.n;r++) for (let c=0;c<S.n;c++){
     const cell=S.cells[r][c];
     if (!cell) { out+=`<rect class="empty" x="${c+.02}" y="${r+.02}" width=".96" height=".96" data-r="${r}" data-c="${c}"/>`; continue; }
     if (cell.cover) continue;
     const g=geom(cell.t,cell.rot);
-    g.polys.forEach((p,i)=>{ out+=`<polygon points="${p.map(([x,y])=>`${(x+c).toFixed(4)},${(y+r).toFixed(4)}`).join(' ')}" fill="${fill(cell.f[i])}" data-r="${r}" data-c="${c}" data-i="${i}"/>`; });
+    g.polys.forEach((p,i)=>{ out+=`<polygon points="${p.map(([x,y])=>`${(x+c).toFixed(4)},${(y+r).toFixed(4)}`).join(' ')}" fill="${fillRef(cell.f[i],pfx)}" data-r="${r}" data-c="${c}" data-i="${i}"/>`; });
   }
   return out;
 }
@@ -505,31 +513,35 @@ function quiltDims(){
   return {B,rows,cols,sash,innerW,innerH,W:innerW+2*bsum,H:innerH+2*bsum,bsum,blocks:rows*cols,onpoint:false};
 }
 function latticeBlocks(d){ const out=[]; for (let j=0;j<d.rows;j++) for (let i=0;i<d.cols;i++) if ((i+j)%2===0) out.push([i,j]); return out; }
-function renderQuilt(){
-  const q=S.quilt, d=quiltDims(), rep=$('rep');
-  rep.setAttribute('viewBox',`0 0 ${d.W} ${d.H}`);
-  let out=defs('qpat',1), acc=0;
-  for (let i=q.borders.length-1;i>=0;i--){ const w=Math.max(0,+q.borders[i].w||0); if(!w) continue; out+=`<rect x="${acc}" y="${acc}" width="${d.W-2*acc}" height="${d.H-2*acc}" fill="${qfill(q.borders[i].f)}"/>`; acc+=w; }
-  const ox=d.bsum, oy=d.bsum, k=d.B/S.n;
+function lodFor(px,inches){ const ppi=(px||500)/inches; return Math.max(1,Math.ceil(24/ppi)); }
+function quiltMarkup(pfx,m){
+  const q=S.quilt, d=quiltDims(), k=d.B/S.n;
+  const qf=i=>fillRef(i,pfx);
+  let out=defs(pfx,m)+`<defs><g id="blockg-${pfx}">${defs(pfx+'b',(S.n/S.size)*m).replace(/<\/?defs>/g,'')}${blockMarkup(pfx+'b')}</g></defs>`, acc=0;
+  for (let i=q.borders.length-1;i>=0;i--){ const w=Math.max(0,+q.borders[i].w||0); if(!w) continue; out+=`<rect x="${acc}" y="${acc}" width="${d.W-2*acc}" height="${d.H-2*acc}" fill="${qf(q.borders[i].f)}"/>`; acc+=w; }
+  const ox=d.bsum, oy=d.bsum;
   if (d.onpoint){
-    out+=`<rect x="${ox}" y="${oy}" width="${d.innerW}" height="${d.innerH}" fill="${qfill(q.setF)}"/>`;   // setting triangles show through around the diamonds
+    out+=`<rect x="${ox}" y="${oy}" width="${d.innerW}" height="${d.innerH}" fill="${qf(q.setF)}"/>`;
     const h=d.d/2, fs=d.B+d.sash;
-    latticeBlocks(d).forEach(([i,j])=>{ const cx=ox+(i+1)*h, cy=oy+(j+1)*h;
-      if (d.sash>0) out+=`<rect x="${-fs/2}" y="${-fs/2}" width="${fs}" height="${fs}" fill="${qfill(q.sashF)}" transform="translate(${cx} ${cy}) rotate(45)"/>`; });
-    if (d.sash>0 && q.corner) for (let j=1;j<d.rows-1;j++) for (let i=1;i<d.cols-1;i++) if ((i+j)%2===1) out+=`<rect x="${-d.sash/2}" y="${-d.sash/2}" width="${d.sash}" height="${d.sash}" fill="${qfill(q.cornerF)}" transform="translate(${ox+(i+1)*h} ${oy+(j+1)*h}) rotate(45)"/>`;
-    latticeBlocks(d).forEach(([i,j],idx)=>{ const cx=ox+(i+1)*h, cy=oy+(j+1)*h; const rot=45+(S.alt&&(idx%2)?90:0);
-      out+=`<use href="#blockg" transform="translate(${cx} ${cy}) rotate(${rot}) translate(${-d.B/2} ${-d.B/2}) scale(${k})"/>`; });
-    // seam lines of the setting triangles
+    latticeBlocks(d).forEach(([i,j])=>{ const cx=ox+(i+1)*h, cy=oy+(j+1)*h; if (d.sash>0) out+=`<rect x="${-fs/2}" y="${-fs/2}" width="${fs}" height="${fs}" fill="${qf(q.sashF)}" transform="translate(${cx} ${cy}) rotate(45)"/>`; });
+    if (d.sash>0 && q.corner) for (let j=1;j<d.rows-1;j++) for (let i=1;i<d.cols-1;i++) if ((i+j)%2===1) out+=`<rect x="${-d.sash/2}" y="${-d.sash/2}" width="${d.sash}" height="${d.sash}" fill="${qf(q.cornerF)}" transform="translate(${ox+(i+1)*h} ${oy+(j+1)*h}) rotate(45)"/>`;
+    latticeBlocks(d).forEach(([i,j],idx)=>{ const cx=ox+(i+1)*h, cy=oy+(j+1)*h; const rot=45+(S.alt&&(idx%2)?90:0); out+=`<use href="#blockg-${pfx}" transform="translate(${cx} ${cy}) rotate(${rot}) translate(${-d.B/2} ${-d.B/2}) scale(${k})"/>`; });
     const tri=[]; for (let i=1;i<d.cols;i+=2){ tri.push(`M${ox+i*h} ${oy} l${h} ${h} l${h} ${-h}`); tri.push(`M${ox+i*h} ${oy+d.innerH} l${h} ${-h} l${h} ${h}`); }
     for (let j=1;j<d.rows;j+=2){ tri.push(`M${ox} ${oy+j*h} l${h} ${h} l${-h} ${h}`); tri.push(`M${ox+d.innerW} ${oy+j*h} l${-h} ${h} l${h} ${h}`); }
     out+=`<path d="${tri.join(' ')}" fill="none" stroke="var(--seam)" stroke-width="${Math.max(.08,d.W/500)}"/>`;
   } else {
-    if (d.sash>0) out+=`<rect x="${ox}" y="${oy}" width="${d.innerW}" height="${d.innerH}" fill="${qfill(q.sashF)}"/>`;
-    if (d.sash>0 && q.corner) for (let r=0;r<d.rows-1;r++) for (let c=0;c<d.cols-1;c++) out+=`<rect x="${ox+(c+1)*d.B+c*d.sash}" y="${oy+(r+1)*d.B+r*d.sash}" width="${d.sash}" height="${d.sash}" fill="${qfill(q.cornerF)}"/>`;
-    for (let r=0;r<d.rows;r++) for (let c=0;c<d.cols;c++){ const x=ox+c*(d.B+d.sash), y=oy+r*(d.B+d.sash); const rot=S.alt&&((r+c)%2)?90:0; out+=`<use href="#blockg" transform="translate(${x} ${y}) scale(${k}) rotate(${rot} ${S.n/2} ${S.n/2})"/>`; }
+    if (d.sash>0) out+=`<rect x="${ox}" y="${oy}" width="${d.innerW}" height="${d.innerH}" fill="${qf(q.sashF)}"/>`;
+    if (d.sash>0 && q.corner) for (let r=0;r<d.rows-1;r++) for (let c=0;c<d.cols-1;c++) out+=`<rect x="${ox+(c+1)*d.B+c*d.sash}" y="${oy+(r+1)*d.B+r*d.sash}" width="${d.sash}" height="${d.sash}" fill="${qf(q.cornerF)}"/>`;
+    for (let r=0;r<d.rows;r++) for (let c=0;c<d.cols;c++){ const x=ox+c*(d.B+d.sash), y=oy+r*(d.B+d.sash); const rot=S.alt&&((r+c)%2)?90:0; out+=`<use href="#blockg-${pfx}" transform="translate(${x} ${y}) scale(${k}) rotate(${rot} ${S.n/2} ${S.n/2})"/>`; }
   }
   acc=0; for (let i=q.borders.length-1;i>=0;i--){ const w=Math.max(0,+q.borders[i].w||0); if(!w) continue; out+=`<rect x="${acc}" y="${acc}" width="${d.W-2*acc}" height="${d.H-2*acc}" fill="none" stroke="var(--seam)" stroke-width="${Math.max(.08,d.W/500)}"/>`; acc+=w; }
-  rep.innerHTML=out;
+  return out;
+}
+function renderQuilt(){
+  const q=S.quilt, d=quiltDims(), rep=$('rep');
+  rep.setAttribute('viewBox',`0 0 ${d.W} ${d.H}`);
+  const wrap=rep.parentElement; const px=Math.min(wrap?wrap.clientWidth:0||500, (wrap?wrap.clientHeight:0||500)*d.W/d.H)||500;
+  rep.innerHTML=quiltMarkup('qpat', lodFor(px,d.W));
   const g=gate(); const cls=g.locked?'plus':'free';
   $('qsize').innerHTML=`Finished quilt ${fmtAbout(d.W)}" × ${fmtAbout(d.H)}" · ${d.blocks} blocks of ${d.B}"${d.onpoint?' set on point':''}<span class="band ${cls}">${g.b.label}${g.locked?' · Plus':g.isFree?' · your free throw':g.claimable?' · free once saved':' · free'}</span>`;
   renderQuiltControls();
@@ -546,10 +558,14 @@ function renderQuiltControls(){
   $('borders').innerHTML = q.borders.length ? q.borders.map((b,i)=>`<div class="brow"><span class="lab">Border ${i+1}: width in inches, fabric</span><input type="number" inputmode="decimal" min="0" max="20" step="0.25" value="${b.w}" data-bw="${i}" aria-label="Border ${i+1} width"><select data-bf="${i}" aria-label="Border ${i+1} fabric">${fabricOptions(b.f)}</select><button data-bdel="${i}" class="small" title="Remove border">Remove</button></div>`).join('') : '<p class="tip" style="margin:0">No borders yet.</p>';
   $('addborder').disabled = q.borders.length>=3;
 }
+let iconSeq=0;
 function unitIcon(t){
-  const g=geom(t,0); const cols=['var(--icon-a)','var(--icon-b)','var(--icon-b)','var(--icon-a)'];
-  const alt = t==='curve' ? ['var(--icon-b)','var(--icon-a)'] : t==='qst' ? ['var(--icon-a)','var(--icon-b)','var(--icon-a)','var(--icon-b)'] : cols;
-  return `<svg viewBox="0 0 ${g.w} ${g.h}" style="width:${g.w>1?54:36}px">${g.polys.map((p,i)=>`<polygon points="${p.map(q=>q.join(',')).join(' ')}" fill="${alt[i]}" stroke="#D2C5B4" stroke-width=".04"/>`).join('')}</svg>`;
+  const g=geom(t,0), pi=paintFabric(), bi=S.bg, pf=S.fabrics[pi]||S.fabrics[0], bf=S.fabrics[bi]||S.fabrics[0];
+  const id='ic'+(iconSeq++), upi=1/1.6;                      // an icon cell stands for about 1.6" so prints stay legible
+  const dfs=`<defs>${patternDef(id+'a',pf,upi)}${patternDef(id+'b',bf,upi)}</defs>`;
+  const fa=(!pf.print||pf.print==='solid')?pf.color:`url(#${id}a)`, fb=(!bf.print||bf.print==='solid')?bf.color:`url(#${id}b)`;
+  const fills=UNITS[t].f.map(x=>x===0?fa:fb);
+  return `<svg viewBox="0 0 ${g.w} ${g.h}" style="width:${g.w>1?54:36}px">${dfs}${g.polys.map((p,i)=>`<polygon points="${p.map(q=>q.join(',')).join(' ')}" fill="${fills[i]}" stroke="#D2C5B4" stroke-width=".04"/>`).join('')}</svg>`;
 }
 function renderUnits(){
   $('units').innerHTML = Object.keys(UNITS).map(t=>`<button class="unitbtn ${tool.kind==='unit'&&tool.t===t?'on':''}" data-t="${t}" type="button">${unitIcon(t)}<span>${UNITS[t].name}</span></button>`).join('');
@@ -794,6 +810,7 @@ $('name').addEventListener('keydown', e=>{ if (e.key==='Enter') $('save').click(
 $('save').onclick=()=>{ const name=$('name').value.trim()||`Block ${new Date().toLocaleDateString()}`; const list=loadSaved(); const entry={name,n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,colors:S.colors,bg:S.bg,quilt:S.quilt,when:Date.now()}; const i=list.findIndex(b=>b.name===name); if (i>=0) list[i]=entry; else list.unshift(entry); try{ localStorage.setItem('qb_saved',JSON.stringify(list.slice(0,40))); curName=name; let msg='Saved.'; const g=gate(); if (g.claimable){ freeThrow=name; try{ localStorage.setItem('qb_freethrow',name); }catch(e){} msg='Saved. This is your free throw.'; } $('savedmsg').textContent=msg; setTimeout(closePops, msg.length>7?1600:700); render(); }catch(e){ $('savedmsg').textContent='Could not save on this device.'; } renderSaved(); };
 $('printgo').onclick=()=>{ const g=gate(); if (g.locked){ $('printpop').querySelector('.tip').insertAdjacentHTML('beforebegin', lockHtml(g)); $('printgo').disabled=true; return; } buildPrintSheet(); closePops(); setTimeout(()=>window.print(),50); };
 window.addEventListener('beforeprint', buildPrintSheet);
+let rsT; window.addEventListener('resize', ()=>{ clearTimeout(rsT); rsT=setTimeout(renderQuilt,150); });
 const WOF=40;
 function orient(p){ // lay the piece across the 40" width whichever way uses less length
   const a={w:p.w,h:p.h}, b={w:p.h,h:p.w};
@@ -822,8 +839,9 @@ function buildPrintSheet(){
   const gg=gate(); if (gg.locked){ $('printsheet').innerHTML=`<div class="ps-head"><h1>Quilt Bee</h1></div><p>${gg.reason} Baby and lap quilts are free, and so is your first throw. Bed sizes and more throws are ${PRICE}, once.</p>`; return; }
   const data=cutData(), d=quiltDims(), B=blocksCount();
   const title=curName || 'Quilt block';
-  const blockSvg=`<svg viewBox="0 0 ${S.n} ${S.n}" xmlns="http://www.w3.org/2000/svg">${defs('ppat',S.n/S.size)}<g id="blockg-print">${blockMarkup().replace(/url\(#pat(\d+)\)/g,'url(#ppat$1)')}</g></svg>`;
-  const quiltSvg=`<svg viewBox="${$('rep').getAttribute('viewBox')}" xmlns="http://www.w3.org/2000/svg">${$('rep').innerHTML.replaceAll('#blockg','#blockg-print').replace(/id="qpat(\d+)"/g,'id="pqpat$1"').replace(/url\(#qpat(\d+)\)/g,'url(#pqpat$1)').replaceAll('var(--seam)','#fff')}</svg>`;
+  const mB=lodFor(234,S.size), mQ=lodFor(325,d.W);            // 62mm and 86mm figures at 96 dpi
+  const blockSvg=`<svg viewBox="0 0 ${S.n} ${S.n}" xmlns="http://www.w3.org/2000/svg">${defs('ppat',(S.n/S.size)*mB)}<g>${blockMarkup('ppat')}</g></svg>`;
+  const quiltSvg=`<svg viewBox="0 0 ${d.W} ${d.H}" xmlns="http://www.w3.org/2000/svg">${quiltMarkup('pq',mQ).replaceAll('var(--seam)','#fff')}</svg>`;
   let fabs=data.map(f=>{ const strips=stripLayout(f.pieces); const L=strips.reduce((a,s)=>a+s.h,0);
     return `<div class="ps-fab"><h3><span>${swatchHtml(f.i,13,'inl')}${esc(fabName(f.fabric))}</span><span>${fmtYd(f.yards)}</span></h3><table>${f.pieces.map(p=>`<tr><td class="n">${p.n}</td><td class="sz">${fmt(p.w)}" × ${fmt(p.h)}"</td><td>${p.label}</td></tr>`).join('')}</table>
     <div class="ps-diag">${stripSvg(strips,f.fabric.color)}<div class="cap">Cutting plan: ${strips.length} strip${strips.length>1?'s':''} across the ${WOF}" width, ${fmt(L)}" of length. Cut the strips, then cut each strip into pieces.</div></div></div>`; }).join('');
