@@ -132,6 +132,13 @@ svg.rep{height:100%;width:auto;max-width:100%;background:var(--panel2);padding:1
 .saved .it{display:flex;gap:6px;align-items:center;font-size:1rem;background:#fff;border-radius:7px;padding:3px 4px 3px 10px}
 .saved .it span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cut{font-size:1rem}
+.steps{margin:0 0 10px;padding-left:1.3em;line-height:1.45}
+.steps li{margin:0 0 8px}
+.veil{position:fixed;inset:0;background:rgba(46,42,51,.35);z-index:40;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:16px;padding:22px 22px 18px;max-width:440px;width:100%;box-shadow:0 20px 50px rgba(60,40,40,.25)}
+.modal h2{font-size:1.5rem;margin-bottom:8px}
+.modal p{margin:0 0 14px;line-height:1.5;font-size:1.05rem}
+.modal .row{gap:8px}
 .lock{background:var(--rose-soft);border:1px solid var(--rose-line);border-radius:var(--radius);padding:14px;margin-top:8px}
 .lock h3{font-family:"Fraunces",Georgia,serif;font-size:1.15rem;margin:0 0 6px}
 .lock p{margin:0 0 10px;line-height:1.45}
@@ -162,6 +169,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
     <button type="button" data-view="quilt">Quilt</button>
   </nav>
   <div class="actions">
+    <button type="button" id="helpbtn">Help</button>
     <button type="button" id="openbtn">Open</button>
     <button type="button" id="savebtn" class="primary">Save</button>
     <button type="button" id="printbtn">Print</button>
@@ -178,6 +186,25 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
   <div class="saved" id="saved"></div>
   <p class="tip" id="opentip">Nothing saved yet. Use Save to keep a block.</p>
   <p class="tip"><button id="resetplus" class="small">Prototype: reset unlock and free throw</button></p>
+</div>
+<div class="pop" id="helppop" hidden>
+  <h2>How Quilt Bee works</h2>
+  <ol class="steps">
+    <li><b>Build a block.</b> Pick a piece on the left, then tap a square on the block. Tap it again to turn it.</li>
+    <li><b>Color it.</b> Pick a fabric, then tap any patch. Tap the swatch to change the color, or use a photo of real fabric.</li>
+    <li><b>Lay out the quilt.</b> Switch to Quilt and set rows, columns, sashing and borders. Try “On point” for diamonds.</li>
+    <li><b>Cut with confidence.</b> Pieces to cut lists every piece and how much fabric to buy. Print it or copy it.</li>
+  </ol>
+  <p class="tip">Save keeps your blocks on this device. Nothing you make is sent anywhere.</p>
+  <p class="tip">Baby and lap quilts are free, and so is your first throw. Bed sizes and more throws are $19.99, once.</p>
+  <p class="tip" id="feedbackline"></p>
+</div>
+<div class="veil" id="welcome" hidden>
+  <div class="modal">
+    <h2>Welcome to Quilt Bee</h2>
+    <p>Design a quilt block, lay out the whole quilt, and get the list of pieces to cut. Baby and lap quilts are free, and so is your first throw.</p>
+    <div class="row"><button class="primary" id="welcomego">Start with a Sawtooth Star</button><button id="welcomehelp">Show me how</button></div>
+  </div>
 </div>
 <div class="pop" id="printpop" hidden>
   <h2>Print or save as PDF</h2>
@@ -676,16 +703,24 @@ document.addEventListener('click', e=>{
   if (e.target.id==='openfree'){ const list=loadSaved(); const i=list.findIndex(x=>x.name===freeThrow); if (i>=0){ snapshot(); const b=list[i]; S.n=b.n; S.size=b.size; S.cells=b.cells; S.fabrics=b.fabrics; if (b.quilt) S.quilt=Object.assign({setting:'straight',setF:3},b.quilt); curName=b.name; syncControls(); render(); closePops(); } }
   if (e.target.id==='resetplus'){ setPlus(false); freeThrow=''; try{ localStorage.removeItem('qb_freethrow'); }catch(e){} render(); }
 });
-const POPS=['savepop','openpop','printpop'];
+const FEEDBACK_EMAIL='randy1701d@gmail.com';   // change this before going public if you want a different address
+const POPS=['savepop','openpop','printpop','helppop'];
 function openPop(id){ POPS.forEach(k=>$(k).hidden = k!==id); if (id==='savepop'){ $('name').value=curName; $('savedmsg').textContent=''; setTimeout(()=>$('name').focus(),0); } if (id==='openpop') renderSaved(); if (id==='printpop'){ $('printpop').querySelectorAll('.lock').forEach(x=>x.remove()); $('printgo').disabled=false; } if (id==='printpop') $('printnote').textContent = (window.self!==window.top) ? 'Printing is blocked inside this preview. Open the app in its own browser tab (Safari or Chrome) and it will work there.' : ''; }
 function closePops(){ POPS.forEach(k=>$(k).hidden=true); }
 $('savebtn').onclick=()=>openPop($('savepop').hidden?'savepop':null);
+$('helpbtn').onclick=()=>openPop($('helppop').hidden?'helppop':null);
+$('feedbackline').innerHTML=`Something wrong, or an idea? Email <a href="mailto:${FEEDBACK_EMAIL}?subject=Quilt%20Bee">${FEEDBACK_EMAIL}</a>.`;
+function showWelcome(){ $('welcome').hidden=false; setTimeout(()=>$('welcomego').focus(),0); }
+function hideWelcome(){ $('welcome').hidden=true; try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} }
+$('welcomego').onclick=()=>{ hideWelcome(); snapshot(); PRESETS.sawtooth(); $('grid').value=S.n; setView('block'); render(); };
+$('welcomehelp').onclick=()=>{ hideWelcome(); openPop('helppop'); };
+$('welcome').addEventListener('click', e=>{ if (e.target===$('welcome')) hideWelcome(); });
 $('openbtn').onclick=()=>openPop($('openpop').hidden?'openpop':null);
 $('printbtn').onclick=()=>openPop($('printpop').hidden?'printpop':null);
 $('print2').onclick=()=>openPop('printpop');
 $('savecancel').onclick=closePops; $('printcancel').onclick=closePops;
 document.addEventListener('pointerdown', e=>{ if (!e.target.closest('.pop') && !e.target.closest('.actions') && e.target.id!=='print2') closePops(); });
-document.addEventListener('keydown', e=>{ if (e.key==='Escape') closePops(); });
+document.addEventListener('keydown', e=>{ if (e.key==='Escape'){ closePops(); if (!$('welcome').hidden) hideWelcome(); } });
 $('name').addEventListener('keydown', e=>{ if (e.key==='Enter') $('save').click(); });
 $('save').onclick=()=>{ const name=$('name').value.trim()||`Block ${new Date().toLocaleDateString()}`; const list=loadSaved(); const entry={name,n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,quilt:S.quilt,when:Date.now()}; const i=list.findIndex(b=>b.name===name); if (i>=0) list[i]=entry; else list.unshift(entry); try{ localStorage.setItem('qb_saved',JSON.stringify(list.slice(0,40))); curName=name; let msg='Saved.'; const g=gate(); if (g.claimable){ freeThrow=name; try{ localStorage.setItem('qb_freethrow',name); }catch(e){} msg='Saved. This is your free throw.'; } $('savedmsg').textContent=msg; setTimeout(closePops, msg.length>7?1600:700); render(); }catch(e){ $('savedmsg').textContent='Could not save on this device.'; } renderSaved(); };
 $('printgo').onclick=()=>{ const g=gate(); if (g.locked){ $('printpop').querySelector('.tip').insertAdjacentHTML('beforebegin', lockHtml(g)); $('printgo').disabled=true; return; } buildPrintSheet(); closePops(); setTimeout(()=>window.print(),50); };
@@ -719,6 +754,7 @@ else { const OLD=['#2E3F73','#F1E9D6','#D9A21B','#8A5A44','#7E9573','#9A3B3B']; 
 syncControls();
 try { setView(localStorage.getItem('qb_view')||'block'); } catch(e){ setView('block'); }
 renderBadge();
+try { if (localStorage.getItem('qb_welcomed')!=='1') showWelcome(); } catch(e){ showWelcome(); }
 $('tip').innerHTML='<b>Half triangle</b> is picked. Tap a square on the block to place it. Tap it again to turn it.';
 render();
 })();
