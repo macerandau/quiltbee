@@ -54,6 +54,9 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
   .ps-fab td.sz{white-space:nowrap;width:9em}
   .ps-total{border-top:2px solid #000;margin-top:8pt;padding-top:4pt;font-weight:700;display:flex;justify-content:space-between;font-size:11.5pt}
   .ps-note{font-size:9pt;color:#333;margin-top:6pt}
+  .ps-diag{margin-top:4pt}
+  .ps-diag svg{width:88mm;height:auto;display:block}
+  .ps-diag .cap{font-size:8.5pt;color:#333;margin-top:2pt}
 }
 @media (max-width:1000px){ .actions{margin-left:auto} .actions button{padding:6px 10px} }
 .app{display:grid;grid-template-columns:300px minmax(320px,1fr) 340px;gap:14px;padding-block:6px 12px;width:100%;max-width:1400px;margin:0 auto;flex:1;min-height:0}
@@ -553,7 +556,7 @@ function cutData(){
     if (a.quarters) pieces.push({label:`square for quarter-square triangles (each makes 4)`,w:u+1.25,h:u+1.25,n:Math.ceil(a.quarters*B/4)});
     if (a.geese) pieces.push({label:`square for geese (each makes 4)`,w:2*u+1.25,h:2*u+1.25,n:Math.ceil(a.geese*B/4)});
     if (a.sky) pieces.push({label:`square for geese sky (each makes 2)`,w:u+.875,h:u+.875,n:Math.ceil(a.sky*B/2)});
-    let len=0; pieces.forEach(p=>{ if (p.long){ len+=Math.ceil(p.n*p.h/40)*p.w; return; } const per=Math.max(1,Math.floor(40/p.w)); const strips=Math.ceil(p.n/per); len+=strips*p.h; });
+    let len=0; pieces.forEach(p=>{ if (p.long){ len+=Math.ceil(p.n*p.h/WOF)*p.w; return; } const o=orient(p); const per=Math.max(1,Math.floor(WOF/o.w)); const strips=Math.ceil(p.n/per); len+=strips*o.h; });
     const yards = pieces.length ? Math.ceil(len/36*8)/8 : 0;
     return {i, fabric:S.fabrics[i], pieces, yards};
   }).filter(x=>x.pieces.length);
@@ -727,13 +730,39 @@ $('name').addEventListener('keydown', e=>{ if (e.key==='Enter') $('save').click(
 $('save').onclick=()=>{ const name=$('name').value.trim()||`Block ${new Date().toLocaleDateString()}`; const list=loadSaved(); const entry={name,n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,quilt:S.quilt,when:Date.now()}; const i=list.findIndex(b=>b.name===name); if (i>=0) list[i]=entry; else list.unshift(entry); try{ localStorage.setItem('qb_saved',JSON.stringify(list.slice(0,40))); curName=name; let msg='Saved.'; const g=gate(); if (g.claimable){ freeThrow=name; try{ localStorage.setItem('qb_freethrow',name); }catch(e){} msg='Saved. This is your free throw.'; } $('savedmsg').textContent=msg; setTimeout(closePops, msg.length>7?1600:700); render(); }catch(e){ $('savedmsg').textContent='Could not save on this device.'; } renderSaved(); };
 $('printgo').onclick=()=>{ const g=gate(); if (g.locked){ $('printpop').querySelector('.tip').insertAdjacentHTML('beforebegin', lockHtml(g)); $('printgo').disabled=true; return; } buildPrintSheet(); closePops(); setTimeout(()=>window.print(),50); };
 window.addEventListener('beforeprint', buildPrintSheet);
+const WOF=40;
+function orient(p){ // lay the piece across the 40" width whichever way uses less length
+  const a={w:p.w,h:p.h}, b={w:p.h,h:p.w};
+  const len=o=>Math.ceil(p.n/Math.max(1,Math.floor(WOF/o.w)))*o.h;
+  return (p.w===p.h||p.long) ? a : (len(b)<len(a) ? b : a);
+}
+function stripLayout(pieces){
+  // Lay every piece across 40" of usable fabric width, one strip per row, tallest pieces first.
+  const strips=[];
+  const normal=pieces.filter(p=>!p.long).sort((a,b)=>b.h-a.h||b.w-a.w);
+  normal.forEach(p=>{ const o=orient(p); const per=Math.max(1,Math.floor(WOF/o.w)); let left=p.n; while(left>0){ const k=Math.min(per,left); strips.push({h:o.h,w:o.w,k,label:`${k} of ${p.n} · ${fmt(p.w)}" × ${fmt(p.h)}"`,fill:true}); left-=k; } });
+  pieces.filter(p=>p.long).forEach(p=>{ const k=Math.ceil(p.n*p.h/WOF); for (let i=0;i<k;i++) strips.push({h:p.w,w:WOF,k:1,label:`${fmt(p.w)}" strip · join for ${p.n} × ${fmt(p.h)}"`,fill:false}); });
+  return strips;
+}
+function stripSvg(strips,color){
+  const L=strips.reduce((a,s)=>a+s.h,0); if (!L) return '';
+  let y=0, out='';
+  strips.forEach(st=>{
+    for (let i=0;i<st.k;i++) out+=`<rect x="${(i*st.w).toFixed(2)}" y="${y.toFixed(2)}" width="${st.w.toFixed(2)}" height="${st.h.toFixed(2)}" fill="${color}" fill-opacity=".28" stroke="#222" stroke-width=".12"/>`;
+    out+=`<text x="${WOF+1}" y="${(y+st.h/2+0.75).toFixed(2)}" font-size="2.1" fill="#111" font-family="Atkinson Hyperlegible, sans-serif">${st.label}</text>`;
+    y+=st.h;
+  });
+  return `<svg viewBox="-0.2 -0.2 ${WOF+38} ${L+0.4}" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="${WOF}" height="${L.toFixed(2)}" fill="none" stroke="#000" stroke-width=".25" stroke-dasharray="1 .6"/>${out}</svg>`;
+}
 function buildPrintSheet(){
   const gg=gate(); if (gg.locked){ $('printsheet').innerHTML=`<div class="ps-head"><h1>Quilt Bee</h1></div><p>${gg.reason} Baby and lap quilts are free, and so is your first throw. Bed sizes and more throws are ${PRICE}, once.</p>`; return; }
   const data=cutData(), d=quiltDims(), B=blocksCount();
   const title=curName || 'Quilt block';
   const blockSvg=`<svg viewBox="0 0 ${S.n} ${S.n}" xmlns="http://www.w3.org/2000/svg">${defs().replace(/pat(\d+)/g,'ppat$1')}<g id="blockg-print">${blockMarkup().replace(/url\(#pat(\d+)\)/g,'url(#ppat$1)')}</g></svg>`;
   const quiltSvg=`<svg viewBox="${$('rep').getAttribute('viewBox')}" xmlns="http://www.w3.org/2000/svg">${$('rep').innerHTML.replaceAll('#blockg','#blockg-print').replace(/url\(#pat(\d+)\)/g,'url(#ppat$1)').replaceAll('var(--seam)','#fff')}</svg>`;
-  let fabs=data.map(f=>`<div class="ps-fab"><h3><span><span class="sw" style="background:${f.fabric.img?`url(${f.fabric.img}) center/cover`:f.fabric.color}"></span>${esc(f.fabric.name)}</span><span>${fmtYd(f.yards)}</span></h3><table>${f.pieces.map(p=>`<tr><td class="n">${p.n}</td><td class="sz">${fmt(p.w)}" × ${fmt(p.h)}"</td><td>${p.label}</td></tr>`).join('')}</table></div>`).join('');
+  let fabs=data.map(f=>{ const strips=stripLayout(f.pieces); const L=strips.reduce((a,s)=>a+s.h,0);
+    return `<div class="ps-fab"><h3><span><span class="sw" style="background:${f.fabric.img?`url(${f.fabric.img}) center/cover`:f.fabric.color}"></span>${esc(f.fabric.name)}</span><span>${fmtYd(f.yards)}</span></h3><table>${f.pieces.map(p=>`<tr><td class="n">${p.n}</td><td class="sz">${fmt(p.w)}" × ${fmt(p.h)}"</td><td>${p.label}</td></tr>`).join('')}</table>
+    <div class="ps-diag">${stripSvg(strips,f.fabric.img?'#999':f.fabric.color)}<div class="cap">Cutting plan: ${strips.length} strip${strips.length>1?'s':''} across the ${WOF}" width, ${fmt(L)}" of length. Cut the strips, then cut each strip into pieces.</div></div></div>`; }).join('');
   const total=data.reduce((a,f)=>a+f.yards,0);
   const perim=2*(d.W+d.H)+12, bindStrips=Math.ceil(perim/40), bindYd=Math.ceil(bindStrips*2.5/36*8)/8, backPanels=Math.ceil((d.W+8)/40), backYd=Math.ceil(backPanels*(d.H+8)/36*8)/8;
   $('printsheet').innerHTML=`<div class="ps-head"><h1>${esc(title)}</h1><span>${new Date().toLocaleDateString()}</span></div>
