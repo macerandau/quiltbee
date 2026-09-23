@@ -17,14 +17,37 @@
   --indigo:#8FA3E6; --indigo-soft:#262E4A; --cheddar:#E6B63A; --cheddar-soft:#3A3220; --red:#E07A6E; --seam:#1F2333;}
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:var(--fs);line-height:1.5;padding:0 20px}
-header{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:18px 0 12px;border-bottom:1px solid var(--rule);max-width:1360px;margin:0 auto}
-h1{font-family:"Fraunces",Georgia,serif;font-size:1.9rem;margin:0;font-weight:700;letter-spacing:-.01em}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:var(--fs);line-height:1.5;padding:0 20px;display:flex;flex-direction:column;overflow:hidden}
+header{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:12px 0 10px;border-bottom:1px solid var(--rule);width:100%;max-width:1400px;margin:0 auto;flex:none}
+.views{display:flex;gap:0;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--panel)}
+.views button{border:none;border-radius:999px;min-height:38px;padding:4px 18px;background:transparent}
+.views button.on{background:var(--indigo);color:#fff}
+:root[data-theme="dark"] .views button.on{color:#15192B}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .views button.on{color:#15192B}}
+h1{font-family:"Fraunces",Georgia,serif;font-size:1.6rem;margin:0;font-weight:700;letter-spacing:-.01em}
 header .sub{color:var(--muted);font-size:1rem}
-.app{display:grid;grid-template-columns:270px minmax(340px,1fr) 360px;gap:20px;padding-block:18px 48px;max-width:1360px;margin:0 auto}
-@media (max-width:1100px){.app{grid-template-columns:1fr 1fr}.pane.center{grid-column:1 / -1;order:-1}}
-@media (max-width:680px){.app{grid-template-columns:1fr}}
-.pane{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px}
+.app{display:grid;grid-template-columns:280px minmax(320px,1fr) 360px;gap:16px;padding-block:14px;width:100%;max-width:1400px;margin:0 auto;flex:1;min-height:0}
+.pane{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px;overflow-y:auto;min-height:0;overscroll-behavior:contain}
+.pane.center{display:flex;flex-direction:column;overflow:hidden;padding:14px}
+.app[data-view="block"] .only-quilt{display:none}
+.app[data-view="quilt"] .only-block{display:none}
+.stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.canvaswrap{flex:1;min-height:0;width:100%;display:flex;justify-content:center;align-items:center}
+.mbar{display:none}
+@media (max-width:1000px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:12px;padding-block:10px 0}
+  .views,header .sub{display:none}
+  .pane.center{height:min(50vh,calc(100vw - 40px));order:0}
+  .pane.left{order:1}
+  .pane.right{display:none}
+  .app[data-mview="cut"] .pane.center,.app[data-mview="cut"] .pane.left{display:none}
+  .app[data-mview="cut"] .pane.right{display:block;grid-row:1 / -1}
+  .mbar{display:flex;flex:none;gap:6px;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--rule);background:var(--bg)}
+  .mbar button{flex:1;min-height:48px}
+  .mbar button.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+  :root[data-theme="dark"] .mbar button.on{color:#15192B}
+}
+@media (prefers-color-scheme: dark) and (max-width:1000px){:root:not([data-theme="light"]) .mbar button.on{color:#15192B}}
 .pane h2,.quilt h2{font-family:"Fraunces",Georgia,serif;font-size:1.25rem;font-weight:600;margin:0 0 12px;color:var(--ink)}
 .pane .section{margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -54,8 +77,7 @@ button.small{min-height:36px;padding:4px 10px;font-size:.95rem}
 .fab .tools button{min-height:36px;padding:2px 8px;font-size:1rem}
 .tip{font-size:.95rem;color:var(--muted);margin:10px 0 0;min-height:1.4em}
 .tip b{color:var(--ink)}
-.stage{display:flex;flex-direction:column;align-items:center;gap:12px}
-svg.block{width:min(100%,560px);aspect-ratio:1;touch-action:manipulation;background:var(--panel2);border-radius:var(--radius);display:block}
+svg.block{height:100%;width:auto;max-width:100%;aspect-ratio:1;touch-action:manipulation;background:var(--panel2);border-radius:var(--radius);display:block}
 svg.block .empty{fill:var(--panel2);stroke:var(--rule);stroke-width:.02;stroke-dasharray:.06 .05}
 svg.block polygon{stroke:var(--seam);stroke-width:.025;stroke-linejoin:round;cursor:pointer}
 svg.block polygon:hover{stroke:var(--cheddar);stroke-width:.05}
@@ -63,7 +85,7 @@ svg.block polygon:hover{stroke:var(--cheddar);stroke-width:.05}
 .stat{font-size:.95rem;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
 .quilt{margin-top:22px;padding-top:18px;border-top:1px solid var(--rule);display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px}
 @media (max-width:820px){.quilt{grid-template-columns:1fr}}
-svg.rep{width:100%;max-height:560px;background:var(--panel2);border-radius:var(--radius);display:block}
+svg.rep{height:100%;width:auto;max-width:100%;background:var(--panel2);border-radius:var(--radius);display:block}
 .qc{display:flex;flex-direction:column;gap:10px;font-size:1rem}
 .field{display:grid;grid-template-columns:132px minmax(0,1fr);gap:8px 10px;align-items:center}
 .field > label,.field > .lab{color:var(--muted);font-size:.95rem}
@@ -75,7 +97,7 @@ svg.rep{width:100%;max-height:560px;background:var(--panel2);border-radius:var(-
 .brow{display:grid;grid-template-columns:132px minmax(0,1fr);gap:6px 10px;align-items:center}
 .brow .lab{color:var(--muted);font-size:.95rem}
 .brow select{grid-column:2}
-.qsize{font-size:.95rem;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:8px;text-align:center}
+.qsize{font-size:.95rem;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center;flex:none}
 .mono{font-variant-numeric:tabular-nums}
 .cut{font-size:1rem}
 .cut h3{font-size:1.05rem;margin:14px 0 6px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600}
@@ -98,63 +120,43 @@ textarea{width:100%;height:140px;font:.95rem "IBM Plex Mono",monospace;border:1p
 
 <header>
   <h1>Patchwork Block Editor</h1>
-  <span class="sub">Tap a cell to place a unit. Tap it again to turn it. Pick a fabric, then tap a patch to color it.</span>
+  <nav class="views" aria-label="View">
+    <button type="button" data-view="block" class="on">Block</button>
+    <button type="button" data-view="quilt">Quilt</button>
+  </nav>
+  <span class="sub" id="hint">Tap a cell to place a unit. Tap it again to turn it. Pick a fabric, then tap a patch to color it.</span>
 </header>
 
-<div class="app">
-  <!-- LEFT: units and block setup -->
-  <section class="pane">
-    <h2>Block</h2>
-    <div class="row">
-      <label class="f">Grid <select id="grid" style="width:96px"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
-      <label class="f">Finished size <select id="size" style="width:110px"><option>6</option><option>8</option><option>9</option><option>10</option><option selected>12</option><option>15</option><option>16</option></select></label>
-    </div>
-    <div class="row" style="margin-top:8px">
-      <label class="f" style="flex:1">Start from <select id="preset">
-        <option value="">— choose a block —</option>
-        <option value="sawtooth">Sawtooth Star (4×4)</option>
-        <option value="ohio">Ohio Star (3×3)</option>
-        <option value="shoofly">Shoo Fly (3×3)</option>
-        <option value="churn">Churn Dash (3×3)</option>
-        <option value="ninepatch">Nine Patch (3×3)</option>
-        <option value="drunk">Drunkard's Path (2×2)</option>
-        <option value="pinwheel">Pinwheel (2×2)</option>
-        <option value="blank">Blank grid</option>
-      </select></label>
-    </div>
-    <div class="section">
-      <h2>Units</h2>
-      <div class="units" id="units"></div>
-      <p class="tip" id="unittip">Tap a cell to place the unit. Tap the same unit again to rotate it.</p>
-    </div>
-    <div class="section">
-      <h2>Fabrics</h2>
-      <div class="fabrics" id="fabrics"></div>
-      <div class="row" style="margin-top:10px"><button id="addfab">+ Add fabric</button></div>
-      <p class="tip">Pick a fabric, then tap any patch. Use the color dot to change it, or the camera to use a photo of real fabric.</p>
-    </div>
-  </section>
-
-  <!-- CENTER: canvas -->
-  <section class="pane center">
-    <div class="stage">
-      <div class="toolbar">
-        <button id="undo" title="Undo">Undo</button>
-        <button id="redo" title="Redo">Redo</button>
-        <button id="rotblock" title="Turn the whole block a quarter turn">Turn block</button>
-        <button id="clear">Clear block</button>
+<div class="app" id="app" data-view="block" data-mview="canvas">
+  <!-- LEFT: design controls -->
+  <section class="pane left">
+    <div class="only-block">
+      <h2>Block</h2>
+      <div class="row">
+        <label class="f">Grid <select id="grid" style="width:96px"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
+        <label class="f">Finished size <select id="size" style="width:110px"><option>6</option><option>8</option><option>9</option><option>10</option><option selected>12</option><option>15</option><option>16</option></select></label>
       </div>
-      <svg class="block" id="svg" viewBox="0 0 4 4" role="img" aria-label="Quilt block canvas"></svg>
-      <div class="stat" id="stat"></div>
-      <p class="tip" id="tip"></p>
-      <div class="msg" id="msg"></div>
-    </div>
-    <div class="quilt">
-      <div>
-        <h2>Quilt</h2>
-        <svg class="rep" id="rep" viewBox="0 0 12 12" aria-label="Quilt layout with sashing and borders"></svg>
-        <div class="qsize" id="qsize" style="margin-top:6px;text-align:center"></div>
+      <div class="row" style="margin-top:10px">
+        <label class="f" style="flex:1">Start from <select id="preset">
+          <option value="">— choose a block —</option>
+          <option value="sawtooth">Sawtooth Star (4×4)</option>
+          <option value="ohio">Ohio Star (3×3)</option>
+          <option value="shoofly">Shoo Fly (3×3)</option>
+          <option value="churn">Churn Dash (3×3)</option>
+          <option value="ninepatch">Nine Patch (3×3)</option>
+          <option value="drunk">Drunkard's Path (2×2)</option>
+          <option value="pinwheel">Pinwheel (2×2)</option>
+          <option value="blank">Blank grid</option>
+        </select></label>
       </div>
+      <div class="section">
+        <h2>Units</h2>
+        <div class="units" id="units"></div>
+        <p class="tip" id="unittip">Tap a cell to place the unit. Tap the same unit again to rotate it.</p>
+      </div>
+    </div>
+    <div class="only-quilt">
+      <h2>Quilt layout</h2>
       <div class="qc">
         <div class="field"><label for="setting">Setting</label><select id="setting"><option value="straight">Straight</option><option value="onpoint">On point</option></select></div>
         <div class="field" id="setrow"><label for="setf">Triangle fabric</label><select id="setf"></select></div>
@@ -171,10 +173,36 @@ textarea{width:100%;height:140px;font:.95rem "IBM Plex Mono",monospace;border:1p
         <div id="borders" style="display:flex;flex-direction:column;gap:12px"></div>
       </div>
     </div>
+    <div class="section">
+      <h2>Fabrics</h2>
+      <div class="fabrics" id="fabrics"></div>
+      <div class="row" style="margin-top:10px"><button id="addfab">+ Add fabric</button></div>
+      <p class="tip">Pick a fabric, then tap any patch. Use the color dot to change it, or the camera to use a photo of real fabric.</p>
+    </div>
   </section>
 
-  <!-- RIGHT: cutting list and yardage -->
-  <section class="pane">
+  <!-- CENTER: canvas -->
+  <section class="pane center">
+    <div class="stage only-block">
+      <div class="toolbar">
+        <button id="undo" title="Undo">Undo</button>
+        <button id="redo" title="Redo">Redo</button>
+        <button id="rotblock" title="Turn the whole block a quarter turn">Turn block</button>
+        <button id="clear">Clear block</button>
+      </div>
+      <div class="canvaswrap"><svg class="block" id="svg" viewBox="0 0 4 4" role="img" aria-label="Quilt block canvas"></svg></div>
+      <div class="stat" id="stat"></div>
+      <p class="tip" id="tip"></p>
+      <div class="msg" id="msg"></div>
+    </div>
+    <div class="stage only-quilt">
+      <div class="canvaswrap"><svg class="rep" id="rep" viewBox="0 0 12 12" aria-label="Quilt layout with sashing and borders"></svg></div>
+      <div class="qsize" id="qsize"></div>
+    </div>
+  </section>
+
+  <!-- RIGHT: cutting list and saving -->
+  <section class="pane right">
     <h2>Cutting list</h2>
     <div class="stat" id="unitstat" style="text-align:left"></div>
     <div class="cut" id="cut"></div>
@@ -188,6 +216,12 @@ textarea{width:100%;height:140px;font:.95rem "IBM Plex Mono",monospace;border:1p
     </div>
   </section>
 </div>
+
+<nav class="mbar" aria-label="Sections">
+  <button type="button" data-m="block" class="on">Block</button>
+  <button type="button" data-m="quilt">Quilt</button>
+  <button type="button" data-m="cut">Cutting list</button>
+</nav>
 
 <script>
 (() => {
@@ -218,6 +252,17 @@ let S = { n:4, size:12, cells:[], fabrics:DEFAULT_FABRICS.map(f=>({...f})), alt:
 const onPoint=()=>S.quilt.setting==='onpoint';
 const blocksCount=()=>{ const d=quiltDims(); return d.blocks; };
 let tool = {kind:'unit', t:'hst'};
+let view='block';
+function setView(v){
+  view = v==='quilt' ? 'quilt' : v==='cut' ? 'cut' : 'block';
+  const app=$('app'); app.dataset.view = view==='quilt' ? 'quilt' : 'block'; app.dataset.mview = view==='cut' ? 'cut' : 'canvas';
+  document.querySelectorAll('.views button').forEach(b=>b.classList.toggle('on', b.dataset.view===app.dataset.view));
+  document.querySelectorAll('.mbar button').forEach(b=>b.classList.toggle('on', b.dataset.m===view));
+  $('hint').textContent = view==='quilt' ? 'Set rows, columns, sashing and borders on the left. The cutting list follows.' : 'Tap a cell to place a unit. Tap it again to turn it. Pick a fabric, then tap a patch to color it.';
+  try { localStorage.setItem('qb_view', view); } catch(e){}
+}
+document.querySelector('.views').addEventListener('click', e=>{ const b=e.target.closest('[data-view]'); if (b) setView(b.dataset.view); });
+document.querySelector('.mbar').addEventListener('click', e=>{ const b=e.target.closest('[data-m]'); if (b) setView(b.dataset.m); });
 let undoStack=[], redoStack=[];
 const $ = id => document.getElementById(id);
 
@@ -541,6 +586,7 @@ let restored=false;
 try { const c=JSON.parse(localStorage.getItem('qb_current')||'null'); if (c && c.cells && c.cells.length===c.n){ S.n=c.n; S.size=c.size; S.cells=c.cells; S.fabrics=c.fabrics; S.alt=!!c.alt; if (c.quilt && c.quilt.borders) S.quilt=Object.assign({setting:'straight',setF:1},c.quilt); restored=true; } } catch(e){}
 if (!restored){ PRESETS.sawtooth(); }
 syncControls();
+try { setView(localStorage.getItem('qb_view')||'block'); } catch(e){ setView('block'); }
 $('tip').innerHTML='<b>Half-square</b> selected. Tap a cell to place it; tap it again to rotate.';
 render();
 })();
