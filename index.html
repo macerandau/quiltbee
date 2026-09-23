@@ -165,8 +165,9 @@ svg.rep{height:100%;width:auto;max-width:100%;background:var(--panel2);padding:1
 .hint{font-size:1rem;color:var(--muted);text-align:center;margin:0;padding:0 12px}
 .hint b{color:var(--ink)}
 .qc{display:flex;flex-direction:column;gap:10px}
-.brow{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:6px;align-items:center}
-.brow .lab{grid-column:1 / -1;font-size:.95rem;color:var(--muted);margin-top:2px}
+.brow{display:flex;flex-direction:column;gap:6px}
+.brow .lab{font-size:.95rem;color:var(--muted)}
+.binputs{display:grid;grid-template-columns:84px minmax(0,1fr);gap:8px}
 .saved{display:flex;flex-direction:column;gap:4px;margin-top:8px}
 .saved .it{display:flex;gap:6px;align-items:center;font-size:1rem;background:#fff;border-radius:7px;padding:3px 4px 3px 10px}
 .saved .it span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -286,7 +287,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
       <div class="palgrid" id="palgrid"></div>
       <div class="paintrow" id="paintrow"></div>
       <p class="tip" id="bgline"></p>
-      <p class="tip" id="paltip">Tap Main fabric or Background, then pick a color or print for it. Tap any patch to recolor it with the one that is lit.</p>
+      <p class="tip" id="paltip">Tap a chip, then pick its color or print. Tap any patch on the block to repaint it with the lit one.</p>
     </div>
     <div class="only-quilt">
       <div class="h2row"><h2>Quilt layout</h2><button id="resetquilt" class="small" title="Go back to the starting layout">Reset layout</button></div>
@@ -304,12 +305,13 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
             <div class="field"><label for="sashf">Sashing fabric</label><select id="sashf"></select></div>
           </div>
           <p class="tip" style="margin-top:4px">Inches between blocks. Use 0 for none.</p>
-          <label class="check" style="margin-top:6px"><input type="checkbox" id="corner" checked> Cornerstones where sashing crosses</label>
+          <label class="check" style="margin-top:6px"><input type="checkbox" id="corner" checked> Cornerstones</label>
           <div class="field"><label for="cornerf">Cornerstone fabric</label><select id="cornerf"></select></div>
         </div>
         <div class="section" style="margin-top:6px">
           <div class="h2row"><h2 style="font-size:1.05rem">Borders</h2><button id="addborder" class="small">+ Add border</button></div>
-          <div id="borders" style="display:flex;flex-direction:column;gap:6px"></div>
+          <p class="tip" style="margin:0 0 6px">Width in inches, then the fabric. Inner border first.</p>
+          <div id="borders" style="display:flex;flex-direction:column;gap:8px"></div>
         </div>
       </div>
     </div>
@@ -379,8 +381,8 @@ function inPoly(p, poly){ let c=false; for (let i=0,j=poly.length-1;i<poly.lengt
 // ---------- state ----------
 // ---------- colors, prints, fabrics ----------
 const NAMED_COLORS=[['Rose','#B85C72'],['Cream','#F6EFE2'],['Butter','#EFD27A'],['Sage','#8AA58A'],['Denim','#5B79A6'],['Plum','#7A5578'],['Brick','#A8503C'],['Teal','#3F8A8C'],['Navy','#2E3F73'],['Mustard','#D9A21B'],['Lilac','#B39BC8'],['Charcoal','#4A4A4A'],['Gray','#8C8C8C'],['Brown','#8A5A44'],['Coral','#E07A6E'],['Olive','#7D8B3E'],['Sky','#9DBBD8'],['Pink','#E8A2B4'],['Cranberry','#9A3B3B'],['Forest','#3F5F4A'],['Peach','#F2C4A6'],['White','#FFFFFF'],['Black','#2B2B2B']];
-const DEFAULT_COLORS=NAMED_COLORS.slice(0,12).map(c=>c[1]);
-const PRINTS={solid:{label:''},tone:{label:'tone on tone'},floral:{label:'floral'},dot:{label:'dot'},gingham:{label:'gingham'},stripe:{label:'stripe'},batik:{label:'batik'}};
+const DEFAULT_COLORS=NAMED_COLORS.slice(0,12).filter(c=>c[0]!=='Mustard').map(c=>c[1]);
+const PRINTS={solid:{label:''},tone:{label:'tonal'},floral:{label:'floral'},calico:{label:'calico'},dot:{label:'dot'},gingham:{label:'gingham'},stripe:{label:'stripe'},batik:{label:'batik'}};
 const DEFAULT_FABRICS=[{color:'#B85C72',print:'solid'},{color:'#F6EFE2',print:'solid'},{color:'#EFD27A',print:'solid'},{color:'#8AA58A',print:'solid'},{color:'#5B79A6',print:'solid'},{color:'#7A5578',print:'solid'}];
 let S = { n:4, size:12, cells:[], colors:DEFAULT_COLORS.slice(), fabrics:DEFAULT_FABRICS.map(f=>({...f})), main:0, bg:1, alt:false, quilt:{rows:3,cols:3,sash:2,sashF:1,corner:true,cornerF:2,borders:[{w:4,f:0}],setting:'straight',setF:3} };
 const onPoint=()=>S.quilt.setting==='onpoint';
@@ -400,6 +402,8 @@ function patternDef(id,f,upi){
     case 'tone': T=0.6; body=`<rect width="${T}" height="${T}" fill="${c}"/><circle cx=".15" cy=".15" r=".07" fill="${lighten(c,.22)}"/><circle cx=".45" cy=".45" r=".07" fill="${lighten(c,.22)}"/><ellipse cx=".45" cy=".15" rx=".09" ry=".045" fill="${darken(c,.1)}" opacity=".6"/><ellipse cx=".15" cy=".45" rx=".045" ry=".09" fill="${darken(c,.1)}" opacity=".6"/>`; break;
     case 'floral': { T=0.8; const pet=(cx,cy,r,d,fill)=>[0,72,144,216,288].map(a=>`<circle cx="${(cx+d*Math.cos(a*Math.PI/180)).toFixed(3)}" cy="${(cy+d*Math.sin(a*Math.PI/180)).toFixed(3)}" r="${r}" fill="${fill}"/>`).join('');
       body=`<rect width="${T}" height="${T}" fill="${c}"/>${pet(.4,.4,.085,.13,lighten(c,.6))}<circle cx=".4" cy=".4" r=".06" fill="${darken(c,.3)}"/>${pet(0,0,.055,.085,lighten(c,.6))}${pet(.8,.8,.055,.085,lighten(c,.6))}<ellipse cx=".68" cy=".22" rx=".07" ry=".035" transform="rotate(-35 .68 .22)" fill="${darken(c,.18)}"/><ellipse cx=".14" cy=".66" rx=".07" ry=".035" transform="rotate(40 .14 .66)" fill="${darken(c,.18)}"/>`; break; }
+    case 'calico': { T=0.42; const pet=(cx,cy,r,d,fill)=>[0,72,144,216,288].map(a=>`<circle cx="${(cx+d*Math.cos(a*Math.PI/180)).toFixed(3)}" cy="${(cy+d*Math.sin(a*Math.PI/180)).toFixed(3)}" r="${r}" fill="${fill}"/>`).join('');
+      body=`<rect width="${T}" height="${T}" fill="${c}"/>${pet(.21,.21,.038,.055,lighten(c,.62))}<circle cx=".21" cy=".21" r=".025" fill="${darken(c,.3)}"/>${pet(0,0,.03,.045,lighten(c,.62))}${pet(.42,.42,.03,.045,lighten(c,.62))}<circle cx=".36" cy=".1" r=".02" fill="${darken(c,.2)}"/><circle cx=".08" cy=".34" r=".02" fill="${darken(c,.2)}"/>`; break; }
     case 'dot': T=0.5; body=`<rect width="${T}" height="${T}" fill="${c}"/><circle cx=".25" cy=".25" r=".11" fill="${ink}"/>`; break;
     case 'gingham': T=0.5; body=`<rect width="${T}" height="${T}" fill="#FBF7F0"/><rect width=".25" height="${T}" fill="${c}" opacity=".5"/><rect width="${T}" height=".25" fill="${c}" opacity=".5"/>`; break;
     case 'stripe': T=0.5; body=`<rect width="${T}" height="${T}" fill="#FBF7F0"/><rect width=".22" height="${T}" fill="${c}"/>`; break;
@@ -566,7 +570,7 @@ function renderQuiltControls(){
   $('setrow').hidden=!onPoint(); $('rows').step=$('cols').step=onPoint()?2:1;
   $('sashf').innerHTML=fabricOptions(q.sashF); $('cornerf').innerHTML=fabricOptions(q.cornerF);
   $('sashf').disabled=!(+q.sash>0); $('corner').disabled=!(+q.sash>0); $('cornerf').disabled=!(+q.sash>0&&q.corner);
-  $('borders').innerHTML = q.borders.length ? q.borders.map((b,i)=>`<div class="brow"><span class="lab">Border ${i+1}: width in inches, fabric</span><input type="number" inputmode="decimal" min="0" max="20" step="0.25" value="${b.w}" data-bw="${i}" aria-label="Border ${i+1} width"><select data-bf="${i}" aria-label="Border ${i+1} fabric">${fabricOptions(b.f)}</select><button data-bdel="${i}" class="small" title="Remove border">Remove</button></div>`).join('') : '<p class="tip" style="margin:0">No borders yet.</p>';
+  $('borders').innerHTML = q.borders.length ? q.borders.map((b,i)=>`<div class="brow"><div class="h2row" style="margin:0"><span class="lab" style="margin:0">Border ${i+1}</span><button data-bdel="${i}" class="small" title="Remove border">Remove</button></div><div class="binputs"><input type="number" inputmode="decimal" min="0" max="20" step="0.25" value="${b.w}" data-bw="${i}" aria-label="Border ${i+1} width"><select data-bf="${i}" aria-label="Border ${i+1} fabric">${fabricOptions(b.f)}</select></div></div>`).join('') : '<p class="tip" style="margin:0">No borders yet.</p>';
   $('addborder').disabled = q.borders.length>=3;
 }
 let iconSeq=0;
@@ -654,7 +658,7 @@ function renderCut(){
   const perim=2*(d.W+d.H)+12, bindStrips=Math.ceil(perim/40), bindYd=Math.ceil(bindStrips*2.5/36*8)/8;
   const backPanels=Math.ceil((d.W+8)/40), backYd=Math.ceil(backPanels*(d.H+8)/36*8)/8;
   html+=`<div class="total"><span>Fabric for the top</span><span class="mono">${fmtYd(total)}</span></div>`;
-  html+=`<ul style="margin-top:8px"><li class="cutrow"><div class="l1"><b>${bindStrips}</b> × 2½" strips, width of fabric</div><div class="l2">binding, ${fmtYd(bindYd)}</div></li><li class="cutrow"><div class="l1"><b>${backPanels}</b> × ${fmt(d.H+8)}" panel${backPanels>1?'s':''}, width of fabric</div><div class="l2">backing, ${fmtYd(backYd)}</div></li></ul>`;
+  html+=`<h3 style="margin-top:14px"><span>Binding and backing</span></h3><ul><li class="cutrow"><div class="l1"><b>${bindStrips}</b> × 2½" strips, width of fabric</div><div class="l2">binding, ${fmtYd(bindYd)}</div></li><li class="cutrow"><div class="l1"><b>${backPanels}</b> × ${fmt(d.H+8)}" panel${backPanels>1?'s':''}, width of fabric</div><div class="l2">backing, ${fmtYd(backYd)}</div></li></ul>`;
   html+=`<p class="note">Cut sizes include ¼" seams. Yardage assumes 40" usable width, cut in strips, rounded up to ⅛ yd. Backing allows 4" overhang each side. No batting.</p>`;
   txt+=`\nTotal, top ${fmtYd(total)}\nBinding: ${bindStrips} x 2.5" WOF strips (${fmtYd(bindYd)})\nBacking: ${backPanels} x ${fmt(d.H+8)}" WOF panel(s) (${fmtYd(backYd)})\n(Seams 1/4". 40" usable width. No batting.)`;
   $('cut').innerHTML=html; $('txt').value=txt;
