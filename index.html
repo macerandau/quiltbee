@@ -1,136 +1,125 @@
 <title>Patchwork Block Editor</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
 <style>
 :root{
-  --bg:#F7F4EC; --ink:#1E2233; --muted:#555A6B; --rule:#D9D3C5; --panel:#FFFDF8; --panel2:#F1EDE2;
-  --indigo:#2E3F73; --indigo-soft:#E4E8F4; --cheddar:#D9A21B; --cheddar-soft:#F7ECCF; --red:#A4392E;
-  --seam:#FFFDF8;
-  --fs:17px; --ctl:44px; --radius:8px;
+  color-scheme:light;
+  --bg:#FAF6EE; --panel:#FFFDF9; --panel2:#F3EDE2; --ink:#2E2A33; --muted:#665F6B; --rule:#E4DACD; --rule2:#D2C5B4;
+  --rose:#A94B60; --rose-soft:#F8E7EA; --rose-line:#E3B9C3; --sage:#6F8F73; --butter:#F3D98C; --red:#9E3B3B;
+  --icon-a:#B85C72; --icon-b:#F6EFE2; --seam:#FFFDF9;
+  --fs:17px; --ctl:42px; --radius:10px;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){color-scheme:dark;
-    --bg:#171A26; --ink:#E9E4D8; --muted:#B0B3BF; --rule:#363A4C; --panel:#1F2333; --panel2:#262B3D;
-    --indigo:#8FA3E6; --indigo-soft:#262E4A; --cheddar:#E6B63A; --cheddar-soft:#3A3220; --red:#E07A6E; --seam:#1F2333;}
-}
-:root[data-theme="dark"]{color-scheme:dark;
-  --bg:#171A26; --ink:#E9E4D8; --muted:#B0B3BF; --rule:#363A4C; --panel:#1F2333; --panel2:#262B3D;
-  --indigo:#8FA3E6; --indigo-soft:#262E4A; --cheddar:#E6B63A; --cheddar-soft:#3A3220; --red:#E07A6E; --seam:#1F2333;}
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:var(--fs);line-height:1.5;padding:0 20px;display:flex;flex-direction:column;overflow:hidden}
-header{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:12px 0 10px;border-bottom:1px solid var(--rule);width:100%;max-width:1400px;margin:0 auto;flex:none}
-.views{display:flex;gap:0;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--panel)}
-.views button{border:none;border-radius:999px;min-height:38px;padding:4px 18px;background:transparent}
-.views button.on{background:var(--indigo);color:#fff}
-:root[data-theme="dark"] .views button.on{color:#15192B}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .views button.on{color:#15192B}}
-h1{font-family:"Fraunces",Georgia,serif;font-size:1.6rem;margin:0;font-weight:700;letter-spacing:-.01em}
-header .sub{color:var(--muted);font-size:1rem}
-.app{display:grid;grid-template-columns:280px minmax(320px,1fr) 360px;gap:16px;padding-block:14px;width:100%;max-width:1400px;margin:0 auto;flex:1;min-height:0}
-.pane{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px;overflow-y:auto;min-height:0;overscroll-behavior:contain}
-.pane.center{display:flex;flex-direction:column;overflow:hidden;padding:14px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible","Trebuchet MS",Verdana,sans-serif;font-size:var(--fs);line-height:1.45;padding:0 18px;display:flex;flex-direction:column;overflow:hidden}
+header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 0 8px;width:100%;max-width:1400px;margin:0 auto;flex:none}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:30px;height:30px;flex:none}
+h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:700;letter-spacing:-.005em}
+.views{display:flex;border:1px solid var(--rule2);border-radius:999px;padding:3px;background:var(--panel);margin-left:6px}
+.views button{border:none;border-radius:999px;min-height:36px;padding:2px 18px;background:transparent;font-weight:700;color:var(--muted)}
+.views button.on{background:var(--rose);color:#fff}
+.app{display:grid;grid-template-columns:300px minmax(320px,1fr) 340px;gap:14px;padding-block:6px 12px;width:100%;max-width:1400px;margin:0 auto;flex:1;min-height:0}
+.pane{background:var(--panel);border:1.5px dashed var(--rule2);border-radius:14px;padding:14px;overflow-y:auto;overflow-x:hidden;min-height:0;overscroll-behavior:contain}
+.pane.center{display:flex;flex-direction:column;overflow:hidden;background:transparent;border:none;padding:4px 0}
 .app[data-view="block"] .only-quilt{display:none}
 .app[data-view="quilt"] .only-block{display:none}
-.stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:8px}
 .canvaswrap{flex:1;min-height:0;width:100%;display:flex;justify-content:center;align-items:center}
 .mbar{display:none}
 @media (max-width:1000px){
-  .app{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:12px;padding-block:10px 0}
-  .views,header .sub{display:none}
-  .pane.center{height:min(50vh,calc(100vw - 40px));order:0}
+  .app{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:10px;padding-block:4px 0}
+  .views{display:none}
+  .pane.center{height:min(50vh,calc(100vw - 36px));order:0}
   .pane.left{order:1}
   .pane.right{display:none}
   .app[data-mview="cut"] .pane.center,.app[data-mview="cut"] .pane.left{display:none}
   .app[data-mview="cut"] .pane.right{display:block;grid-row:1 / -1}
-  .mbar{display:flex;flex:none;gap:6px;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--rule);background:var(--bg)}
-  .mbar button{flex:1;min-height:48px}
-  .mbar button.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
-  :root[data-theme="dark"] .mbar button.on{color:#15192B}
+  .mbar{display:flex;flex:none;gap:8px;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--rule);background:var(--bg)}
+  .mbar button{flex:1;min-height:46px;font-weight:700}
+  .mbar button.on{background:var(--rose);color:#fff;border-color:var(--rose)}
 }
-@media (prefers-color-scheme: dark) and (max-width:1000px){:root:not([data-theme="light"]) .mbar button.on{color:#15192B}}
-.pane h2,.quilt h2{font-family:"Fraunces",Georgia,serif;font-size:1.25rem;font-weight:600;margin:0 0 12px;color:var(--ink)}
-.pane .section{margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)}
-.savebox{background:var(--indigo-soft);border:1px solid var(--indigo);border-radius:var(--radius);padding:14px}
-.savebox h2{margin-bottom:10px}
-.savebox .tip{margin-top:8px}
-.savebox .saved .it{background:var(--panel);border-radius:6px;padding:4px 6px}
-.h2row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+h2{font-family:"Fraunces",Georgia,serif;font-size:1.2rem;font-weight:600;margin:0 0 8px;color:var(--ink)}
+.section{margin-top:16px;padding-top:12px;border-top:1px solid var(--rule)}
+.h2row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
 .h2row h2{margin:0}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-label.f{font-size:.95rem;color:var(--muted);display:flex;flex-direction:column;gap:5px}
-select,input[type=number],input[type=text]{font:inherit;font-size:1rem;min-height:var(--ctl);padding:8px 10px;border:1px solid var(--rule);border-radius:var(--radius);background:var(--panel);color:var(--ink);min-width:0}
-input[type=number]{width:84px;font-variant-numeric:tabular-nums}
-input[type=checkbox]{width:22px;height:22px;accent-color:var(--indigo);margin:0}
-button{font:inherit;font-size:1rem;min-height:var(--ctl);padding:8px 14px;border:1px solid var(--rule);border-radius:var(--radius);background:var(--panel);color:var(--ink);cursor:pointer}
-button:hover{border-color:var(--indigo)}
-button:focus-visible,select:focus-visible,input:focus-visible,.unitbtn:focus-visible{outline:3px solid var(--cheddar);outline-offset:2px}
-button.primary{background:var(--indigo);color:#fff;border-color:var(--indigo)}
-:root[data-theme="dark"] button.primary{color:#15192B}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.primary{color:#15192B}}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field{display:flex;flex-direction:column;gap:3px;min-width:0}
+.field > label,.field > .lab,label.f{font-size:.95rem;color:var(--muted)}
+.field select,.field input[type=text]{width:100%}
+select,input[type=number],input[type=text]{font:inherit;font-size:1rem;min-height:var(--ctl);padding:6px 10px;border:1px solid var(--rule2);border-radius:var(--radius);background:#fff;color:var(--ink);min-width:0}
+select{appearance:none;-webkit-appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23665F6B' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;padding-right:32px}
+input[type=number]{width:100%;font-variant-numeric:tabular-nums}
+input[type=checkbox]{width:22px;height:22px;accent-color:var(--rose);margin:0;flex:none}
+.check{display:flex;gap:10px;align-items:center;min-height:var(--ctl);color:var(--ink);font-size:1rem}
+button{font:inherit;font-size:1rem;min-height:var(--ctl);padding:6px 14px;border:1px solid var(--rule2);border-radius:var(--radius);background:#fff;color:var(--ink);cursor:pointer}
+button:hover{border-color:var(--rose)}
+button:focus-visible,select:focus-visible,input:focus-visible,.unitbtn:focus-visible{outline:3px solid var(--butter);outline-offset:2px}
+button.primary{background:var(--rose);color:#fff;border-color:var(--rose);font-weight:700}
 button:disabled{opacity:.45;cursor:default}
-button.small{min-height:36px;padding:4px 10px;font-size:.95rem}
-.units{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
-.unitbtn{display:flex;align-items:center;gap:12px;padding:8px 12px;min-height:52px;min-width:0;width:100%;border:2px solid var(--rule);border-radius:var(--radius);background:var(--panel);cursor:pointer;font-size:1rem;text-align:left;color:var(--ink)}
-.unitbtn svg{width:34px;height:34px;flex:none}
-.unitbtn.on{border-color:var(--indigo);background:var(--indigo-soft)}
-.fabrics{display:flex;flex-direction:column;gap:8px}
-.fab{display:grid;grid-template-columns:52px minmax(0,1fr);grid-template-rows:auto auto;min-width:0;gap:6px 10px;align-items:center;padding:6px;border:2px solid transparent;border-radius:var(--radius)}
-.fab.on{border-color:var(--indigo);background:var(--indigo-soft)}
-.fab .sw{grid-row:1 / 3;width:52px;height:52px;border-radius:8px;border:1px solid var(--rule);cursor:pointer;background-size:cover}
-.fab input[type=text]{grid-column:2;width:100%;font-size:1rem;padding:6px 10px;min-height:40px}
-.fab .tools{grid-column:2;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.fab input[type=color]{width:36px;height:36px;padding:0;border:1px solid var(--rule);border-radius:6px;background:none;cursor:pointer}
-.fab .tools button{min-height:36px;padding:2px 10px;font-size:.95rem}
-.tip{font-size:.95rem;color:var(--muted);margin:10px 0 0;min-height:1.4em}
+button.small{min-height:34px;padding:2px 10px;font-size:.95rem}
+.units{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.unitbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 4px 6px;min-height:76px;border:2px solid var(--rule);border-radius:var(--radius);background:#fff;cursor:pointer;font-size:.9rem;line-height:1.15;text-align:center;color:var(--ink)}
+.unitbtn svg{width:36px;height:36px;flex:none}
+.unitbtn.on{border-color:var(--rose);background:var(--rose-soft)}
+.fabrics{display:flex;flex-direction:column;gap:4px}
+.fab{display:grid;grid-template-columns:36px minmax(0,1fr);gap:4px 10px;align-items:center;padding:4px 6px;border:2px solid transparent;border-radius:var(--radius);cursor:pointer}
+.fab.on{border-color:var(--rose);background:var(--rose-soft)}
+.fab .sw{width:36px;height:36px;border-radius:7px;border:1px solid var(--rule2);background-size:cover}
+.fab input[type=text]{min-height:36px;padding:4px 8px;font-size:1rem;background:transparent;border-color:transparent}
+.fab.on input[type=text]{background:#fff;border-color:var(--rule2)}
+.fab .tools{display:none;grid-column:2;gap:6px;align-items:center;flex-wrap:wrap}
+.fab.on .tools{display:flex}
+.fab input[type=color]{width:34px;height:34px;padding:0;border:1px solid var(--rule2);border-radius:6px;background:none;cursor:pointer}
+.fab .tools button{min-height:34px;padding:2px 10px;font-size:.95rem}
+.tip{font-size:.95rem;color:var(--muted);margin:8px 0 0;line-height:1.4}
 .tip b{color:var(--ink)}
-svg.block{height:100%;width:auto;max-width:100%;aspect-ratio:1;touch-action:manipulation;background:var(--panel2);border-radius:var(--radius);display:block}
-svg.block .empty{fill:var(--panel2);stroke:var(--rule);stroke-width:.02;stroke-dasharray:.06 .05}
+svg.block{height:100%;width:auto;max-width:100%;aspect-ratio:1;touch-action:manipulation;background:var(--panel2);border-radius:var(--radius);display:block;box-shadow:0 1px 0 var(--rule2)}
+svg.block .empty{fill:var(--panel2);stroke:var(--rule2);stroke-width:.02;stroke-dasharray:.06 .05}
 svg.block polygon{stroke:var(--seam);stroke-width:.025;stroke-linejoin:round;cursor:pointer}
-svg.block polygon:hover{stroke:var(--cheddar);stroke-width:.05}
+svg.block polygon:hover{stroke:var(--rose);stroke-width:.05}
+svg.rep{height:100%;width:auto;max-width:100%;background:var(--panel2);border-radius:var(--radius);display:block;box-shadow:0 1px 0 var(--rule2)}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .stat{font-size:.95rem;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
-.quilt{margin-top:22px;padding-top:18px;border-top:1px solid var(--rule);display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px}
-@media (max-width:820px){.quilt{grid-template-columns:1fr}}
-svg.rep{height:100%;width:auto;max-width:100%;background:var(--panel2);border-radius:var(--radius);display:block}
-.qc{display:flex;flex-direction:column;gap:10px;font-size:1rem}
-.field{display:grid;grid-template-columns:132px minmax(0,1fr);gap:8px 10px;align-items:center}
-.field > label,.field > .lab{color:var(--muted);font-size:.95rem}
-.field select{width:100%}
-.check{display:flex;gap:10px;align-items:center;min-height:var(--ctl);color:var(--ink);font-size:1rem}
-.inl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.inl span{color:var(--muted);font-size:.95rem}
-.qsub{margin-top:8px;padding-top:12px;border-top:1px dashed var(--rule)}
-.brow{display:grid;grid-template-columns:132px minmax(0,1fr);gap:6px 10px;align-items:center}
-.brow .lab{color:var(--muted);font-size:.95rem}
-.brow select{grid-column:2}
 .qsize{font-size:.95rem;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center;flex:none}
-.mono{font-variant-numeric:tabular-nums}
-.cut{font-size:1rem}
-.cut h3{font-size:1.05rem;margin:14px 0 6px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600}
-.cut h3 .sw{width:18px;height:18px;border-radius:4px;border:1px solid var(--rule);display:inline-block;vertical-align:-3px;margin-right:8px;background-size:cover}
-.cut h3 .yd{color:var(--indigo);white-space:nowrap;font-variant-numeric:tabular-nums}
-.cut ul{margin:0;padding:0;list-style:none}
-.cutrow{display:grid;grid-template-columns:3em 8.5em minmax(0,1fr);gap:0 10px;padding:4px 0;border-bottom:1px solid var(--rule);align-items:baseline}
-.cutrow .n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
-.cutrow .sz{font-variant-numeric:tabular-nums;white-space:nowrap}
-.cutrow .lab{color:var(--muted);font-size:.95rem}
-.cut .note{color:var(--muted);font-size:.95rem;margin-top:12px;line-height:1.45}
-.total{margin-top:14px;padding-top:12px;border-top:2px solid var(--rule);font-weight:600;display:flex;justify-content:space-between;font-size:1.1rem}
-textarea{width:100%;height:140px;font:.95rem "IBM Plex Mono",monospace;border:1px solid var(--rule);border-radius:var(--radius);background:var(--panel);color:var(--ink);padding:8px;margin-top:8px}
-.saved{display:flex;flex-direction:column;gap:6px;margin-top:8px}
-.saved .it{display:flex;gap:8px;align-items:center;font-size:1rem}
+.hint{font-size:1rem;color:var(--muted);text-align:center;margin:0;padding:0 12px}
+.hint b{color:var(--ink)}
+.qc{display:flex;flex-direction:column;gap:10px}
+.brow{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:6px;align-items:center}
+.brow .lab{grid-column:1 / -1;font-size:.95rem;color:var(--muted);margin-top:2px}
+.savebox{background:var(--rose-soft);border:1px solid var(--rose-line);border-radius:var(--radius);padding:12px}
+.savebox h2{margin-bottom:8px}
+.savebox .row{flex-wrap:nowrap}
+.savebox input[type=text]{flex:1;min-width:0}
+.savebox .tip{margin-top:6px}
+.saved{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.saved .it{display:flex;gap:6px;align-items:center;font-size:1rem;background:#fff;border-radius:7px;padding:3px 4px 3px 10px}
 .saved .it span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.msg{font-size:.95rem;color:var(--red);min-height:1.4em;text-align:center}
+.cut{font-size:1rem}
+.cut h3{font-size:1.05rem;margin:14px 0 4px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:700}
+.cut h3 .sw{width:18px;height:18px;border-radius:4px;border:1px solid var(--rule2);display:inline-block;vertical-align:-3px;margin-right:8px;background-size:cover}
+.cut h3 .yd{color:var(--rose);white-space:nowrap;font-variant-numeric:tabular-nums}
+.cut ul{margin:0;padding:0;list-style:none}
+.cutrow{padding:5px 0;border-bottom:1px solid var(--rule)}
+.cutrow .l1{font-variant-numeric:tabular-nums}
+.cutrow .l1 b{font-size:1.05rem}
+.cutrow .l2{color:var(--muted);font-size:.95rem;line-height:1.35}
+.cut .note{color:var(--muted);font-size:.95rem;margin-top:10px;line-height:1.4}
+.total{margin-top:12px;padding-top:10px;border-top:2px solid var(--rule2);font-weight:700;display:flex;justify-content:space-between;font-size:1.1rem}
+textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px solid var(--rule2);border-radius:var(--radius);background:#fff;color:var(--ink);padding:8px;margin-top:8px}
+.msg{font-size:.95rem;color:var(--red);min-height:1.3em;text-align:center}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
 
 <header>
+  <div class="brand" aria-hidden="true">
+    <svg viewBox="0 0 30 30"><rect width="30" height="30" rx="5" fill="#F6EFE2"/><path d="M3 3h12v12H3zM15 15h12v12H15z" fill="#B85C72"/><path d="M15 3l12 12H15zM3 15l12 12H3z" fill="#6F8F73"/></svg>
+  </div>
   <h1>Patchwork Block Editor</h1>
   <nav class="views" aria-label="View">
     <button type="button" data-view="block" class="on">Block</button>
     <button type="button" data-view="quilt">Quilt</button>
   </nav>
-  <span class="sub" id="hint">Tap a cell to place a unit. Tap it again to turn it. Pick a fabric, then tap a patch to color it.</span>
 </header>
 
 <div class="app" id="app" data-view="block" data-mview="canvas">
@@ -138,52 +127,59 @@ textarea{width:100%;height:140px;font:.95rem "IBM Plex Mono",monospace;border:1p
   <section class="pane left">
     <div class="only-block">
       <h2>Block</h2>
-      <div class="row">
-        <label class="f">Grid <select id="grid" style="width:96px"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
-        <label class="f">Finished size <select id="size" style="width:110px"><option>6</option><option>8</option><option>9</option><option>10</option><option selected>12</option><option>15</option><option>16</option></select></label>
+      <div class="two">
+        <div class="field"><label for="grid">Grid</label><select id="grid"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+        <div class="field"><label for="size">Finished size</label><select id="size"><option value="6">6 inches</option><option value="8">8 inches</option><option value="9">9 inches</option><option value="10">10 inches</option><option value="12" selected>12 inches</option><option value="15">15 inches</option><option value="16">16 inches</option></select></div>
       </div>
-      <div class="row" style="margin-top:10px">
-        <label class="f" style="flex:1">Start from <select id="preset">
-          <option value="">— choose a block —</option>
-          <option value="sawtooth">Sawtooth Star (4×4)</option>
-          <option value="ohio">Ohio Star (3×3)</option>
-          <option value="shoofly">Shoo Fly (3×3)</option>
-          <option value="churn">Churn Dash (3×3)</option>
-          <option value="ninepatch">Nine Patch (3×3)</option>
-          <option value="drunk">Drunkard's Path (2×2)</option>
-          <option value="pinwheel">Pinwheel (2×2)</option>
-          <option value="blank">Blank grid</option>
-        </select></label>
-      </div>
+      <div class="field" style="margin-top:8px"><label for="preset">Start from a classic block</label><select id="preset">
+        <option value="">Choose a block…</option>
+        <option value="sawtooth">Sawtooth Star</option>
+        <option value="ohio">Ohio Star</option>
+        <option value="shoofly">Shoo Fly</option>
+        <option value="churn">Churn Dash</option>
+        <option value="ninepatch">Nine Patch</option>
+        <option value="drunk">Drunkard's Path</option>
+        <option value="pinwheel">Pinwheel</option>
+        <option value="blank">Blank grid</option>
+      </select></div>
       <div class="section">
-        <h2>Units</h2>
+        <h2>Pieces</h2>
         <div class="units" id="units"></div>
-        <p class="tip" id="unittip">Tap a cell to place the unit. Tap the same unit again to rotate it.</p>
+        <p class="tip" id="unittip">Pick a piece, then tap a square on the block. Tap it again to turn it.</p>
       </div>
     </div>
     <div class="only-quilt">
       <h2>Quilt layout</h2>
       <div class="qc">
-        <div class="field"><label for="setting">Setting</label><select id="setting"><option value="straight">Straight</option><option value="onpoint">On point</option></select></div>
-        <div class="field" id="setrow"><label for="setf">Triangle fabric</label><select id="setf"></select></div>
-        <div class="field"><label for="rows">Rows</label><input type="number" id="rows" min="1" max="20" value="3"></div>
-        <div class="field"><label for="cols">Columns</label><input type="number" id="cols" min="1" max="20" value="3"></div>
-        <div class="field"><span class="lab">Alternate</span><label class="check"><input type="checkbox" id="alt"> Turn every other block</label></div>
-        <div class="qsub"></div>
-        <div class="field"><label for="sash">Sashing</label><div class="inl"><input type="number" id="sash" min="0" max="12" step="0.25" value="2"> <span>inches, 0 for none</span></div></div>
-        <div class="field"><label for="sashf">Sashing fabric</label><select id="sashf"></select></div>
-        <div class="field"><span class="lab">Cornerstones</span><label class="check"><input type="checkbox" id="corner" checked> Add cornerstones</label></div>
-        <div class="field"><label for="cornerf">Cornerstone fabric</label><select id="cornerf"></select></div>
-        <div class="qsub"></div>
-        <div class="field"><span class="lab">Borders</span><button id="addborder" class="small">+ Add border</button></div>
-        <div id="borders" style="display:flex;flex-direction:column;gap:12px"></div>
+        <div class="field"><label for="setting">Setting</label><select id="setting"><option value="straight">Straight rows</option><option value="onpoint">On point (diamonds)</option></select></div>
+        <div class="field" id="setrow"><label for="setf">Setting triangle fabric</label><select id="setf"></select></div>
+        <div class="two">
+          <div class="field"><label for="rows">Rows</label><input type="number" id="rows" min="1" max="20" value="3"></div>
+          <div class="field"><label for="cols">Columns</label><input type="number" id="cols" min="1" max="20" value="3"></div>
+        </div>
+        <label class="check"><input type="checkbox" id="alt"> Turn every other block</label>
+        <div class="section" style="margin-top:6px">
+          <div class="two">
+            <div class="field"><label for="sash">Sashing width</label><input type="number" id="sash" min="0" max="12" step="0.25" value="2"></div>
+            <div class="field"><label for="sashf">Sashing fabric</label><select id="sashf"></select></div>
+          </div>
+          <p class="tip" style="margin-top:4px">Inches between blocks. Use 0 for none.</p>
+          <div class="two" style="margin-top:8px;align-items:end">
+            <label class="check"><input type="checkbox" id="corner" checked> Cornerstones</label>
+            <div class="field"><label for="cornerf">Cornerstone fabric</label><select id="cornerf"></select></div>
+          </div>
+        </div>
+        <div class="section" style="margin-top:6px">
+          <div class="h2row"><h2 style="font-size:1.05rem">Borders</h2><button id="addborder" class="small">+ Add border</button></div>
+          <div id="borders" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
       </div>
     </div>
     <div class="section">
       <h2>Fabrics</h2>
       <div class="fabrics" id="fabrics"></div>
-      <div class="row" style="margin-top:10px"><button id="addfab">+ Add fabric</button></div>
-      <p class="tip">Pick a fabric, then tap any patch. Use the color square to change it, or Photo to use a picture of real fabric.</p>
+      <div class="row" style="margin-top:8px"><button id="addfab" class="small">+ Add fabric</button></div>
+      <p class="tip">Pick a fabric, then tap any patch on the block to color it.</p>
     </div>
   </section>
 
@@ -198,25 +194,26 @@ textarea{width:100%;height:140px;font:.95rem "IBM Plex Mono",monospace;border:1p
       </div>
       <div class="canvaswrap"><svg class="block" id="svg" viewBox="0 0 4 4" role="img" aria-label="Quilt block canvas"></svg></div>
       <div class="stat" id="stat"></div>
-      <p class="tip" id="tip"></p>
+      <p class="hint" id="tip"></p>
       <div class="msg" id="msg"></div>
     </div>
     <div class="stage only-quilt">
       <div class="canvaswrap"><svg class="rep" id="rep" viewBox="0 0 12 12" aria-label="Quilt layout with sashing and borders"></svg></div>
       <div class="qsize" id="qsize"></div>
+      <p class="hint" id="hint">Set rows, columns, sashing and borders on the left. The cutting list updates as you go.</p>
     </div>
   </section>
 
-  <!-- RIGHT: cutting list and saving -->
+  <!-- RIGHT: saving and cutting list -->
   <section class="pane right">
     <div class="savebox">
       <h2>Save this block</h2>
-      <div class="row"><input type="text" id="name" placeholder="Block name" style="flex:1;min-width:120px"><button class="primary" id="save">Save</button></div>
+      <div class="row"><input type="text" id="name" placeholder="Give it a name"><button class="primary" id="save">Save</button></div>
       <div class="saved" id="saved"></div>
       <p class="tip">Saved on this device only.</p>
     </div>
     <div class="section">
-      <div class="h2row"><h2>Cutting list</h2><button id="copy" class="small">Copy list</button></div>
+      <div class="h2row"><h2>Pieces to cut</h2><button id="copy" class="small">Copy list</button></div>
       <div class="stat" id="unitstat" style="text-align:left"></div>
       <div class="stat" id="copied" style="text-align:left"></div>
       <div class="cut" id="cut"></div>
@@ -228,7 +225,7 @@ textarea{width:100%;height:140px;font:.95rem "IBM Plex Mono",monospace;border:1p
 <nav class="mbar" aria-label="Sections">
   <button type="button" data-m="block" class="on">Block</button>
   <button type="button" data-m="quilt">Quilt</button>
-  <button type="button" data-m="cut">Cutting list</button>
+  <button type="button" data-m="cut">Pieces to cut</button>
 </nav>
 
 <script>
@@ -238,11 +235,11 @@ textarea{width:100%;height:140px;font:.95rem "IBM Plex Mono",monospace;border:1p
 const ARC = (() => { const pts=[]; for (let i=0;i<=12;i++){ const a=i/12*Math.PI/2; pts.push([Math.cos(a),Math.sin(a)]); } return pts; })();
 const UNITS = {
   sq:   {name:'Square',            w:1,h:1, polys:[[[0,0],[1,0],[1,1],[0,1]]], f:[0]},
-  hst:  {name:'Half-square',       w:1,h:1, polys:[[[0,0],[1,0],[0,1]],[[1,0],[1,1],[0,1]]], f:[0,1]},
-  qst:  {name:'Quarter-square',    w:1,h:1, polys:[[[0,0],[1,0],[.5,.5]],[[1,0],[1,1],[.5,.5]],[[1,1],[0,1],[.5,.5]],[[0,1],[0,0],[.5,.5]]], f:[0,1,0,1]},
+  hst:  {name:'Half triangle',     w:1,h:1, polys:[[[0,0],[1,0],[0,1]],[[1,0],[1,1],[0,1]]], f:[0,1]},
+  qst:  {name:'Hourglass',         w:1,h:1, polys:[[[0,0],[1,0],[.5,.5]],[[1,0],[1,1],[.5,.5]],[[1,1],[0,1],[.5,.5]],[[0,1],[0,0],[.5,.5]]], f:[0,1,0,1]},
   fg:   {name:'Flying geese',      w:2,h:1, polys:[[[0,1],[2,1],[1,0]],[[0,0],[1,0],[0,1]],[[1,0],[2,0],[2,1]]], f:[0,1,1]},
-  rect: {name:'Rectangle pair',    w:1,h:1, polys:[[[0,0],[.5,0],[.5,1],[0,1]],[[.5,0],[1,0],[1,1],[.5,1]]], f:[0,1]},
-  curve:{name:"Drunkard's path",   w:1,h:1, polys:[[[0,0],...ARC],[[1,0],[1,1],[0,1],...ARC.slice().reverse()]], f:[1,0]},
+  rect: {name:'Two bars',          w:1,h:1, polys:[[[0,0],[.5,0],[.5,1],[0,1]],[[.5,0],[1,0],[1,1],[.5,1]]], f:[0,1]},
+  curve:{name:'Curve',             w:1,h:1, polys:[[[0,0],...ARC],[[1,0],[1,1],[0,1],...ARC.slice().reverse()]], f:[1,0]},
 };
 function geom(t, rot){
   let w=UNITS[t].w, h=UNITS[t].h, polys=UNITS[t].polys.map(p=>p.map(q=>q.slice()));
@@ -253,8 +250,8 @@ function inPoly(p, poly){ let c=false; for (let i=0,j=poly.length-1;i<poly.lengt
 
 // ---------- state ----------
 const DEFAULT_FABRICS = [
-  {name:'Indigo', color:'#2E3F73'}, {name:'Muslin', color:'#F1E9D6'}, {name:'Cheddar', color:'#D9A21B'},
-  {name:'Brown', color:'#8A5A44'}, {name:'Sage', color:'#7E9573'}, {name:'Cranberry', color:'#9A3B3B'},
+  {name:'Rose', color:'#B85C72'}, {name:'Cream', color:'#F6EFE2'}, {name:'Butter', color:'#EFD27A'},
+  {name:'Sage', color:'#8AA58A'}, {name:'Denim', color:'#5B79A6'}, {name:'Plum', color:'#7A5578'},
 ];
 let S = { n:4, size:12, cells:[], fabrics:DEFAULT_FABRICS.map(f=>({...f})), alt:false, quilt:{rows:3,cols:3,sash:2,sashF:1,corner:true,cornerF:2,borders:[{w:4,f:0}],setting:'straight',setF:1} };
 const onPoint=()=>S.quilt.setting==='onpoint';
@@ -266,7 +263,7 @@ function setView(v){
   const app=$('app'); app.dataset.view = view==='quilt' ? 'quilt' : 'block'; app.dataset.mview = view==='cut' ? 'cut' : 'canvas';
   document.querySelectorAll('.views button').forEach(b=>b.classList.toggle('on', b.dataset.view===app.dataset.view));
   document.querySelectorAll('.mbar button').forEach(b=>b.classList.toggle('on', b.dataset.m===view));
-  $('hint').textContent = view==='quilt' ? 'Set rows, columns, sashing and borders on the left. The cutting list follows.' : 'Tap a cell to place a unit. Tap it again to turn it. Pick a fabric, then tap a patch to color it.';
+
   try { localStorage.setItem('qb_view', view); } catch(e){}
 }
 document.querySelector('.views').addEventListener('click', e=>{ const b=e.target.closest('[data-view]'); if (b) setView(b.dataset.view); });
@@ -388,7 +385,7 @@ function renderQuilt(){
   }
   acc=0; for (let i=q.borders.length-1;i>=0;i--){ const w=Math.max(0,+q.borders[i].w||0); if(!w) continue; out+=`<rect x="${acc}" y="${acc}" width="${d.W-2*acc}" height="${d.H-2*acc}" fill="none" stroke="var(--seam)" stroke-width="${Math.max(.08,d.W/500)}"/>`; acc+=w; }
   rep.innerHTML=out;
-  $('qsize').textContent=`Finished quilt ${fmt(d.W)}" × ${fmt(d.H)}" · ${d.blocks} blocks of ${d.B}"${d.onpoint?` on point, ${d.rows} × ${d.cols} lattice`:` in ${d.rows} × ${d.cols}`}`;
+  $('qsize').textContent=`Finished quilt ${fmt(d.W)}" × ${fmt(d.H)}" · ${d.blocks} blocks of ${d.B}"${d.onpoint?' set on point':''}`;
   renderQuiltControls();
 }
 function fabricOptions(sel){ return S.fabrics.map((f,i)=>`<option value="${i}" ${i===sel?'selected':''}>${esc(f.name)}</option>`).join(''); }
@@ -400,13 +397,13 @@ function renderQuiltControls(){
   $('setrow').hidden=!onPoint(); $('rows').step=$('cols').step=onPoint()?2:1;
   $('sashf').innerHTML=fabricOptions(q.sashF); $('cornerf').innerHTML=fabricOptions(q.cornerF);
   $('sashf').disabled=!(+q.sash>0); $('corner').disabled=!(+q.sash>0); $('cornerf').disabled=!(+q.sash>0&&q.corner);
-  $('borders').innerHTML = q.borders.length ? q.borders.map((b,i)=>`<div class="brow"><span class="lab">Border ${i+1}</span><div class="inl"><input type="number" min="0" max="20" step="0.25" value="${b.w}" data-bw="${i}" aria-label="Border ${i+1} width"> <span>inches</span><button data-bdel="${i}" class="small" title="Remove border">Remove</button></div><select data-bf="${i}" aria-label="Border ${i+1} fabric">${fabricOptions(b.f)}</select></div>`).join('') : '<p class="tip" style="margin:0">No borders yet.</p>';
+  $('borders').innerHTML = q.borders.length ? q.borders.map((b,i)=>`<div class="brow"><span class="lab">Border ${i+1} · width in inches, then fabric</span><input type="number" min="0" max="20" step="0.25" value="${b.w}" data-bw="${i}" aria-label="Border ${i+1} width"><select data-bf="${i}" aria-label="Border ${i+1} fabric">${fabricOptions(b.f)}</select><button data-bdel="${i}" class="small" title="Remove border">Remove</button></div>`).join('') : '<p class="tip" style="margin:0">No borders yet.</p>';
   $('addborder').disabled = q.borders.length>=3;
 }
 function unitIcon(t){
-  const g=geom(t,0); const cols=['var(--indigo)','var(--cheddar)','var(--cheddar)','var(--indigo)'];
-  const alt = t==='curve' ? ['var(--cheddar)','var(--indigo)'] : t==='qst' ? ['var(--indigo)','var(--cheddar)','var(--indigo)','var(--cheddar)'] : cols;
-  return `<svg viewBox="0 0 ${g.w} ${g.h}" style="width:${g.w>1?50:34}px">${g.polys.map((p,i)=>`<polygon points="${p.map(q=>q.join(',')).join(' ')}" fill="${alt[i]}" stroke="var(--panel)" stroke-width=".04"/>`).join('')}</svg>`;
+  const g=geom(t,0); const cols=['var(--icon-a)','var(--icon-b)','var(--icon-b)','var(--icon-a)'];
+  const alt = t==='curve' ? ['var(--icon-b)','var(--icon-a)'] : t==='qst' ? ['var(--icon-a)','var(--icon-b)','var(--icon-a)','var(--icon-b)'] : cols;
+  return `<svg viewBox="0 0 ${g.w} ${g.h}" style="width:${g.w>1?54:36}px">${g.polys.map((p,i)=>`<polygon points="${p.map(q=>q.join(',')).join(' ')}" fill="${alt[i]}" stroke="#D2C5B4" stroke-width=".04"/>`).join('')}</svg>`;
 }
 function renderUnits(){
   $('units').innerHTML = Object.keys(UNITS).map(t=>`<button class="unitbtn ${tool.kind==='unit'&&tool.t===t?'on':''}" data-t="${t}" type="button">${unitIcon(t)}<span>${UNITS[t].name}</span></button>`).join('');
@@ -415,7 +412,7 @@ function renderFabrics(){
   $('fabrics').innerHTML = S.fabrics.map((f,i)=>`<div class="fab ${tool.kind==='fabric'&&tool.i===i?'on':''}" data-i="${i}">
     <div class="sw" style="background:${f.img?`url(${f.img}) center/cover`:f.color}" title="Select fabric"></div>
     <input type="text" value="${esc(f.name)}" data-name="${i}" aria-label="Fabric name">
-    <div class="tools"><input type="color" value="${f.color}" data-color="${i}" title="Change color" aria-label="Color"><button data-photo="${i}" title="Use a photo of the fabric">Photo</button>${S.fabrics.length>2?`<button data-del="${i}" title="Remove this fabric">Remove</button>`:''}</div>
+    <div class="tools"><input type="color" value="${f.color}" data-color="${i}" title="Change color" aria-label="Color"><button data-photo="${i}" title="Use a photo of the fabric">Use a photo</button>${S.fabrics.length>2?`<button data-del="${i}" title="Remove this fabric">Remove</button>`:''}</div>
   </div>`).join('');
 }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
@@ -474,19 +471,19 @@ function cutData(){
 }
 function renderCut(){
   const data=cutData(); const B=blocksCount(); const d=quiltDims();
-  if (!data.length){ $('cut').innerHTML='<p class="tip">Place some units to see the cutting list.</p>'; $('txt').value=''; return; }
+  if (!data.length){ $('cut').innerHTML='<p class="tip">Place some pieces on the block to see what to cut.</p>'; $('txt').value=''; return; }
   let html='', txt=`Cutting list · ${S.n}x${S.n} block, ${S.size}" finished · ${d.rows}x${d.cols} blocks, quilt ${fmt(d.W)}" x ${fmt(d.H)}"\n`;
   let total=0;
   data.forEach(d=>{ total+=d.yards;
     html+=`<h3><span><span class="sw" style="background:${d.fabric.img?`url(${d.fabric.img}) center/cover`:d.fabric.color}"></span>${esc(d.fabric.name)}</span><span class="yd">${fmtYd(d.yards)}</span></h3><ul>`;
     txt+=`\n${d.fabric.name} — ${fmtYd(d.yards)}\n`;
-    d.pieces.forEach(p=>{ const line=`${p.n} × ${fmt(p.w)}" × ${fmt(p.h)}" ${p.label}`; html+=`<li class="cutrow"><span class="n">${p.n}</span><span class="sz">${fmt(p.w)}" × ${fmt(p.h)}"</span><span class="lab">${p.label}</span></li>`; txt+=`  ${line}\n`; });
+    d.pieces.forEach(p=>{ const line=`${p.n} × ${fmt(p.w)}" × ${fmt(p.h)}" ${p.label}`; html+=`<li class="cutrow"><div class="l1"><b>${p.n}</b> × ${fmt(p.w)}" × ${fmt(p.h)}"</div><div class="l2">${p.label}</div></li>`; txt+=`  ${line}\n`; });
     html+='</ul>';
   });
   const perim=2*(d.W+d.H)+12, bindStrips=Math.ceil(perim/40), bindYd=Math.ceil(bindStrips*2.5/36*8)/8;
   const backPanels=Math.ceil((d.W+8)/40), backYd=Math.ceil(backPanels*(d.H+8)/36*8)/8;
-  html+=`<div class="total"><span>Total, top</span><span class="mono">${fmtYd(total)}</span></div>`;
-  html+=`<ul style="margin-top:8px"><li class="cutrow"><span class="n">${bindStrips}</span><span class="sz">2½" strips</span><span class="lab">binding, width of fabric, ${fmtYd(bindYd)}</span></li><li class="cutrow"><span class="n">${backPanels}</span><span class="sz">${fmt(d.H+8)}" panel${backPanels>1?'s':''}</span><span class="lab">backing, width of fabric, ${fmtYd(backYd)}</span></li></ul>`;
+  html+=`<div class="total"><span>Fabric for the top</span><span class="mono">${fmtYd(total)}</span></div>`;
+  html+=`<ul style="margin-top:8px"><li class="cutrow"><div class="l1"><b>${bindStrips}</b> × 2½" strips, width of fabric</div><div class="l2">binding, ${fmtYd(bindYd)}</div></li><li class="cutrow"><div class="l1"><b>${backPanels}</b> × ${fmt(d.H+8)}" panel${backPanels>1?'s':''}, width of fabric</div><div class="l2">backing, ${fmtYd(backYd)}</div></li></ul>`;
   html+=`<p class="note">Cut sizes include ¼" seams. Yardage assumes 40" usable width, cut in strips, rounded up to ⅛ yd. Backing allows 4" overhang each side. No batting.</p>`;
   txt+=`\nTotal, top ${fmtYd(total)}\nBinding: ${bindStrips} x 2.5" WOF strips (${fmtYd(bindYd)})\nBacking: ${backPanels} x ${fmt(d.H+8)}" WOF panel(s) (${fmtYd(backYd)})\n(Seams 1/4". 40" usable width. No batting.)`;
   $('cut').innerHTML=html; $('txt').value=txt;
@@ -517,24 +514,26 @@ $('svg').addEventListener('click', evt=>{
       let ok=placeUnit(r,c,tool.t,0);
       if (!ok){ // try shifting geese left/up so it fits at the edge
         const g=geom(tool.t,0); ok=placeUnit(Math.min(r,S.n-g.h),Math.min(c,S.n-g.w),tool.t,0);
-        if (!ok){ $('msg').textContent='That unit does not fit there.'; undoStack.pop(); }
+        if (!ok){ $('msg').textContent='That piece does not fit there.'; undoStack.pop(); }
       }
     }
     render(); return;
   }
   if (tool.kind==='fabric'){
-    const a=anchorOf(r,c); if (!a){ $('msg').textContent='Place a unit here first.'; return; }
+    const a=anchorOf(r,c); if (!a){ $('msg').textContent='Place a piece here first.'; return; }
     const g=geom(a.u.t,a.u.rot); const local=[p.x-a.c, p.y-a.r];
     let idx=g.polys.findIndex(poly=>inPoly(local,poly)); if (idx<0) idx=0;
     snapshot(); a.u.f[idx]=tool.i; render();
   }
 });
-$('units').addEventListener('click', e=>{ const b=e.target.closest('[data-t]'); if(!b) return; tool={kind:'unit',t:b.dataset.t}; $('tip').innerHTML=`<b>${UNITS[tool.t].name}</b> selected. Tap a cell to place it; tap it again to rotate.`; renderUnits(); renderFabrics(); });
+$('units').addEventListener('click', e=>{ const b=e.target.closest('[data-t]'); if(!b) return; tool={kind:'unit',t:b.dataset.t}; $('tip').innerHTML=`<b>${UNITS[tool.t].name}</b> is picked. Tap a square on the block to place it. Tap it again to turn it.`; renderUnits(); renderFabrics(); });
 $('fabrics').addEventListener('click', e=>{
   const del=e.target.closest('[data-del]'); if (del){ snapshot(); const i=+del.dataset.del; S.fabrics.splice(i,1); for (const row of S.cells) for (const cell of row) if (cell&&cell.f) cell.f=cell.f.map(x=> x===i?0 : x>i? x-1 : x); const rm=x=> x===i?0 : x>i? x-1 : x; S.quilt.sashF=rm(S.quilt.sashF); S.quilt.cornerF=rm(S.quilt.cornerF); S.quilt.setF=rm(S.quilt.setF??1); S.quilt.borders.forEach(b=>b.f=rm(b.f)); if (tool.kind==='fabric') tool={kind:'unit',t:'hst'}; render(); return; }
   const ph=e.target.closest('[data-photo]'); if (ph){ pickPhoto(+ph.dataset.photo); return; }
-  if (e.target.matches('input')) return;
-  const f=e.target.closest('[data-i]'); if(!f) return; tool={kind:'fabric',i:+f.dataset.i}; $('tip').innerHTML=`<b>${esc(S.fabrics[tool.i].name)}</b> selected. Tap any patch to color it.`; renderUnits(); renderFabrics();
+  const f=e.target.closest('[data-i]'); if(!f) return;
+  if (e.target.matches('input') && f.classList.contains('on')) return;   // editing the picked fabric's name or color
+  if (e.target.matches('input[type=color]')) return;
+  tool={kind:'fabric',i:+f.dataset.i}; $('tip').innerHTML=`<b>${esc(S.fabrics[tool.i].name)}</b> is picked. Tap any patch on the block to color it.`; renderUnits(); renderFabrics();
 });
 let colorDrag=false;
 $('fabrics').addEventListener('input', e=>{
@@ -595,7 +594,7 @@ try { const c=JSON.parse(localStorage.getItem('qb_current')||'null'); if (c && c
 if (!restored){ PRESETS.sawtooth(); }
 syncControls();
 try { setView(localStorage.getItem('qb_view')||'block'); } catch(e){ setView('block'); }
-$('tip').innerHTML='<b>Half-square</b> selected. Tap a cell to place it; tap it again to rotate.';
+$('tip').innerHTML='<b>Half triangle</b> is picked. Tap a square on the block to place it. Tap it again to turn it.';
 render();
 })();
 </script>
