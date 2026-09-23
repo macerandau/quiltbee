@@ -176,7 +176,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
     <div class="section">
       <h2>Fabrics</h2>
       <div class="fabrics" id="fabrics"></div>
-      <div class="row" style="margin-top:8px"><button id="addfab" class="small">+ Add fabric</button></div>
+      <div class="row" style="margin-top:8px"><button id="addfab" class="small">+ Add fabric</button><button id="resetfab" class="small" title="Go back to the starting set of fabrics">Reset fabrics</button></div>
       <p class="tip">Pick a fabric, then tap any patch on the block to color it.</p>
     </div>
   </section>
@@ -539,6 +539,7 @@ $('fabrics').addEventListener('input', e=>{
   if (e.target.dataset.name!==undefined){ S.fabrics[+e.target.dataset.name].name=e.target.value; renderCut(); }
 });
 $('fabrics').addEventListener('change', e=>{ if (e.target.dataset.color!==undefined) colorDrag=false; });
+$('resetfab').onclick=()=>{ snapshot(); S.fabrics=DEFAULT_FABRICS.map(f=>({...f})); for (const row of S.cells) for (const cell of row) if (cell&&cell.f) cell.f=cell.f.map(x=>Math.min(x,S.fabrics.length-1)); S.quilt.sashF=1; S.quilt.cornerF=2; S.quilt.setF=1; S.quilt.borders.forEach((b,i)=>b.f=[0,3,4][i%3]); if (tool.kind==='fabric') tool={kind:'unit',t:'hst'}; render(); };
 $('addfab').onclick=()=>{ snapshot(); const pool=['#4B6A88','#C96F3A','#6D5B8C','#B9B38A','#3F5F4A','#D5C3A5']; S.fabrics.push({name:'Fabric '+(S.fabrics.length+1), color:pool[S.fabrics.length%pool.length]}); tool={kind:'fabric',i:S.fabrics.length-1}; render(); };
 function pickPhoto(i){
   const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*';
@@ -590,6 +591,7 @@ document.addEventListener('keydown', e=>{ if ((e.metaKey||e.ctrlKey) && e.key===
 let restored=false;
 try { const c=JSON.parse(localStorage.getItem('qb_current')||'null'); if (c && c.cells && c.cells.length===c.n){ S.n=c.n; S.size=c.size; S.cells=c.cells; S.fabrics=c.fabrics; S.alt=!!c.alt; if (c.quilt && c.quilt.borders) S.quilt=Object.assign({setting:'straight',setF:1},c.quilt); restored=true; } } catch(e){}
 if (!restored){ PRESETS.sawtooth(); }
+else { const OLD=['#2E3F73','#F1E9D6','#D9A21B','#8A5A44','#7E9573','#9A3B3B']; if (S.fabrics.length===6 && S.fabrics.every((f,i)=>!f.img && (f.color||'').toUpperCase()===OLD[i])) S.fabrics=DEFAULT_FABRICS.map(f=>({...f})); }
 syncControls();
 try { setView(localStorage.getItem('qb_view')||'block'); } catch(e){ setView('block'); }
 $('tip').innerHTML='<b>Half triangle</b> is picked. Tap a square on the block to place it. Tap it again to turn it.';
