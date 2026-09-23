@@ -1,0 +1,417 @@
+<title>Patchwork Block Editor</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F7F4EC; --ink:#1E2233; --muted:#5F6374; --rule:#D9D3C5; --panel:#FFFDF8; --panel2:#F1EDE2;
+  --indigo:#2E3F73; --indigo-soft:#E4E8F4; --cheddar:#D9A21B; --cheddar-soft:#F7ECCF; --red:#A4392E;
+  --seam:#FFFDF8;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){color-scheme:dark;
+    --bg:#171A26; --ink:#E9E4D8; --muted:#A7A9B4; --rule:#343849; --panel:#1F2333; --panel2:#262B3D;
+    --indigo:#8FA3E6; --indigo-soft:#262E4A; --cheddar:#E6B63A; --cheddar-soft:#3A3220; --red:#E07A6E; --seam:#1F2333;}
+}
+:root[data-theme="dark"]{color-scheme:dark;
+  --bg:#171A26; --ink:#E9E4D8; --muted:#A7A9B4; --rule:#343849; --panel:#1F2333; --panel2:#262B3D;
+  --indigo:#8FA3E6; --indigo-soft:#262E4A; --cheddar:#E6B63A; --cheddar-soft:#3A3220; --red:#E07A6E; --seam:#1F2333;}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15px;line-height:1.45;padding:0 16px}
+header{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:14px 0 8px;border-bottom:1px solid var(--rule)}
+h1{font-family:"Fraunces",Georgia,serif;font-size:1.5rem;margin:0;font-weight:700}
+header .sub{color:var(--muted);font-size:.9rem}
+.app{display:grid;grid-template-columns:230px minmax(320px,1fr) 300px;gap:16px;padding-block:14px 40px;max-width:1240px;margin:0 auto}
+@media (max-width:980px){.app{grid-template-columns:1fr 1fr}.pane.center{grid-column:1 / -1;order:-1}}
+@media (max-width:620px){.app{grid-template-columns:1fr}}
+.pane{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px}
+.pane h2{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:600}
+.pane h2 + .row{margin-top:2px}
+.pane .section{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+label.f{font-size:.8rem;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+select,input[type=number],input[type=text]{font:inherit;font-size:.9rem;padding:5px 7px;border:1px solid var(--rule);border-radius:6px;background:var(--panel);color:var(--ink);min-width:0}
+input[type=number]{width:72px}
+button{font:inherit;font-size:.85rem;padding:6px 10px;border:1px solid var(--rule);border-radius:7px;background:var(--panel);color:var(--ink);cursor:pointer}
+button:hover{border-color:var(--indigo)}
+button:focus-visible,select:focus-visible,input:focus-visible,.unitbtn:focus-visible{outline:2px solid var(--cheddar);outline-offset:2px}
+button.primary{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+:root[data-theme="dark"] button.primary{color:#15192B}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.primary{color:#15192B}}
+button:disabled{opacity:.45;cursor:default}
+.units{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.unitbtn{display:flex;align-items:center;gap:9px;padding:7px 10px;min-width:0;width:100%;border:2px solid var(--rule);border-radius:8px;background:var(--panel);cursor:pointer;font-size:.8rem;text-align:left;color:var(--ink)}
+.unitbtn svg{width:26px;height:26px;flex:none}
+.unitbtn.on{border-color:var(--indigo);background:var(--indigo-soft)}
+.fabrics{display:flex;flex-direction:column;gap:6px}
+.fab{display:grid;grid-template-columns:34px minmax(0,1fr) auto;min-width:0;gap:8px;align-items:center;padding:4px;border:2px solid transparent;border-radius:8px}
+.fab.on{border-color:var(--indigo);background:var(--indigo-soft)}
+.fab .sw{width:34px;height:34px;border-radius:6px;border:1px solid var(--rule);cursor:pointer;background-size:cover}
+.fab input[type=text]{width:100%;font-size:.85rem;padding:4px 6px}
+.fab input[type=color]{width:26px;height:26px;padding:0;border:none;background:none;cursor:pointer}
+.fab .tools{display:flex;gap:4px;align-items:center}
+.fab .tools button{padding:2px 6px;font-size:.75rem}
+.tip{font-size:.83rem;color:var(--muted);margin:8px 0 0;min-height:1.3em}
+.tip b{color:var(--ink)}
+.stage{display:flex;flex-direction:column;align-items:center;gap:10px}
+svg.block{width:min(100%,520px);aspect-ratio:1;touch-action:manipulation;background:var(--panel2);border-radius:6px;display:block}
+svg.block .empty{fill:var(--panel2);stroke:var(--rule);stroke-width:.02;stroke-dasharray:.06 .05}
+svg.block polygon{stroke:var(--seam);stroke-width:.025;stroke-linejoin:round;cursor:pointer}
+svg.block polygon:hover{stroke:var(--cheddar);stroke-width:.05}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.stat{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.8rem;color:var(--muted)}
+.repeat{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:6px}
+svg.rep{width:min(100%,300px);aspect-ratio:1;background:var(--panel2);border-radius:6px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.cut{font-size:.85rem}
+.cut h3{font-size:.9rem;margin:10px 0 3px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600}
+.cut h3 .sw{width:14px;height:14px;border-radius:3px;border:1px solid var(--rule);display:inline-block;vertical-align:-2px;margin-right:6px;background-size:cover}
+.cut h3 .yd{font-family:"IBM Plex Mono",ui-monospace,monospace;color:var(--indigo);white-space:nowrap}
+.cut ul{margin:0;padding-left:1.1rem}
+.cut li{margin:2px 0}
+.cut .note{color:var(--muted);font-size:.78rem;margin-top:8px}
+.total{margin-top:12px;padding-top:10px;border-top:1px solid var(--rule);font-weight:600;display:flex;justify-content:space-between}
+textarea{width:100%;height:120px;font:.78rem "IBM Plex Mono",monospace;border:1px solid var(--rule);border-radius:6px;background:var(--panel);color:var(--ink);padding:6px;margin-top:6px}
+.saved{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.saved .it{display:flex;gap:6px;align-items:center;font-size:.85rem}
+.saved .it span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg{font-size:.8rem;color:var(--red);min-height:1.2em}
+kbd{font:.75rem "IBM Plex Mono",monospace;border:1px solid var(--rule);border-radius:4px;padding:0 4px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<header>
+  <h1>Patchwork Block Editor</h1>
+  <span class="sub">Prototype · tap a cell to place a unit, tap again to turn it, pick a fabric to color a patch</span>
+</header>
+
+<div class="app">
+  <!-- LEFT: units and block setup -->
+  <section class="pane">
+    <h2>Block</h2>
+    <div class="row">
+      <label class="f">Grid <select id="grid"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
+      <label class="f">Finished size <select id="size"><option>6</option><option>8</option><option>9</option><option>10</option><option selected>12</option><option>15</option><option>16</option></select></label>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <label class="f" style="flex:1">Start from <select id="preset">
+        <option value="">— choose a block —</option>
+        <option value="sawtooth">Sawtooth Star (4×4)</option>
+        <option value="ohio">Ohio Star (3×3)</option>
+        <option value="shoofly">Shoo Fly (3×3)</option>
+        <option value="churn">Churn Dash (3×3)</option>
+        <option value="ninepatch">Nine Patch (3×3)</option>
+        <option value="drunk">Drunkard's Path (2×2)</option>
+        <option value="pinwheel">Pinwheel (2×2)</option>
+        <option value="blank">Blank grid</option>
+      </select></label>
+    </div>
+    <div class="section">
+      <h2>Units</h2>
+      <div class="units" id="units"></div>
+      <p class="tip" id="unittip">Tap a cell to place the unit. Tap the same unit again to rotate it.</p>
+    </div>
+    <div class="section">
+      <h2>Fabrics</h2>
+      <div class="fabrics" id="fabrics"></div>
+      <div class="row" style="margin-top:8px"><button id="addfab">+ Fabric</button></div>
+      <p class="tip">Pick a fabric, then tap any patch. Tap the swatch to change its color, or use the camera icon to use a photo of real fabric.</p>
+    </div>
+  </section>
+
+  <!-- CENTER: canvas -->
+  <section class="pane center">
+    <div class="stage">
+      <div class="toolbar">
+        <button id="undo" title="Undo">↶ Undo</button>
+        <button id="redo" title="Redo">↷ Redo</button>
+        <button id="rotblock" title="Rotate whole block">Rotate block</button>
+        <button id="clear">Clear</button>
+      </div>
+      <svg class="block" id="svg" viewBox="0 0 4 4" role="img" aria-label="Quilt block canvas"></svg>
+      <div class="stat" id="stat"></div>
+      <p class="tip" id="tip"></p>
+      <div class="msg" id="msg"></div>
+    </div>
+    <div class="repeat">
+      <h2 style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;font-weight:600">Repeat preview</h2>
+      <svg class="rep" id="rep" viewBox="0 0 12 12" aria-label="Block repeated three by three"></svg>
+      <label style="font-size:.85rem;display:flex;gap:6px;align-items:center"><input type="checkbox" id="alt"> Turn every other block a quarter turn</label>
+    </div>
+  </section>
+
+  <!-- RIGHT: cutting list and yardage -->
+  <section class="pane">
+    <h2>Cutting list</h2>
+    <div class="row">
+      <label class="f">Blocks in quilt <input type="number" id="blocks" min="1" max="400" value="1"></label>
+      <span class="stat" id="unitstat"></span>
+    </div>
+    <div class="cut" id="cut"></div>
+    <div class="row" style="margin-top:10px"><button id="copy">Copy list</button><span class="stat" id="copied"></span></div>
+    <textarea id="txt" readonly hidden></textarea>
+    <div class="section">
+      <h2>Save this block</h2>
+      <div class="row"><input type="text" id="name" placeholder="Block name" style="flex:1"><button class="primary" id="save">Save</button></div>
+      <div class="saved" id="saved"></div>
+      <p class="tip">Saved on this device only.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+'use strict';
+// ---------- geometry ----------
+const ARC = (() => { const pts=[]; for (let i=0;i<=12;i++){ const a=i/12*Math.PI/2; pts.push([Math.cos(a),Math.sin(a)]); } return pts; })();
+const UNITS = {
+  sq:   {name:'Square',            w:1,h:1, polys:[[[0,0],[1,0],[1,1],[0,1]]], f:[0]},
+  hst:  {name:'Half-square',       w:1,h:1, polys:[[[0,0],[1,0],[0,1]],[[1,0],[1,1],[0,1]]], f:[0,1]},
+  qst:  {name:'Quarter-square',    w:1,h:1, polys:[[[0,0],[1,0],[.5,.5]],[[1,0],[1,1],[.5,.5]],[[1,1],[0,1],[.5,.5]],[[0,1],[0,0],[.5,.5]]], f:[0,1,0,1]},
+  fg:   {name:'Flying geese',      w:2,h:1, polys:[[[0,1],[2,1],[1,0]],[[0,0],[1,0],[0,1]],[[1,0],[2,0],[2,1]]], f:[0,1,1]},
+  rect: {name:'Rectangle pair',    w:1,h:1, polys:[[[0,0],[.5,0],[.5,1],[0,1]],[[.5,0],[1,0],[1,1],[.5,1]]], f:[0,1]},
+  curve:{name:"Drunkard's path",   w:1,h:1, polys:[[[0,0],...ARC],[[1,0],[1,1],[0,1],...ARC.slice().reverse()]], f:[1,0]},
+};
+function geom(t, rot){
+  let w=UNITS[t].w, h=UNITS[t].h, polys=UNITS[t].polys.map(p=>p.map(q=>q.slice()));
+  for (let k=0;k<(rot%4);k++){ polys=polys.map(p=>p.map(([x,y])=>[h-y,x])); [w,h]=[h,w]; }
+  return {w,h,polys};
+}
+function inPoly(p, poly){ let c=false; for (let i=0,j=poly.length-1;i<poly.length;j=i++){ const [xi,yi]=poly[i],[xj,yj]=poly[j]; if (((yi>p[1])!==(yj>p[1])) && (p[0] < (xj-xi)*(p[1]-yi)/(yj-yi)+xi)) c=!c; } return c; }
+
+// ---------- state ----------
+const DEFAULT_FABRICS = [
+  {name:'Indigo', color:'#2E3F73'}, {name:'Muslin', color:'#F1E9D6'}, {name:'Cheddar', color:'#D9A21B'},
+  {name:'Brown', color:'#8A5A44'}, {name:'Sage', color:'#7E9573'}, {name:'Cranberry', color:'#9A3B3B'},
+];
+let S = { n:4, size:12, cells:[], fabrics:DEFAULT_FABRICS.map(f=>({...f})), alt:false, blocks:1 };
+let tool = {kind:'unit', t:'hst'};
+let undoStack=[], redoStack=[];
+const $ = id => document.getElementById(id);
+
+function blankCells(n){ return Array.from({length:n},()=>Array(n).fill(null)); }
+function snapshot(){ undoStack.push(JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics})); if (undoStack.length>60) undoStack.shift(); redoStack.length=0; }
+function restore(json){ const o=JSON.parse(json); S.n=o.n; S.size=o.size; S.cells=o.cells; S.fabrics=o.fabrics; syncControls(); render(); }
+
+function clearUnitAt(r,c){
+  const cell=S.cells[r]?.[c]; if (!cell) return;
+  const [ar,ac] = cell.cover ? cell.cover : [r,c];
+  const a=S.cells[ar][ac]; if (!a || a.cover) { S.cells[r][c]=null; return; }
+  const g=geom(a.t,a.rot);
+  for (let dr=0;dr<g.h;dr++) for (let dc=0;dc<g.w;dc++) if (S.cells[ar+dr]?.[ac+dc]!==undefined) S.cells[ar+dr][ac+dc]=null;
+}
+function fits(r,c,t,rot){ const g=geom(t,rot); return r+g.h<=S.n && c+g.w<=S.n; }
+function placeUnit(r,c,t,rot,f){
+  if (!fits(r,c,t,rot)) return false;
+  const g=geom(t,rot);
+  for (let dr=0;dr<g.h;dr++) for (let dc=0;dc<g.w;dc++) clearUnitAt(r+dr,c+dc);
+  S.cells[r][c]={t,rot,f:(f||UNITS[t].f).slice()};
+  for (let dr=0;dr<g.h;dr++) for (let dc=0;dc<g.w;dc++) if (dr||dc) S.cells[r+dr][c+dc]={cover:[r,c]};
+  return true;
+}
+function anchorOf(r,c){ const cell=S.cells[r]?.[c]; if (!cell) return null; return cell.cover ? {r:cell.cover[0],c:cell.cover[1],u:S.cells[cell.cover[0]][cell.cover[1]]} : {r,c,u:cell}; }
+
+// ---------- presets ----------
+const PRESETS = {
+  blank(){ S.n=+$('grid').value; S.cells=blankCells(S.n); },
+  ninepatch(){ S.n=3; S.cells=blankCells(3); for (let r=0;r<3;r++) for (let c=0;c<3;c++) placeUnit(r,c,'sq',0,[(r+c)%2?1:0]); },
+  ohio(){ S.n=3; S.cells=blankCells(3);
+    [[0,0],[0,2],[2,0],[2,2]].forEach(([r,c])=>placeUnit(r,c,'sq',0,[1]));
+    placeUnit(1,1,'sq',0,[0]);
+    placeUnit(0,1,'qst',0,[1,0,1,0]); placeUnit(2,1,'qst',0,[1,0,1,0]);
+    placeUnit(1,0,'qst',0,[0,1,0,1]); placeUnit(1,2,'qst',0,[0,1,0,1]); },
+  shoofly(){ S.n=3; S.cells=blankCells(3);
+    placeUnit(0,0,'hst',0,[0,1]); placeUnit(0,2,'hst',1,[0,1]); placeUnit(2,2,'hst',2,[0,1]); placeUnit(2,0,'hst',3,[0,1]);
+    [[0,1],[1,0],[1,2],[2,1]].forEach(([r,c])=>placeUnit(r,c,'sq',0,[1])); placeUnit(1,1,'sq',0,[0]); },
+  churn(){ S.n=3; S.cells=blankCells(3);
+    placeUnit(0,0,'hst',0,[0,1]); placeUnit(0,2,'hst',1,[0,1]); placeUnit(2,2,'hst',2,[0,1]); placeUnit(2,0,'hst',3,[0,1]);
+    placeUnit(0,1,'rect',1,[1,0]); placeUnit(2,1,'rect',1,[0,1]); placeUnit(1,0,'rect',0,[1,0]); placeUnit(1,2,'rect',0,[0,1]);
+    placeUnit(1,1,'sq',0,[1]); },
+  sawtooth(){ S.n=4; S.cells=blankCells(4);
+    [[0,0],[0,3],[3,0],[3,3]].forEach(([r,c])=>placeUnit(r,c,'sq',0,[1]));
+    [[1,1],[1,2],[2,1],[2,2]].forEach(([r,c])=>placeUnit(r,c,'sq',0,[2]));
+    placeUnit(0,1,'fg',0,[0,1,1]); placeUnit(3,1,'fg',2,[0,1,1]); placeUnit(1,0,'fg',3,[0,1,1]); placeUnit(1,3,'fg',1,[0,1,1]); },
+  drunk(){ S.n=2; S.cells=blankCells(2); placeUnit(0,0,'curve',2,[1,0]); placeUnit(0,1,'curve',3,[1,0]); placeUnit(1,1,'curve',0,[1,0]); placeUnit(1,0,'curve',1,[1,0]); },
+  pinwheel(){ S.n=2; S.cells=blankCells(2); placeUnit(0,0,'hst',1,[0,1]); placeUnit(0,1,'hst',2,[0,1]); placeUnit(1,1,'hst',3,[0,1]); placeUnit(1,0,'hst',0,[0,1]); },
+};
+
+// ---------- rendering ----------
+function fill(i){ const f=S.fabrics[i]||S.fabrics[0]; return f.img ? `url(#pat${i})` : f.color; }
+function defs(){
+  return '<defs>'+S.fabrics.map((f,i)=> f.img ? `<pattern id="pat${i}" patternUnits="userSpaceOnUse" width="1" height="1"><image href="${f.img}" width="1" height="1" preserveAspectRatio="xMidYMid slice"/></pattern>` : '').join('')+'</defs>';
+}
+function blockMarkup(){
+  let out='';
+  for (let r=0;r<S.n;r++) for (let c=0;c<S.n;c++){
+    const cell=S.cells[r][c];
+    if (!cell) { out+=`<rect class="empty" x="${c+.02}" y="${r+.02}" width=".96" height=".96" data-r="${r}" data-c="${c}"/>`; continue; }
+    if (cell.cover) continue;
+    const g=geom(cell.t,cell.rot);
+    g.polys.forEach((p,i)=>{ out+=`<polygon points="${p.map(([x,y])=>`${(x+c).toFixed(4)},${(y+r).toFixed(4)}`).join(' ')}" fill="${fill(cell.f[i])}" data-r="${r}" data-c="${c}" data-i="${i}"/>`; });
+  }
+  return out;
+}
+function render(){
+  const svg=$('svg'); svg.setAttribute('viewBox',`0 0 ${S.n} ${S.n}`);
+  svg.innerHTML = defs()+`<g id="blockg">${blockMarkup()}</g>`;
+  const rep=$('rep'); const N=S.n; rep.setAttribute('viewBox',`0 0 ${3*N} ${3*N}`);
+  let u='';
+  for (let i=0;i<3;i++) for (let j=0;j<3;j++){ const rot = S.alt && ((i+j)%2) ? 90 : 0; u+=`<use href="#blockg" transform="translate(${j*N} ${i*N}) rotate(${rot} ${N/2} ${N/2})"/>`; }
+  rep.innerHTML=u;
+  const unit=S.size/S.n;
+  $('stat').textContent = `${S.n} × ${S.n} grid · ${S.size}" finished block · each unit ${fmt(unit)}" finished`;
+  $('unitstat').textContent = `unit ${fmt(unit)}" finished`;
+  renderCut(); renderUnits(); renderFabrics(); renderSaved();
+  $('undo').disabled = !undoStack.length; $('redo').disabled = !redoStack.length;
+  try { localStorage.setItem('qb_current', JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,alt:S.alt,blocks:S.blocks})); } catch(e){}
+}
+function unitIcon(t){
+  const g=geom(t,0); const cols=['var(--indigo)','var(--cheddar)','var(--cheddar)','var(--indigo)'];
+  const alt = t==='curve' ? ['var(--cheddar)','var(--indigo)'] : t==='qst' ? ['var(--indigo)','var(--cheddar)','var(--indigo)','var(--cheddar)'] : cols;
+  return `<svg viewBox="0 0 ${g.w} ${g.h}" style="width:${g.w>1?38:26}px">${g.polys.map((p,i)=>`<polygon points="${p.map(q=>q.join(',')).join(' ')}" fill="${alt[i]}" stroke="var(--panel)" stroke-width=".04"/>`).join('')}</svg>`;
+}
+function renderUnits(){
+  $('units').innerHTML = Object.keys(UNITS).map(t=>`<button class="unitbtn ${tool.kind==='unit'&&tool.t===t?'on':''}" data-t="${t}" type="button">${unitIcon(t)}<span>${UNITS[t].name}</span></button>`).join('');
+}
+function renderFabrics(){
+  $('fabrics').innerHTML = S.fabrics.map((f,i)=>`<div class="fab ${tool.kind==='fabric'&&tool.i===i?'on':''}" data-i="${i}">
+    <div class="sw" style="background:${f.img?`url(${f.img}) center/cover`:f.color}" title="Select fabric"></div>
+    <input type="text" value="${esc(f.name)}" data-name="${i}" aria-label="Fabric name">
+    <div class="tools"><input type="color" value="${f.color}" data-color="${i}" title="Change color"><button data-photo="${i}" title="Use a photo">📷</button>${S.fabrics.length>2?`<button data-del="${i}" title="Remove">×</button>`:''}</div>
+  </div>`).join('');
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+// ---------- cutting list & yardage ----------
+const EIGHTHS=['','⅛','¼','⅜','½','⅝','¾','⅞'];
+function fmt(x){ const e=Math.round(x*8); if (Math.abs(x*8-e)<0.02){ const w=Math.floor(e/8), r=e%8; return (w||!r?w:'')+EIGHTHS[r]; } return x.toFixed(2); }
+function fmtYd(y){ return fmt(y)+' yd'; }
+function cutData(){
+  const u=S.size/S.n, B=Math.max(1,S.blocks|0);
+  const acc=S.fabrics.map(()=>({halves:0,quarters:0,geese:0,sky:0,pieces:{}}));
+  const addPiece=(fi,label,w,h,n)=>{ const a=acc[fi]; if(!a) return; const k=label+'|'+w+'|'+h; a.pieces[k]=a.pieces[k]||{label,w,h,n:0}; a.pieces[k].n+=n; };
+  for (let r=0;r<S.n;r++) for (let c=0;c<S.n;c++){ const cell=S.cells[r][c]; if (!cell||cell.cover) continue;
+    const f=cell.f;
+    switch(cell.t){
+      case 'sq': addPiece(f[0],'square',u+.5,u+.5,1); break;
+      case 'hst': acc[f[0]] && acc[f[0]].halves++; acc[f[1]] && acc[f[1]].halves++; break;
+      case 'qst': f.forEach(i=>{ if(acc[i]) acc[i].quarters++; }); break;
+      case 'rect': addPiece(f[0],'rectangle',u/2+.5,u+.5,1); addPiece(f[1],'rectangle',u/2+.5,u+.5,1); break;
+      case 'curve': addPiece(f[0],'curve template, quarter circle (cut from square)',u+.5,u+.5,1); addPiece(f[1],'curve template, background (cut from square)',u+.5,u+.5,1); break;
+      case 'fg': acc[f[0]] && acc[f[0]].geese++; acc[f[1]] && acc[f[1]].sky++; acc[f[2]] && acc[f[2]].sky++; break;
+    }
+  }
+  return acc.map((a,i)=>{
+    const pieces=Object.values(a.pieces).map(p=>({...p,n:p.n*B}));
+    if (a.halves) pieces.push({label:`square for half-square triangles (each makes 2)`,w:u+.875,h:u+.875,n:Math.ceil(a.halves*B/2)});
+    if (a.quarters) pieces.push({label:`square for quarter-square triangles (each makes 4)`,w:u+1.25,h:u+1.25,n:Math.ceil(a.quarters*B/4)});
+    if (a.geese) pieces.push({label:`square for geese (each makes 4)`,w:2*u+1.25,h:2*u+1.25,n:Math.ceil(a.geese*B/4)});
+    if (a.sky) pieces.push({label:`square for geese sky (each makes 2)`,w:u+.875,h:u+.875,n:Math.ceil(a.sky*B/2)});
+    let len=0; pieces.forEach(p=>{ const per=Math.max(1,Math.floor(40/p.w)); const strips=Math.ceil(p.n/per); len+=strips*p.h; });
+    const yards = pieces.length ? Math.ceil(len/36*8)/8 : 0;
+    return {i, fabric:S.fabrics[i], pieces, yards};
+  }).filter(x=>x.pieces.length);
+}
+function renderCut(){
+  const data=cutData(); const B=Math.max(1,S.blocks|0);
+  if (!data.length){ $('cut').innerHTML='<p class="tip">Place some units to see the cutting list.</p>'; $('txt').value=''; return; }
+  let html='', txt=`Cutting list · ${S.n}x${S.n} block, ${S.size}" finished, ${B} block${B>1?'s':''}\n`;
+  let total=0;
+  data.forEach(d=>{ total+=d.yards;
+    html+=`<h3><span><span class="sw" style="background:${d.fabric.img?`url(${d.fabric.img}) center/cover`:d.fabric.color}"></span>${esc(d.fabric.name)}</span><span class="yd">${fmtYd(d.yards)}</span></h3><ul>`;
+    txt+=`\n${d.fabric.name} — ${fmtYd(d.yards)}\n`;
+    d.pieces.forEach(p=>{ const line=`${p.n} × ${fmt(p.w)}" × ${fmt(p.h)}" ${p.label}`; html+=`<li><span class="mono">${p.n} ×</span> ${fmt(p.w)}" × ${fmt(p.h)}" <span style="color:var(--muted)">${p.label}</span></li>`; txt+=`  ${line}\n`; });
+    html+='</ul>';
+  });
+  html+=`<div class="total"><span>Total fabric</span><span class="mono">${fmtYd(total)}</span></div>`;
+  html+=`<p class="note">Cut sizes include ¼" seams. Yardage assumes 40" usable width, cut in strips, rounded up to ⅛ yd. No backing, batting or binding.</p>`;
+  txt+=`\nTotal ${fmtYd(total)}\n(Seams ¼". 40" usable width. No backing, batting, binding.)`;
+  $('cut').innerHTML=html; $('txt').value=txt;
+}
+
+// ---------- saved blocks ----------
+function loadSaved(){ try { return JSON.parse(localStorage.getItem('qb_saved')||'[]'); } catch(e){ return []; } }
+function renderSaved(){
+  const list=loadSaved();
+  $('saved').innerHTML = list.length ? list.map((b,i)=>`<div class="it"><span>${esc(b.name)} <span class="stat">${b.n}×${b.n}</span></span><button data-load="${i}">Open</button><button data-rm="${i}">×</button></div>`).join('') : '';
+}
+
+// ---------- interaction ----------
+function svgPoint(evt){ const svg=$('svg'); const pt=svg.createSVGPoint(); pt.x=evt.clientX; pt.y=evt.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+$('svg').addEventListener('click', evt=>{
+  const p=svgPoint(evt); const r=Math.floor(p.y), c=Math.floor(p.x);
+  if (r<0||c<0||r>=S.n||c>=S.n) return;
+  $('msg').textContent='';
+  if (tool.kind==='unit'){
+    snapshot();
+    const a=anchorOf(r,c);
+    if (a && a.u.t===tool.t){
+      // rotate in place, keep fabrics
+      const nr=(a.u.rot+1)%4;
+      if (fits(a.r,a.c,a.u.t,nr)) { const f=a.u.f; clearUnitAt(a.r,a.c); placeUnit(a.r,a.c,a.u.t,nr,f); }
+      else { $('msg').textContent='No room to turn it that way here.'; undoStack.pop(); }
+    } else {
+      let ok=placeUnit(r,c,tool.t,0);
+      if (!ok){ // try shifting geese left/up so it fits at the edge
+        const g=geom(tool.t,0); ok=placeUnit(Math.min(r,S.n-g.h),Math.min(c,S.n-g.w),tool.t,0);
+        if (!ok){ $('msg').textContent='That unit does not fit there.'; undoStack.pop(); }
+      }
+    }
+    render(); return;
+  }
+  if (tool.kind==='fabric'){
+    const a=anchorOf(r,c); if (!a){ $('msg').textContent='Place a unit here first.'; return; }
+    const g=geom(a.u.t,a.u.rot); const local=[p.x-a.c, p.y-a.r];
+    let idx=g.polys.findIndex(poly=>inPoly(local,poly)); if (idx<0) idx=0;
+    snapshot(); a.u.f[idx]=tool.i; render();
+  }
+});
+$('units').addEventListener('click', e=>{ const b=e.target.closest('[data-t]'); if(!b) return; tool={kind:'unit',t:b.dataset.t}; $('tip').innerHTML=`<b>${UNITS[tool.t].name}</b> selected. Tap a cell to place it; tap it again to rotate.`; renderUnits(); renderFabrics(); });
+$('fabrics').addEventListener('click', e=>{
+  const del=e.target.closest('[data-del]'); if (del){ snapshot(); const i=+del.dataset.del; S.fabrics.splice(i,1); for (const row of S.cells) for (const cell of row) if (cell&&cell.f) cell.f=cell.f.map(x=> x===i?0 : x>i? x-1 : x); if (tool.kind==='fabric') tool={kind:'unit',t:'hst'}; render(); return; }
+  const ph=e.target.closest('[data-photo]'); if (ph){ pickPhoto(+ph.dataset.photo); return; }
+  if (e.target.matches('input')) return;
+  const f=e.target.closest('[data-i]'); if(!f) return; tool={kind:'fabric',i:+f.dataset.i}; $('tip').innerHTML=`<b>${esc(S.fabrics[tool.i].name)}</b> selected. Tap any patch to color it.`; renderUnits(); renderFabrics();
+});
+let colorDrag=false;
+$('fabrics').addEventListener('input', e=>{
+  if (e.target.dataset.color!==undefined){ const i=+e.target.dataset.color; if(!colorDrag){ snapshot(); colorDrag=true; } S.fabrics[i].color=e.target.value; S.fabrics[i].img=null; render(); }
+  if (e.target.dataset.name!==undefined){ S.fabrics[+e.target.dataset.name].name=e.target.value; renderCut(); }
+});
+$('fabrics').addEventListener('change', e=>{ if (e.target.dataset.color!==undefined) colorDrag=false; });
+$('addfab').onclick=()=>{ snapshot(); const pool=['#4B6A88','#C96F3A','#6D5B8C','#B9B38A','#3F5F4A','#D5C3A5']; S.fabrics.push({name:'Fabric '+(S.fabrics.length+1), color:pool[S.fabrics.length%pool.length]}); tool={kind:'fabric',i:S.fabrics.length-1}; render(); };
+function pickPhoto(i){
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*';
+  inp.onchange=()=>{ const file=inp.files[0]; if(!file) return; const img=new Image(); const url=URL.createObjectURL(file);
+    img.onload=()=>{ const cv=document.createElement('canvas'); const s=256; cv.width=cv.height=s; const ctx=cv.getContext('2d'); const m=Math.min(img.width,img.height); ctx.drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,s,s); snapshot(); S.fabrics[i].img=cv.toDataURL('image/jpeg',.8); URL.revokeObjectURL(url); render(); };
+    img.src=url; };
+  inp.click();
+}
+$('grid').onchange=()=>{ snapshot(); S.n=+$('grid').value; S.cells=blankCells(S.n); render(); };
+$('size').onchange=()=>{ S.size=+$('size').value; render(); };
+$('preset').onchange=()=>{ const k=$('preset').value; if(!k) return; snapshot(); PRESETS[k](); $('grid').value=S.n; $('preset').value=''; render(); };
+$('undo').onclick=()=>{ if(!undoStack.length) return; redoStack.push(JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics})); restore(undoStack.pop()); };
+$('redo').onclick=()=>{ if(!redoStack.length) return; undoStack.push(JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics})); restore(redoStack.pop()); };
+$('clear').onclick=()=>{ snapshot(); S.cells=blankCells(S.n); render(); };
+$('rotblock').onclick=()=>{ snapshot(); const n=S.n; const old=S.cells; S.cells=blankCells(n);
+  for (let r=0;r<n;r++) for (let c=0;c<n;c++){ const u=old[r][c]; if(!u||u.cover) continue; const g0=geom(u.t,u.rot); const nr=(u.rot+1)%4; // anchor moves: new col = n - r - h, new row = c
+    placeUnit(c, n-r-g0.h, u.t, nr, u.f); }
+  render(); };
+$('alt').onchange=()=>{ S.alt=$('alt').checked; render(); };
+$('blocks').oninput=()=>{ S.blocks=Math.max(1,+$('blocks').value||1); renderCut(); };
+$('copy').onclick=async()=>{ const t=$('txt'); try{ await navigator.clipboard.writeText(t.value); $('copied').textContent='Copied.'; }catch(e){ t.hidden=false; t.select(); $('copied').textContent='Select and copy the text below.'; } setTimeout(()=>$('copied').textContent='',2500); };
+$('save').onclick=()=>{ const name=$('name').value.trim()||`Block ${new Date().toLocaleDateString()}`; const list=loadSaved(); list.unshift({name,n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics}); try{ localStorage.setItem('qb_saved',JSON.stringify(list.slice(0,40))); }catch(e){ $('msg').textContent='Could not save on this device.'; } $('name').value=''; renderSaved(); };
+$('saved').addEventListener('click', e=>{ const l=e.target.closest('[data-load]'); const d=e.target.closest('[data-rm]'); const list=loadSaved();
+  if (l){ snapshot(); const b=list[+l.dataset.load]; S.n=b.n; S.size=b.size; S.cells=b.cells; S.fabrics=b.fabrics; syncControls(); render(); }
+  if (d){ list.splice(+d.dataset.rm,1); try{ localStorage.setItem('qb_saved',JSON.stringify(list)); }catch(e){} renderSaved(); } });
+function syncControls(){ $('grid').value=S.n; $('size').value=S.size; }
+document.addEventListener('keydown', e=>{ if ((e.metaKey||e.ctrlKey) && e.key==='z'){ e.preventDefault(); (e.shiftKey?$('redo'):$('undo')).click(); } });
+
+// ---------- boot ----------
+let restored=false;
+try { const c=JSON.parse(localStorage.getItem('qb_current')||'null'); if (c && c.cells && c.cells.length===c.n){ S.n=c.n; S.size=c.size; S.cells=c.cells; S.fabrics=c.fabrics; S.alt=!!c.alt; S.blocks=c.blocks||1; restored=true; } } catch(e){}
+if (!restored){ PRESETS.sawtooth(); }
+syncControls(); $('alt').checked=S.alt; $('blocks').value=S.blocks;
+$('tip').innerHTML='<b>Half-square</b> selected. Tap a cell to place it; tap it again to rotate.';
+render();
+})();
+</script>

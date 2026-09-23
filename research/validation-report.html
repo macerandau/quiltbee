@@ -1,0 +1,322 @@
+<title>Quilt Designer Validation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F7F4EC; --ink:#1E2233; --muted:#5C6070; --rule:#D9D3C5; --panel:#FFFDF8;
+  --indigo:#2E3F73; --indigo-soft:#E4E8F4; --cheddar:#D9A21B; --cheddar-soft:#F7ECCF;
+  --sage:#6B7F5E; --red:#A4392E; --red-soft:#F5E1DD;
+  --fa:#2E3F73; --fb:#F1E9D6; --fc:#D9A21B; --fd:#8A5A44;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#171A26; --ink:#E9E4D8; --muted:#A7A9B4; --rule:#343849; --panel:#1F2333;
+    --indigo:#8FA3E6; --indigo-soft:#262E4A; --cheddar:#E6B63A; --cheddar-soft:#3A3220;
+    --sage:#9DB48E; --red:#E07A6E; --red-soft:#3E2622;
+    --fa:#8FA3E6; --fb:#2A2E3E; --fc:#E6B63A; --fd:#B98066;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#171A26; --ink:#E9E4D8; --muted:#A7A9B4; --rule:#343849; --panel:#1F2333;
+  --indigo:#8FA3E6; --indigo-soft:#262E4A; --cheddar:#E6B63A; --cheddar-soft:#3A3220;
+  --sage:#9DB48E; --red:#E07A6E; --red-soft:#3E2622;
+  --fa:#8FA3E6; --fb:#2A2E3E; --fc:#E6B63A; --fd:#B98066;
+}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.55;margin:0;padding:0 20px}
+main{max-width:76ch;margin:0 auto;padding-block:40px 80px}
+h1,h2,h3{font-family:"Fraunces","Iowan Old Style",Georgia,serif;font-weight:700;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:2.4rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;margin-top:2.6rem;padding-top:1rem;border-top:3px solid var(--indigo)}
+h3{font-size:1.1rem;margin-top:1.6rem}
+p{margin:.8rem 0}
+.eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:.6rem}
+.dateline{color:var(--muted);font-size:.9rem;margin-top:.5rem}
+.verdict{margin-top:2rem;border-left:6px solid var(--cheddar);background:var(--cheddar-soft);padding:1rem 1.2rem;border-radius:0 6px 6px 0}
+.verdict strong{font-family:"Fraunces",Georgia,serif;font-size:1.25rem;display:block;margin-bottom:.3rem}
+.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.93rem}
+.tw{overflow-x:auto}
+th{text-align:left;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:2px solid var(--rule);padding:.45rem .5rem}
+td{padding:.5rem;border-bottom:1px solid var(--rule);vertical-align:top}
+td.n,th.n{text-align:right;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.hi td{background:var(--indigo-soft)}
+.pill{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.04em;padding:.1rem .5rem;border-radius:999px;vertical-align:middle}
+.pill.bad{background:var(--red-soft);color:var(--red)}
+.pill.ok{background:var(--indigo-soft);color:var(--indigo)}
+.pill.warn{background:var(--cheddar-soft);color:#7A5A0C}
+:root[data-theme="dark"] .pill.warn{color:var(--cheddar)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pill.warn{color:var(--cheddar)}}
+ul{padding-left:1.2rem}li{margin:.35rem 0}
+blockquote{margin:.6rem 0;padding:.5rem .9rem;border-left:3px solid var(--rule);color:var(--muted);font-style:italic;font-size:.95rem}
+blockquote cite{font-style:normal;font-size:.8rem;display:block;margin-top:.2rem}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:1rem 1.1rem}
+.card h3{margin-top:0}
+.small{font-size:.85rem;color:var(--muted)}
+
+/* wireframes */
+.wire{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px;margin:1.2rem 0;overflow-x:auto}
+.wire .cap{font-size:.78rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin-bottom:10px}
+.ipad{display:grid;grid-template-columns:120px 1fr 170px;gap:10px;min-width:560px}
+.rail{background:var(--bg);border:1px dashed var(--rule);border-radius:6px;padding:8px;font-size:.75rem}
+.rail .t{font-weight:600;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:.68rem}
+.thumbs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.canvas{background:var(--bg);border:1px dashed var(--rule);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:8px;align-items:center}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;width:100%;font-size:.7rem}
+.tb{border:1px solid var(--rule);background:var(--panel);border-radius:4px;padding:2px 7px;color:var(--muted)}
+.tb.on{border-color:var(--indigo);color:var(--indigo);font-weight:600}
+.quilt{--u:16px;display:grid;padding:calc(var(--u)*.75);background:var(--fd);gap:calc(var(--u)*.35);grid-template-columns:repeat(3,auto)}
+.blk{display:grid;grid-template-columns:repeat(3,var(--u));grid-template-rows:repeat(3,var(--u));background:var(--fb)}
+.blk.n9{--sq:var(--u)}
+.u{width:var(--u);height:var(--u)}
+.sq-a{background:var(--fa)}.sq-b{background:var(--fb)}.sq-c{background:var(--fc)}
+.hst{background:linear-gradient(to bottom right,var(--fa) 50%,var(--fb) 50%)}
+.hst.r{background:linear-gradient(to bottom left,var(--fa) 50%,var(--fb) 50%)}
+.qst{background:conic-gradient(from 45deg,var(--fb) 0 25%,var(--fa) 0 50%,var(--fb) 0 75%,var(--fa) 0)}
+.qst.v{background:conic-gradient(from 45deg,var(--fa) 0 25%,var(--fb) 0 50%,var(--fa) 0 75%,var(--fb) 0)}
+.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:8px}
+.sw{aspect-ratio:1;border-radius:3px;border:1px solid var(--rule)}
+.yard{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.7rem;line-height:1.5}
+.yard b{display:block;font-family:"IBM Plex Sans",sans-serif;font-weight:600;margin-top:6px;color:var(--ink)}
+.editor{display:grid;grid-template-columns:150px 1fr 160px;gap:10px;min-width:560px}
+.egrid{--u:26px;display:grid;grid-template-columns:repeat(4,var(--u));grid-template-rows:repeat(4,var(--u));gap:1px;background:var(--rule);padding:1px;margin:0 auto}
+.egrid .u{outline:none}
+.units{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.unit{display:flex;align-items:center;gap:5px;font-size:.68rem;color:var(--muted)}
+.unit .u{width:14px;height:14px;flex:none}
+.fg{background:conic-gradient(from 315deg at 50% 100%,var(--fb) 0 25%,var(--fa) 0 50%,var(--fb) 0)}
+.rect{background:linear-gradient(var(--fa),var(--fa)) left/50% 100% no-repeat,var(--fb)}
+.sources{font-size:.85rem;color:var(--muted)}
+.sources a{color:var(--indigo)}
+a{color:var(--indigo)}
+@media (max-width:640px){h1{font-size:1.9rem}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<main>
+<div class="eyebrow">App niche validation</div>
+<h1>Quilt Designer Validation</h1>
+<p class="dateline">Run 23 September 2026. Evidence: App Store search API, 514 App Store reviews across 20 apps, Google autocomplete, the Craft Industry Alliance 2024 survey, and vendor pricing pages.</p>
+
+<div class="verdict">
+  <strong>Verdict: conditional go.</strong>
+  The product gap is confirmed and the price ceiling is clear. Demand for "quilt design app" is real, the best-selling incumbent has not shipped an update in ten years and crashes on save, and quilters spell out exactly what they want in their reviews. The risk is not the product. It is distribution: 26 quilt apps launched in the past year and 18 of them have fewer than 10 ratings. The winner will be decided in Facebook groups, guilds and YouTube, not in App Store search.
+</div>
+
+<h2>1. Demand</h2>
+<p>Google autocomplete is a record of what people actually type. "Quilt design app" returns a complete suggestion set, which only happens when a query has sustained volume:</p>
+<ul>
+  <li><b>quilt design app</b> → free, for ipad, free iphone, android, for iphone, free download</li>
+  <li><b>app to design a quilt</b> → app to design quilt blocks, app to design quilt patterns, <i>is there an app to design a quilt</i>, best app to design quilts</li>
+  <li><b>quilt calculator</b> → for backing, binding, squares, border, blocks, <i>quilt calculator app</i></li>
+  <li><b>quilt block designer</b> → online free, free, quilt pattern designer free</li>
+</ul>
+<p>The audience, from the Craft Industry Alliance's 2024 Quilting Trends survey:</p>
+<div class="tw"><table>
+<tr><th>Measure</th><th class="n">Value</th></tr>
+<tr><td>Active quilters, North America</td><td class="n">10 to 12 million</td></tr>
+<tr><td>Annual market</td><td class="n">≈ $5 billion</td></tr>
+<tr><td>Identify as women</td><td class="n">98%</td></tr>
+<tr><td>Retired</td><td class="n">70%</td></tr>
+<tr><td>Typical age</td><td class="n">60s</td></tr>
+<tr><td>Household income</td><td class="n">$70K+</td></tr>
+<tr><td>Projects started per year</td><td class="n">11</td></tr>
+<tr><td>Hours quilting per week</td><td class="n">6</td></tr>
+</table></div>
+<p>This is a demographic that pays for hobby tools, keeps an iPad on the sewing table, and does not find apps by searching the App Store. They find them because someone in their guild or Facebook group said so.</p>
+
+<h2>2. Supply</h2>
+<p>The App Store has 127 quilt-related apps. Forty are quilt-shop storefronts. Of the 105 that touch design or calculation, only a handful have real users, and every one of them has a hole.</p>
+<div class="tw"><table>
+<tr><th>App</th><th>Price</th><th class="n">Ratings</th><th class="n">Avg</th><th>Last update</th><th>Where it fails</th></tr>
+<tr class="hi"><td>Quiltography <span class="pill bad">zombie</span></td><td>$14.99 once</td><td class="n">470</td><td class="n">4.3</td><td>10 years ago, min iOS 7</td><td>Crashes on save and on photo import in 2024–26 reviews. Data lost when moving iPads. Developer never replies. One border only, no sashing width.</td></tr>
+<tr><td>Quiltler 2</td><td>Free + subscription</td><td class="n">202</td><td class="n">3.7</td><td>260 days</td><td>"Clunky" is the top complaint (34 of 70 reviews). Custom blocks moved behind the paywall after purchase. Login bugs.</td></tr>
+<tr><td>Quiltler 3</td><td>Free + IAP</td><td class="n">45</td><td class="n">4.4</td><td>2 days</td><td>Same developer's third try. Tiny install base.</td></tr>
+<tr><td>QuiltingCalc</td><td>Free</td><td class="n">145</td><td class="n">4.2</td><td>372 days</td><td>Calculators only, no design view.</td></tr>
+<tr><td>Quilt Geek</td><td>$29.99 / yr</td><td class="n">123</td><td class="n">4.7</td><td>2 days</td><td>Calculators only, no design view.</td></tr>
+<tr><td>TideStitch</td><td>Free + IAP</td><td class="n">20</td><td class="n">4.9</td><td>1 day</td><td>Newest credible entrant, launched this year. Watch it.</td></tr>
+<tr><td>StitchLogic</td><td>Free + Pro sub</td><td class="n">≈ 0</td><td class="n">—</td><td>new</td><td>All-in-one pitch with AI coaching. Publishes SEO content ranking the category. No traction yet.</td></tr>
+<tr><td>PreQuilt</td><td>$50 / $100 per yr</td><td class="n">web only</td><td class="n">—</td><td>—</td><td>No app, no offline use, weak on a phone.</td></tr>
+<tr><td>EQ8 (Electric Quilt)</td><td>$239.95 once</td><td class="n">desktop</td><td class="n">—</td><td>—</td><td>Windows and Mac only. No iPad version exists. The category standard and the price anchor.</td></tr>
+</table></div>
+<p>The pattern: the one app people actually bought is abandoned, the one that is maintained is hard to use, and the serious tool costs $240 and does not run on the device quilters own.</p>
+
+<h2>3. What quilters ask for</h2>
+<p>514 reviews across 20 apps, tagged by theme. The "in 1–3 star" column is the count among unhappy reviews, which is where the buying criteria live.</p>
+<div class="tw"><table>
+<tr><th>Theme</th><th class="n">All reviews</th><th class="n">In 1–3 star</th></tr>
+<tr><td>Usability, clunky, needs a tutorial</td><td class="n">74</td><td class="n">38</td></tr>
+<tr><td>Price, paywall, subscription resentment</td><td class="n">56</td><td class="n">41</td></tr>
+<tr><td>Custom block drawing (shapes, sizes)</td><td class="n">54</td><td class="n">25</td></tr>
+<tr><td>Sashing, borders, on-point layouts</td><td class="n">45</td><td class="n">18</td></tr>
+<tr><td>Crashes, lost work</td><td class="n">43</td><td class="n">34</td></tr>
+<tr><td>Print, export, PDF</td><td class="n">39</td><td class="n">20</td></tr>
+<tr><td>Yardage and cutting math</td><td class="n">29</td><td class="n">8</td></tr>
+<tr><td>Import own fabric photos</td><td class="n">27</td><td class="n">10</td></tr>
+<tr><td>Block library too small</td><td class="n">24</td><td class="n">11</td></tr>
+<tr><td>Hexagons, EPP, paper piecing templates</td><td class="n">14</td><td class="n">2</td></tr>
+</table></div>
+<p>The spec writes itself from the unhappy reviews:</p>
+<ul>
+  <li><b>Zero-tutorial first block.</b> Drag, drop, undo. Reviewers with computer science degrees gave up on Quiltler; several say they went back to graph paper and colored pencils.</li>
+  <li><b>Sashing width, border width, on-point setting.</b> Requested for eight years across every app and still missing from the incumbent.</li>
+  <li><b>Real shapes in the block editor.</b> Rectangles for log cabin, hexagons, flying geese, curves. Not clip-art animals.</li>
+  <li><b>Fabric photos with a scale reference,</b> so a print renders at true size and can be repositioned inside a patch.</li>
+  <li><b>Yardage, not piece counts.</b> Quiltography's yardage is the one thing people praise; Quiltler's piece count is the thing they curse.</li>
+  <li><b>PDF export that works,</b> and cloud backup so a new iPad does not erase a stash that took weeks to photograph.</li>
+  <li><b>One-time price.</b> This audience rates apps down for subscriptions and rates Quiltography up "for the price." A $15 to $20 purchase with an optional cloud tier is the safe shape.</li>
+</ul>
+<blockquote>"Quilters need a quilt app for easy quilt designing; this isn't it. Give us some drag and drop options that are easy to access. Quilters shouldn't have to watch multiple tutorials just to get started."<cite>Quiltler 2, 1 star, 2023</cite></blockquote>
+<blockquote>"Started out loving this app. Have had for several years. But devs have done nothing with it and have never responded. All my data was gone. Blocks, quilts, and 100s of fabrics that took me weeks to add."<cite>Quiltography, 1 star, 2024</cite></blockquote>
+<blockquote>"PLEASE UPDATE so we can enter dimensions for border width and sashing!!!"<cite>Quiltography, 5 stars, February 2026</cite></blockquote>
+
+<h2>4. The tail check across every candidate</h2>
+<p>The earlier ranking measured whether any app had won a niche. It did not measure how many were trying. Counting apps released in the last twelve months, and how many of those have fewer than 10 ratings, shows the flood that cheap AI development has produced everywhere.</p>
+<div class="tw"><table>
+<tr><th>Niche</th><th class="n">Relevant apps</th><th class="n">New, 12 mo</th><th class="n">New and dead</th><th class="n">Leader ratings</th><th>Read</th></tr>
+<tr><td>Food expiration</td><td class="n">311</td><td class="n">180</td><td class="n">175</td><td class="n">11,312</td><td><span class="pill bad">graveyard</span></td></tr>
+<tr><td>Line memorization</td><td class="n">185</td><td class="n">82</td><td class="n">71</td><td class="n">13,112</td><td><span class="pill bad">AI scene partners already flooded</span></td></tr>
+<tr><td>Games attended</td><td class="n">144</td><td class="n">56</td><td class="n">40</td><td class="n">—</td><td><span class="pill bad">flooded</span></td></tr>
+<tr><td>Turbulence</td><td class="n">68</td><td class="n">38</td><td class="n">32</td><td class="n">790</td><td><span class="pill warn">flooded, no winner</span></td></tr>
+<tr><td>Jet lag</td><td class="n">46</td><td class="n">26</td><td class="n">25</td><td class="n">2,636</td><td><span class="pill warn">flooded, no winner</span></td></tr>
+<tr><td>HOA resident app</td><td class="n">123</td><td class="n">26</td><td class="n">24</td><td class="n">319</td><td><span class="pill warn">B2B sales problem</span></td></tr>
+<tr class="hi"><td>Quilt design</td><td class="n">105</td><td class="n">26</td><td class="n">18</td><td class="n">470</td><td><span class="pill ok">lightest flood, offline-discovered audience</span></td></tr>
+<tr><td>Volunteer hours</td><td class="n">87</td><td class="n">14</td><td class="n">12</td><td class="n">3,275</td><td><span class="pill warn">institutional buyers</span></td></tr>
+<tr><td>Pupillary distance</td><td class="n">54</td><td class="n">12</td><td class="n">10</td><td class="n">22,539</td><td><span class="pill warn">retailers give it away</span></td></tr>
+</table></div>
+<p>Line memorization is dead as an idea. The "AI scene partner" version I proposed already exists a dozen times with names like Rehearsed, ScenePal and Hamlet, all at zero ratings. Quilting survives the check for two reasons: the lightest new-entrant ratio of any consumer niche here, and an audience whose discovery happens off the store, where 18 dead apps that never left the store are invisible and a good one that gets talked about is not.</p>
+
+<h2>5. Editor sketch</h2>
+<p>iPad landscape. Three panes, no modes, everything visible. The quilt canvas is the home screen and the first block is placed with one drag.</p>
+
+<div class="wire">
+  <div class="cap">Screen 1 · Quilt canvas</div>
+  <div class="ipad">
+    <div class="rail">
+      <div class="t">Blocks</div>
+      <div class="thumbs">
+        <div class="blk" style="--u:14px"><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-a"></div></div>
+        <div class="blk" style="--u:14px"><div class="u sq-b"></div><div class="u qst"></div><div class="u sq-b"></div><div class="u qst v"></div><div class="u sq-c"></div><div class="u qst v"></div><div class="u sq-b"></div><div class="u qst"></div><div class="u sq-b"></div></div>
+        <div class="blk" style="--u:14px"><div class="u hst"></div><div class="u sq-b"></div><div class="u hst r"></div><div class="u sq-b"></div><div class="u sq-c"></div><div class="u sq-b"></div><div class="u hst r"></div><div class="u sq-b"></div><div class="u hst"></div></div>
+        <div class="blk" style="--u:14px"><div class="u hst"></div><div class="u hst"></div><div class="u hst"></div><div class="u hst"></div><div class="u hst"></div><div class="u hst"></div><div class="u hst"></div><div class="u hst"></div><div class="u hst"></div></div>
+      </div>
+      <div style="margin-top:8px;color:var(--muted)">Nine Patch · Ohio Star · Shoo Fly · HST field</div>
+      <div style="margin-top:6px;color:var(--indigo);font-weight:600">+ Draw a block</div>
+    </div>
+    <div class="canvas">
+      <div class="toolbar">
+        <span class="tb on">Layout 3 × 3</span><span class="tb">Block 12"</span><span class="tb">Sashing 2"</span><span class="tb">Border 4"</span><span class="tb">On point</span><span class="tb">Undo</span>
+      </div>
+      <div class="quilt">
+        <div class="blk"><div class="u sq-b"></div><div class="u qst"></div><div class="u sq-b"></div><div class="u qst v"></div><div class="u sq-c"></div><div class="u qst v"></div><div class="u sq-b"></div><div class="u qst"></div><div class="u sq-b"></div></div>
+        <div class="blk"><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-c"></div><div class="u sq-b"></div><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-a"></div></div>
+        <div class="blk"><div class="u sq-b"></div><div class="u qst"></div><div class="u sq-b"></div><div class="u qst v"></div><div class="u sq-c"></div><div class="u qst v"></div><div class="u sq-b"></div><div class="u qst"></div><div class="u sq-b"></div></div>
+        <div class="blk"><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-c"></div><div class="u sq-b"></div><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-a"></div></div>
+        <div class="blk"><div class="u sq-b"></div><div class="u qst"></div><div class="u sq-b"></div><div class="u qst v"></div><div class="u sq-c"></div><div class="u qst v"></div><div class="u sq-b"></div><div class="u qst"></div><div class="u sq-b"></div></div>
+        <div class="blk"><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-c"></div><div class="u sq-b"></div><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-a"></div></div>
+        <div class="blk"><div class="u sq-b"></div><div class="u qst"></div><div class="u sq-b"></div><div class="u qst v"></div><div class="u sq-c"></div><div class="u qst v"></div><div class="u sq-b"></div><div class="u qst"></div><div class="u sq-b"></div></div>
+        <div class="blk"><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-c"></div><div class="u sq-b"></div><div class="u sq-a"></div><div class="u sq-b"></div><div class="u sq-a"></div></div>
+        <div class="blk"><div class="u sq-b"></div><div class="u qst"></div><div class="u sq-b"></div><div class="u qst v"></div><div class="u sq-c"></div><div class="u qst v"></div><div class="u sq-b"></div><div class="u qst"></div><div class="u sq-b"></div></div>
+      </div>
+      <div class="small">Finished 50" × 50" · tap a patch to recolor · drag a block from the rail to swap</div>
+    </div>
+    <div class="rail">
+      <div class="t">Fabrics</div>
+      <div class="swatches">
+        <div class="sw" style="background:var(--fa)"></div><div class="sw" style="background:var(--fb)"></div><div class="sw" style="background:var(--fc)"></div><div class="sw" style="background:var(--fd)"></div>
+        <div class="sw" style="background:repeating-linear-gradient(45deg,var(--fa) 0 3px,var(--fb) 3px 6px)"></div><div class="sw" style="background:radial-gradient(var(--fc) 30%,var(--fb) 32%)"></div><div class="sw" style="border-style:dashed"></div><div class="sw" style="border-style:dashed"></div>
+      </div>
+      <div style="color:var(--indigo);font-weight:600;font-size:.72rem">+ Photo of fabric (with ruler)</div>
+      <div class="yard">
+        <b>Yardage</b>
+        Indigo &nbsp;&nbsp;1 ⅝ yd<br>
+        Muslin &nbsp;&nbsp;2 ¼ yd<br>
+        Cheddar &nbsp;&nbsp;⅜ yd<br>
+        Brown &nbsp;&nbsp;&nbsp;1 ½ yd<br>
+        Backing &nbsp;3 ⅛ yd<br>
+        Binding &nbsp;&nbsp;½ yd
+        <b>Cutting list → PDF</b>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wire">
+  <div class="cap">Screen 2 · Block editor</div>
+  <div class="editor">
+    <div class="rail">
+      <div class="t">Units</div>
+      <div class="units">
+        <div class="unit"><div class="u sq-a"></div>Square</div>
+        <div class="unit"><div class="u hst"></div>Half-square</div>
+        <div class="unit"><div class="u qst"></div>Quarter-square</div>
+        <div class="unit"><div class="u fg"></div>Flying geese</div>
+        <div class="unit"><div class="u rect"></div>Rectangle</div>
+        <div class="unit"><div class="u" style="background:var(--fb);border-radius:0 100% 0 0"></div>Curve</div>
+      </div>
+      <div style="margin-top:8px;color:var(--muted)">Grid: 2 · 3 · 4 · 5 · 6 · 7 · 8</div>
+    </div>
+    <div class="canvas">
+      <div class="toolbar"><span class="tb on">4 × 4 grid</span><span class="tb">12" finished</span><span class="tb">Rotate</span><span class="tb">Mirror</span><span class="tb">Undo</span></div>
+      <div class="egrid">
+        <div class="u hst r"></div><div class="u fg"></div><div class="u fg"></div><div class="u hst"></div>
+        <div class="u fg" style="transform:rotate(-90deg)"></div><div class="u sq-c"></div><div class="u sq-c"></div><div class="u fg" style="transform:rotate(90deg)"></div>
+        <div class="u fg" style="transform:rotate(-90deg)"></div><div class="u sq-c"></div><div class="u sq-c"></div><div class="u fg" style="transform:rotate(90deg)"></div>
+        <div class="u hst" style="transform:rotate(-90deg)"></div><div class="u fg" style="transform:rotate(180deg)"></div><div class="u fg" style="transform:rotate(180deg)"></div><div class="u hst r" style="transform:rotate(90deg)"></div>
+      </div>
+      <div class="small">Tap a cell, pick a unit, tap again to rotate. Every unit knows its own cut size.</div>
+    </div>
+    <div class="rail">
+      <div class="t">This block</div>
+      <div class="yard">
+        <b>Cut for one 12" block</b>
+        4 HST @ 3⅞"<br>
+        8 geese 3½ × 6½<br>
+        16 sky 3½"<br>
+        4 center 3½"
+        <b>Name</b>
+        Sawtooth Star (var.)
+        <b>Save to library</b>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p>Both screens run on the same data model: a block is a grid of typed units, a quilt is a grid of blocks plus sashing and border widths, and yardage is computed from cut sizes, not estimated. That is the feature every review says the incumbents get wrong or omit, and it is pure arithmetic once the units are typed.</p>
+
+<h2>6. Pricing and distribution</h2>
+<div class="grid2">
+  <div class="card">
+    <h3>Price</h3>
+    <p><b>$19.99 one-time</b> for the full editor and yardage. Sits above Quiltography's $14.99, which reviewers call a bargain, and far under EQ8's $239.95. An optional <b>$14.99 per year</b> cloud tier covers backup across devices and manufacturer fabric libraries, which are the two things that cost you money to run. Never gate a feature after purchase; that single move earned Quiltler 2 its worst reviews.</p>
+  </div>
+  <div class="card">
+    <h3>Distribution</h3>
+    <p>App Store search is where the 18 dead apps live. The audience lives in Facebook quilting groups, guild newsletters, YouTube tutorial channels and quilt shops. Forty of the 127 quilt apps are shop storefronts, which means shops already believe in apps and will co-promote a tool that sells more fabric. Missouri Star's free app has 34,000 ratings; that audience is the target, and a tutorial channel is the way in.</p>
+  </div>
+</div>
+
+<h2>7. Risks and gaps in the evidence</h2>
+<ul>
+  <li><b>TideStitch and StitchLogic</b> launched this year with the same read. Neither has traction yet, but one could get a guild endorsement first. Speed and usability, not features, decide this.</li>
+  <li><b>Reddit was unreachable</b> from this session, so community discussion is inferred from reviews only. Worth ten minutes of reading r/quilting by hand before committing.</li>
+  <li><b>Android demand exists</b> ("quilt design app free for android" autocompletes) but the paying iPad audience comes first.</li>
+  <li><b>Fabric photos at true scale</b> is a small computer-vision feature and the one piece that is not plain arithmetic. Ship with a manual ruler calibration and improve later.</li>
+</ul>
+
+<h2>8. Next step</h2>
+<p>A working block editor and yardage calculator as a web prototype, one week of effort, put in front of five quilters. If three of them build a block without asking a question, build the app. If they reach for graph paper, stop.</p>
+
+<h2>Sources</h2>
+<p class="sources">
+<a href="https://craftindustryalliance.org/the-size-of-the-quilting-market-quilting-trends-survey-results-2024/">Craft Industry Alliance, Quilting Trends Survey 2024</a> ·
+<a href="https://www.accuquilt.com/electric-quilt-8-eq8-quilt-design-software.html">EQ8 pricing (AccuQuilt)</a> ·
+<a href="https://app.prequilt.com/plans">PreQuilt plans</a> ·
+<a href="https://www.stitchlogic.app/blog/best-quilting-apps-iphone-2026">StitchLogic, best quilting apps 2026</a> ·
+<a href="https://apps.apple.com/us/app/id585991997">Quiltography on the App Store</a> ·
+<a href="https://apps.apple.com/us/app/id1495594391">Quiltler 2 on the App Store</a> ·
+App Store search and customer-review feeds via the public iTunes API, 23 Sept 2026 ·
+Google autocomplete, US English, 23 Sept 2026.
+</p>
+</main>
