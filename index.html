@@ -64,7 +64,8 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
 .pane.center{display:flex;flex-direction:column;overflow:hidden;background:transparent;border:none;padding:4px 0}
 .pane.left{display:flex;flex-direction:column}
 .pane.left > .only-block:first-child{order:1}
-.pane.left > .palsec{order:2}
+.pane.left > .piecesec{order:2}
+.pane.left > .palsec{order:3}
 .pane.left > .only-quilt{order:1}
 .app[data-view="quilt"] .pane.left > .palsec{order:4}
 .app[data-view="block"] .only-quilt{display:none}
@@ -273,15 +274,16 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
         <option value="blank">Blank grid</option>
       </select></div>
     </div>
+    <div class="section piecesec only-block">
+      <h2>Pieces</h2>
+      <div class="units" id="units"></div>
+      <p class="tip" id="unittip">Pick a piece, then tap a square on the block. It lands in your main fabric and background. Tap it again to turn it.</p>
+    </div>
     <div class="section palsec">
-      <div class="h2row"><h2>Fabrics and pieces</h2><button id="resetfab" class="small" title="Go back to the starting colors">Reset</button></div>
+      <div class="h2row"><h2>Fabrics</h2><button id="resetfab" class="small" title="Go back to the starting colors">Reset</button></div>
       <div class="slots" id="slots"></div>
-      <div class="paltabs" id="paltabs"><button type="button" data-tab="pieces" class="on">Pieces</button><button type="button" data-tab="colors">Colors</button><button type="button" data-tab="prints">Prints</button></div>
+      <div class="paltabs" id="paltabs"><button type="button" data-tab="colors" class="on">Colors</button><button type="button" data-tab="prints">Prints</button></div>
       <div class="palgrid" id="palgrid"></div>
-      <div id="piecestab" hidden>
-        <div class="units" id="units"></div>
-        <p class="tip" id="unittip">Pick a piece, then tap a square on the block. It lands in your main fabric and background. Tap it again to turn it.</p>
-      </div>
       <div class="paintrow" id="paintrow"></div>
       <p class="tip" id="bgline"></p>
       <p class="tip" id="paltip">Tap Main fabric or Background, then pick a color or print for it. Tap any patch to recolor it with the one that is lit.</p>
@@ -700,12 +702,11 @@ $('units').addEventListener('click', e=>{ const b=e.target.closest('[data-t]'); 
 const DEFAULT_QUILT=()=>({rows:3,cols:3,sash:2,sashF:1,corner:true,cornerF:2,borders:[{w:4,f:0}],setting:'straight',setF:3});
 $('resetquilt').onclick=()=>{ snapshot(); S.quilt=DEFAULT_QUILT(); S.alt=false; render(); };
 // ---------- palette ----------
-let palTab='pieces';
+let palTab='colors';
 let lastShape='hst';
 function renderFabrics(){
   const p=paintFabric(), pf=S.fabrics[p];
   const mi=S.main??0, bi=S.bg;
-  $('palgrid').hidden = palTab==='pieces'; $('piecestab').hidden = palTab!=='pieces'; $('paintrow').hidden = palTab==='pieces'; $('paltip').hidden = palTab==='pieces';
   $('slots').innerHTML=`<div class="preview" title="${UNITS[lastShape].name} in your main fabric and background">${unitIcon(lastShape,96,2.2)}</div>
     <div class="chips">
       <button type="button" class="slot ${slot==='main'?'on':''}" data-slot="main">${swatchHtml(mi,30)}<span class="lab"><b>Main fabric</b><span>${esc(fabName(S.fabrics[mi]))}</span></span></button>
@@ -713,8 +714,7 @@ function renderFabrics(){
       <button type="button" class="swap small" id="swapslots" title="Swap main and background">⇄ Swap</button>
     </div>`;
   $('paltabs').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.tab===palTab));
-  if (palTab==='pieces'){ renderUnits(); }
-  else if (palTab==='colors'){
+  if (palTab==='colors'){
     $('palgrid').innerHTML = S.colors.map(c=>{ const on = pf && pf.color===c && (pf.print||'solid')==='solid';
       return `<button type="button" class="csw ${on?'on':''}" data-color="${c}" style="background:${c}" title="${colorName(c)}"></button>`; }).join('')
       + `<label class="csw add" title="Add a color"><span>+</span><input type="color" id="newcolor" value="${pf?pf.color:'#B85C72'}"></label>`;
@@ -729,7 +729,7 @@ function renderFabrics(){
   $('bgline').textContent = '';
 }
 $('paltabs').addEventListener('click', e=>{ const b=e.target.closest('[data-tab]'); if(!b) return; palTab=b.dataset.tab; try{ localStorage.setItem('qb_paltab',palTab); }catch(e){} renderFabrics(); });
-try { const t=localStorage.getItem('qb_paltab'); if (['colors','prints','pieces'].includes(t)) palTab=t; } catch(e){}
+try { const t=localStorage.getItem('qb_paltab'); if (['colors','prints'].includes(t)) palTab=t; } catch(e){}
 $('slots').addEventListener('click', e=>{
   if (e.target.closest('#swapslots')){ snapshot(); const m=S.main??0; S.main=S.bg; S.bg=m; tool={kind:'fabric',i:paintFabric()}; render(); return; }
   const b=e.target.closest('[data-slot]'); if(!b) return; slot=b.dataset.slot; tool={kind:'fabric',i:paintFabric()};
