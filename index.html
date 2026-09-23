@@ -2,98 +2,103 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
-  --bg:#F7F4EC; --ink:#1E2233; --muted:#5F6374; --rule:#D9D3C5; --panel:#FFFDF8; --panel2:#F1EDE2;
+  --bg:#F7F4EC; --ink:#1E2233; --muted:#555A6B; --rule:#D9D3C5; --panel:#FFFDF8; --panel2:#F1EDE2;
   --indigo:#2E3F73; --indigo-soft:#E4E8F4; --cheddar:#D9A21B; --cheddar-soft:#F7ECCF; --red:#A4392E;
   --seam:#FFFDF8;
+  --fs:17px; --ctl:44px; --radius:8px;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){color-scheme:dark;
-    --bg:#171A26; --ink:#E9E4D8; --muted:#A7A9B4; --rule:#343849; --panel:#1F2333; --panel2:#262B3D;
+    --bg:#171A26; --ink:#E9E4D8; --muted:#B0B3BF; --rule:#363A4C; --panel:#1F2333; --panel2:#262B3D;
     --indigo:#8FA3E6; --indigo-soft:#262E4A; --cheddar:#E6B63A; --cheddar-soft:#3A3220; --red:#E07A6E; --seam:#1F2333;}
 }
 :root[data-theme="dark"]{color-scheme:dark;
-  --bg:#171A26; --ink:#E9E4D8; --muted:#A7A9B4; --rule:#343849; --panel:#1F2333; --panel2:#262B3D;
+  --bg:#171A26; --ink:#E9E4D8; --muted:#B0B3BF; --rule:#363A4C; --panel:#1F2333; --panel2:#262B3D;
   --indigo:#8FA3E6; --indigo-soft:#262E4A; --cheddar:#E6B63A; --cheddar-soft:#3A3220; --red:#E07A6E; --seam:#1F2333;}
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15px;line-height:1.45;padding:0 16px}
-header{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:14px 0 8px;border-bottom:1px solid var(--rule)}
-h1{font-family:"Fraunces",Georgia,serif;font-size:1.5rem;margin:0;font-weight:700}
-header .sub{color:var(--muted);font-size:.9rem}
-.app{display:grid;grid-template-columns:230px minmax(320px,1fr) 300px;gap:16px;padding-block:14px 40px;max-width:1240px;margin:0 auto}
-@media (max-width:980px){.app{grid-template-columns:1fr 1fr}.pane.center{grid-column:1 / -1;order:-1}}
-@media (max-width:620px){.app{grid-template-columns:1fr}}
-.pane{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px}
-.pane h2{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:600}
-.pane h2 + .row{margin-top:2px}
-.pane .section{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule)}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-label.f{font-size:.8rem;color:var(--muted);display:flex;flex-direction:column;gap:3px}
-select,input[type=number],input[type=text]{font:inherit;font-size:.9rem;padding:5px 7px;border:1px solid var(--rule);border-radius:6px;background:var(--panel);color:var(--ink);min-width:0}
-input[type=number]{width:72px}
-button{font:inherit;font-size:.85rem;padding:6px 10px;border:1px solid var(--rule);border-radius:7px;background:var(--panel);color:var(--ink);cursor:pointer}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:var(--fs);line-height:1.5;padding:0 20px}
+header{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:18px 0 12px;border-bottom:1px solid var(--rule);max-width:1360px;margin:0 auto}
+h1{font-family:"Fraunces",Georgia,serif;font-size:1.9rem;margin:0;font-weight:700;letter-spacing:-.01em}
+header .sub{color:var(--muted);font-size:1rem}
+.app{display:grid;grid-template-columns:270px minmax(340px,1fr) 360px;gap:20px;padding-block:18px 48px;max-width:1360px;margin:0 auto}
+@media (max-width:1100px){.app{grid-template-columns:1fr 1fr}.pane.center{grid-column:1 / -1;order:-1}}
+@media (max-width:680px){.app{grid-template-columns:1fr}}
+.pane{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px}
+.pane h2,.quilt h2{font-family:"Fraunces",Georgia,serif;font-size:1.25rem;font-weight:600;margin:0 0 12px;color:var(--ink)}
+.pane .section{margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+label.f{font-size:.95rem;color:var(--muted);display:flex;flex-direction:column;gap:5px}
+select,input[type=number],input[type=text]{font:inherit;font-size:1rem;min-height:var(--ctl);padding:8px 10px;border:1px solid var(--rule);border-radius:var(--radius);background:var(--panel);color:var(--ink);min-width:0}
+input[type=number]{width:84px;font-variant-numeric:tabular-nums}
+input[type=checkbox]{width:22px;height:22px;accent-color:var(--indigo);margin:0}
+button{font:inherit;font-size:1rem;min-height:var(--ctl);padding:8px 14px;border:1px solid var(--rule);border-radius:var(--radius);background:var(--panel);color:var(--ink);cursor:pointer}
 button:hover{border-color:var(--indigo)}
-button:focus-visible,select:focus-visible,input:focus-visible,.unitbtn:focus-visible{outline:2px solid var(--cheddar);outline-offset:2px}
+button:focus-visible,select:focus-visible,input:focus-visible,.unitbtn:focus-visible{outline:3px solid var(--cheddar);outline-offset:2px}
 button.primary{background:var(--indigo);color:#fff;border-color:var(--indigo)}
 :root[data-theme="dark"] button.primary{color:#15192B}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.primary{color:#15192B}}
 button:disabled{opacity:.45;cursor:default}
-.units{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
-.unitbtn{display:flex;align-items:center;gap:9px;padding:7px 10px;min-width:0;width:100%;border:2px solid var(--rule);border-radius:8px;background:var(--panel);cursor:pointer;font-size:.8rem;text-align:left;color:var(--ink)}
-.unitbtn svg{width:26px;height:26px;flex:none}
+button.small{min-height:36px;padding:4px 10px;font-size:.95rem}
+.units{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.unitbtn{display:flex;align-items:center;gap:12px;padding:8px 12px;min-height:52px;min-width:0;width:100%;border:2px solid var(--rule);border-radius:var(--radius);background:var(--panel);cursor:pointer;font-size:1rem;text-align:left;color:var(--ink)}
+.unitbtn svg{width:34px;height:34px;flex:none}
 .unitbtn.on{border-color:var(--indigo);background:var(--indigo-soft)}
-.fabrics{display:flex;flex-direction:column;gap:6px}
-.fab{display:grid;grid-template-columns:34px minmax(0,1fr) auto;min-width:0;gap:8px;align-items:center;padding:4px;border:2px solid transparent;border-radius:8px}
+.fabrics{display:flex;flex-direction:column;gap:8px}
+.fab{display:grid;grid-template-columns:44px minmax(0,1fr) auto;min-width:0;gap:10px;align-items:center;padding:5px;border:2px solid transparent;border-radius:var(--radius)}
 .fab.on{border-color:var(--indigo);background:var(--indigo-soft)}
-.fab .sw{width:34px;height:34px;border-radius:6px;border:1px solid var(--rule);cursor:pointer;background-size:cover}
-.fab input[type=text]{width:100%;font-size:.85rem;padding:4px 6px}
-.fab input[type=color]{width:26px;height:26px;padding:0;border:none;background:none;cursor:pointer}
+.fab .sw{width:44px;height:44px;border-radius:7px;border:1px solid var(--rule);cursor:pointer;background-size:cover}
+.fab input[type=text]{width:100%;font-size:1rem;padding:6px 8px;min-height:40px}
+.fab input[type=color]{width:34px;height:34px;padding:0;border:none;background:none;cursor:pointer}
 .fab .tools{display:flex;gap:4px;align-items:center}
-.fab .tools button{padding:2px 6px;font-size:.75rem}
-.tip{font-size:.83rem;color:var(--muted);margin:8px 0 0;min-height:1.3em}
+.fab .tools button{min-height:36px;padding:2px 8px;font-size:1rem}
+.tip{font-size:.95rem;color:var(--muted);margin:10px 0 0;min-height:1.4em}
 .tip b{color:var(--ink)}
-.stage{display:flex;flex-direction:column;align-items:center;gap:10px}
-svg.block{width:min(100%,520px);aspect-ratio:1;touch-action:manipulation;background:var(--panel2);border-radius:6px;display:block}
+.stage{display:flex;flex-direction:column;align-items:center;gap:12px}
+svg.block{width:min(100%,560px);aspect-ratio:1;touch-action:manipulation;background:var(--panel2);border-radius:var(--radius);display:block}
 svg.block .empty{fill:var(--panel2);stroke:var(--rule);stroke-width:.02;stroke-dasharray:.06 .05}
 svg.block polygon{stroke:var(--seam);stroke-width:.025;stroke-linejoin:round;cursor:pointer}
 svg.block polygon:hover{stroke:var(--cheddar);stroke-width:.05}
-.toolbar{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
-.stat{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.8rem;color:var(--muted)}
-.quilt{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule);display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:14px}
-@media (max-width:760px){.quilt{grid-template-columns:1fr}}
-.quilt h2{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:600}
-svg.rep{width:100%;max-height:520px;background:var(--panel2);border-radius:6px;display:block}
-.qc{display:flex;flex-direction:column;gap:10px;font-size:.85rem}
-.qc .grp{display:grid;grid-template-columns:auto 1fr;gap:6px 8px;align-items:center}
-.qc .grp label{color:var(--muted);font-size:.8rem}
-.qc select{width:100%}
-.qc input[type=number]{width:64px}
-.qc .inl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.border{display:grid;grid-template-columns:auto 64px 1fr auto;gap:6px;align-items:center}
-.border .lbl{color:var(--muted);font-size:.8rem;white-space:nowrap}
-.border button{padding:2px 7px}
-.qsize{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.8rem;color:var(--muted)}
-.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
-.cut{font-size:.85rem}
-.cut h3{font-size:.9rem;margin:10px 0 3px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600}
-.cut h3 .sw{width:14px;height:14px;border-radius:3px;border:1px solid var(--rule);display:inline-block;vertical-align:-2px;margin-right:6px;background-size:cover}
-.cut h3 .yd{font-family:"IBM Plex Mono",ui-monospace,monospace;color:var(--indigo);white-space:nowrap}
-.cut ul{margin:0;padding-left:1.1rem}
-.cut li{margin:2px 0}
-.cut .note{color:var(--muted);font-size:.78rem;margin-top:8px}
-.total{margin-top:12px;padding-top:10px;border-top:1px solid var(--rule);font-weight:600;display:flex;justify-content:space-between}
-textarea{width:100%;height:120px;font:.78rem "IBM Plex Mono",monospace;border:1px solid var(--rule);border-radius:6px;background:var(--panel);color:var(--ink);padding:6px;margin-top:6px}
-.saved{display:flex;flex-direction:column;gap:4px;margin-top:6px}
-.saved .it{display:flex;gap:6px;align-items:center;font-size:.85rem}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.stat{font-size:.95rem;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
+.quilt{margin-top:22px;padding-top:18px;border-top:1px solid var(--rule);display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px}
+@media (max-width:820px){.quilt{grid-template-columns:1fr}}
+svg.rep{width:100%;max-height:560px;background:var(--panel2);border-radius:var(--radius);display:block}
+.qc{display:flex;flex-direction:column;gap:10px;font-size:1rem}
+.field{display:grid;grid-template-columns:132px minmax(0,1fr);gap:8px 10px;align-items:center}
+.field > label,.field > .lab{color:var(--muted);font-size:.95rem}
+.field select{width:100%}
+.check{display:flex;gap:10px;align-items:center;min-height:var(--ctl);color:var(--ink);font-size:1rem}
+.inl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.inl span{color:var(--muted);font-size:.95rem}
+.qsub{margin-top:8px;padding-top:12px;border-top:1px dashed var(--rule)}
+.brow{display:grid;grid-template-columns:132px minmax(0,1fr);gap:6px 10px;align-items:center}
+.brow .lab{color:var(--muted);font-size:.95rem}
+.brow select{grid-column:2}
+.qsize{font-size:.95rem;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:8px;text-align:center}
+.mono{font-variant-numeric:tabular-nums}
+.cut{font-size:1rem}
+.cut h3{font-size:1.05rem;margin:14px 0 6px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600}
+.cut h3 .sw{width:18px;height:18px;border-radius:4px;border:1px solid var(--rule);display:inline-block;vertical-align:-3px;margin-right:8px;background-size:cover}
+.cut h3 .yd{color:var(--indigo);white-space:nowrap;font-variant-numeric:tabular-nums}
+.cut ul{margin:0;padding:0;list-style:none}
+.cutrow{display:grid;grid-template-columns:3em 8.5em minmax(0,1fr);gap:0 10px;padding:4px 0;border-bottom:1px solid var(--rule);align-items:baseline}
+.cutrow .n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.cutrow .sz{font-variant-numeric:tabular-nums;white-space:nowrap}
+.cutrow .lab{color:var(--muted);font-size:.95rem}
+.cut .note{color:var(--muted);font-size:.95rem;margin-top:12px;line-height:1.45}
+.total{margin-top:14px;padding-top:12px;border-top:2px solid var(--rule);font-weight:600;display:flex;justify-content:space-between;font-size:1.1rem}
+textarea{width:100%;height:140px;font:.95rem "IBM Plex Mono",monospace;border:1px solid var(--rule);border-radius:var(--radius);background:var(--panel);color:var(--ink);padding:8px;margin-top:8px}
+.saved{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.saved .it{display:flex;gap:8px;align-items:center;font-size:1rem}
 .saved .it span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.msg{font-size:.8rem;color:var(--red);min-height:1.2em}
-kbd{font:.75rem "IBM Plex Mono",monospace;border:1px solid var(--rule);border-radius:4px;padding:0 4px}
+.msg{font-size:.95rem;color:var(--red);min-height:1.4em;text-align:center}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
 
 <header>
   <h1>Patchwork Block Editor</h1>
-  <span class="sub">Prototype · tap a cell to place a unit, tap again to turn it, pick a fabric to color a patch</span>
+  <span class="sub">Tap a cell to place a unit. Tap it again to turn it. Pick a fabric, then tap a patch to color it.</span>
 </header>
 
 <div class="app">
@@ -101,8 +106,8 @@ kbd{font:.75rem "IBM Plex Mono",monospace;border:1px solid var(--rule);border-ra
   <section class="pane">
     <h2>Block</h2>
     <div class="row">
-      <label class="f">Grid <select id="grid"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
-      <label class="f">Finished size <select id="size"><option>6</option><option>8</option><option>9</option><option>10</option><option selected>12</option><option>15</option><option>16</option></select></label>
+      <label class="f">Grid <select id="grid" style="width:96px"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
+      <label class="f">Finished size <select id="size" style="width:110px"><option>6</option><option>8</option><option>9</option><option>10</option><option selected>12</option><option>15</option><option>16</option></select></label>
     </div>
     <div class="row" style="margin-top:8px">
       <label class="f" style="flex:1">Start from <select id="preset">
@@ -125,8 +130,8 @@ kbd{font:.75rem "IBM Plex Mono",monospace;border:1px solid var(--rule);border-ra
     <div class="section">
       <h2>Fabrics</h2>
       <div class="fabrics" id="fabrics"></div>
-      <div class="row" style="margin-top:8px"><button id="addfab">+ Fabric</button></div>
-      <p class="tip">Pick a fabric, then tap any patch. Tap the swatch to change its color, or use the camera icon to use a photo of real fabric.</p>
+      <div class="row" style="margin-top:10px"><button id="addfab">+ Add fabric</button></div>
+      <p class="tip">Pick a fabric, then tap any patch. Use the color dot to change it, or the camera to use a photo of real fabric.</p>
     </div>
   </section>
 
@@ -134,10 +139,10 @@ kbd{font:.75rem "IBM Plex Mono",monospace;border:1px solid var(--rule);border-ra
   <section class="pane center">
     <div class="stage">
       <div class="toolbar">
-        <button id="undo" title="Undo">↶ Undo</button>
-        <button id="redo" title="Redo">↷ Redo</button>
-        <button id="rotblock" title="Rotate whole block">Rotate block</button>
-        <button id="clear">Clear</button>
+        <button id="undo" title="Undo">Undo</button>
+        <button id="redo" title="Redo">Redo</button>
+        <button id="rotblock" title="Turn the whole block a quarter turn">Turn block</button>
+        <button id="clear">Clear block</button>
       </div>
       <svg class="block" id="svg" viewBox="0 0 4 4" role="img" aria-label="Quilt block canvas"></svg>
       <div class="stat" id="stat"></div>
@@ -151,20 +156,19 @@ kbd{font:.75rem "IBM Plex Mono",monospace;border:1px solid var(--rule);border-ra
         <div class="qsize" id="qsize" style="margin-top:6px;text-align:center"></div>
       </div>
       <div class="qc">
-        <div class="grp">
-          <label for="rows">Rows</label><div class="inl"><input type="number" id="rows" min="1" max="20" value="3"> <label for="cols" style="margin-left:6px">Columns</label> <input type="number" id="cols" min="1" max="20" value="3"></div>
-          <label for="alt">Alternate</label><label class="inl" style="color:var(--ink)"><input type="checkbox" id="alt"> turn every other block</label>
-          <label for="setting">Setting</label><select id="setting"><option value="straight">Straight</option><option value="onpoint">On point</option></select>
-          <label for="setf" id="setflbl">Triangles</label><select id="setf" aria-label="Setting triangle fabric"></select>
-        </div>
-        <div class="grp">
-          <label for="sash">Sashing</label><div class="inl"><input type="number" id="sash" min="0" max="12" step="0.25" value="2"> in <select id="sashf" aria-label="Sashing fabric" style="flex:1;min-width:90px"></select></div>
-          <label for="corner">Cornerstones</label><div class="inl"><input type="checkbox" id="corner" checked> <select id="cornerf" aria-label="Cornerstone fabric" style="flex:1;min-width:90px"></select></div>
-        </div>
-        <div>
-          <div class="row" style="justify-content:space-between;margin-bottom:6px"><span style="color:var(--muted);font-size:.8rem">Borders, inner to outer</span><button id="addborder">+ Border</button></div>
-          <div id="borders" style="display:flex;flex-direction:column;gap:6px"></div>
-        </div>
+        <div class="field"><label for="setting">Setting</label><select id="setting"><option value="straight">Straight</option><option value="onpoint">On point</option></select></div>
+        <div class="field" id="setrow"><label for="setf">Triangle fabric</label><select id="setf"></select></div>
+        <div class="field"><label for="rows">Rows</label><input type="number" id="rows" min="1" max="20" value="3"></div>
+        <div class="field"><label for="cols">Columns</label><input type="number" id="cols" min="1" max="20" value="3"></div>
+        <div class="field"><span class="lab">Alternate</span><label class="check"><input type="checkbox" id="alt"> Turn every other block</label></div>
+        <div class="qsub"></div>
+        <div class="field"><label for="sash">Sashing</label><div class="inl"><input type="number" id="sash" min="0" max="12" step="0.25" value="2"> <span>inches, 0 for none</span></div></div>
+        <div class="field"><label for="sashf">Sashing fabric</label><select id="sashf"></select></div>
+        <div class="field"><span class="lab">Cornerstones</span><label class="check"><input type="checkbox" id="corner" checked> Add cornerstones</label></div>
+        <div class="field"><label for="cornerf">Cornerstone fabric</label><select id="cornerf"></select></div>
+        <div class="qsub"></div>
+        <div class="field"><span class="lab">Borders</span><button id="addborder" class="small">+ Add border</button></div>
+        <div id="borders" style="display:flex;flex-direction:column;gap:12px"></div>
       </div>
     </div>
   </section>
@@ -172,15 +176,13 @@ kbd{font:.75rem "IBM Plex Mono",monospace;border:1px solid var(--rule);border-ra
   <!-- RIGHT: cutting list and yardage -->
   <section class="pane">
     <h2>Cutting list</h2>
-    <div class="row">
-      <span class="stat" id="unitstat"></span>
-    </div>
+    <div class="stat" id="unitstat" style="text-align:left"></div>
     <div class="cut" id="cut"></div>
-    <div class="row" style="margin-top:10px"><button id="copy">Copy list</button><span class="stat" id="copied"></span></div>
+    <div class="row" style="margin-top:14px"><button id="copy">Copy list</button><span class="stat" id="copied"></span></div>
     <textarea id="txt" readonly hidden></textarea>
     <div class="section">
       <h2>Save this block</h2>
-      <div class="row"><input type="text" id="name" placeholder="Block name" style="flex:1"><button class="primary" id="save">Save</button></div>
+      <div class="row"><input type="text" id="name" placeholder="Block name" style="flex:1;min-width:120px"><button class="primary" id="save">Save</button></div>
       <div class="saved" id="saved"></div>
       <p class="tip">Saved on this device only.</p>
     </div>
@@ -342,16 +344,16 @@ function renderQuiltControls(){
   if (document.activeElement && document.activeElement.closest && document.activeElement.closest('.qc')) return;
   $('rows').value=q.rows; $('cols').value=q.cols; $('sash').value=q.sash; $('corner').checked=!!q.corner; $('alt').checked=!!S.alt;
   $('setting').value=q.setting||'straight'; $('setf').innerHTML=fabricOptions(q.setF??1);
-  $('setf').hidden=$('setflbl').hidden=!onPoint(); $('rows').step=$('cols').step=onPoint()?2:1;
+  $('setrow').hidden=!onPoint(); $('rows').step=$('cols').step=onPoint()?2:1;
   $('sashf').innerHTML=fabricOptions(q.sashF); $('cornerf').innerHTML=fabricOptions(q.cornerF);
   $('sashf').disabled=!(+q.sash>0); $('corner').disabled=!(+q.sash>0); $('cornerf').disabled=!(+q.sash>0&&q.corner);
-  $('borders').innerHTML = q.borders.length ? q.borders.map((b,i)=>`<div class="border"><span class="lbl">${i+1}.</span><input type="number" min="0" max="20" step="0.25" value="${b.w}" data-bw="${i}" aria-label="Border ${i+1} width"><select data-bf="${i}" aria-label="Border ${i+1} fabric">${fabricOptions(b.f)}</select><button data-bdel="${i}" title="Remove border">×</button></div>`).join('') : '<span class="tip" style="margin:0">No borders.</span>';
+  $('borders').innerHTML = q.borders.length ? q.borders.map((b,i)=>`<div class="brow"><span class="lab">Border ${i+1}</span><div class="inl"><input type="number" min="0" max="20" step="0.25" value="${b.w}" data-bw="${i}" aria-label="Border ${i+1} width"> <span>inches</span><button data-bdel="${i}" class="small" title="Remove border">Remove</button></div><select data-bf="${i}" aria-label="Border ${i+1} fabric">${fabricOptions(b.f)}</select></div>`).join('') : '<p class="tip" style="margin:0">No borders yet.</p>';
   $('addborder').disabled = q.borders.length>=3;
 }
 function unitIcon(t){
   const g=geom(t,0); const cols=['var(--indigo)','var(--cheddar)','var(--cheddar)','var(--indigo)'];
   const alt = t==='curve' ? ['var(--cheddar)','var(--indigo)'] : t==='qst' ? ['var(--indigo)','var(--cheddar)','var(--indigo)','var(--cheddar)'] : cols;
-  return `<svg viewBox="0 0 ${g.w} ${g.h}" style="width:${g.w>1?38:26}px">${g.polys.map((p,i)=>`<polygon points="${p.map(q=>q.join(',')).join(' ')}" fill="${alt[i]}" stroke="var(--panel)" stroke-width=".04"/>`).join('')}</svg>`;
+  return `<svg viewBox="0 0 ${g.w} ${g.h}" style="width:${g.w>1?50:34}px">${g.polys.map((p,i)=>`<polygon points="${p.map(q=>q.join(',')).join(' ')}" fill="${alt[i]}" stroke="var(--panel)" stroke-width=".04"/>`).join('')}</svg>`;
 }
 function renderUnits(){
   $('units').innerHTML = Object.keys(UNITS).map(t=>`<button class="unitbtn ${tool.kind==='unit'&&tool.t===t?'on':''}" data-t="${t}" type="button">${unitIcon(t)}<span>${UNITS[t].name}</span></button>`).join('');
@@ -425,13 +427,13 @@ function renderCut(){
   data.forEach(d=>{ total+=d.yards;
     html+=`<h3><span><span class="sw" style="background:${d.fabric.img?`url(${d.fabric.img}) center/cover`:d.fabric.color}"></span>${esc(d.fabric.name)}</span><span class="yd">${fmtYd(d.yards)}</span></h3><ul>`;
     txt+=`\n${d.fabric.name} — ${fmtYd(d.yards)}\n`;
-    d.pieces.forEach(p=>{ const line=`${p.n} × ${fmt(p.w)}" × ${fmt(p.h)}" ${p.label}`; html+=`<li><span class="mono">${p.n} ×</span> ${fmt(p.w)}" × ${fmt(p.h)}" <span style="color:var(--muted)">${p.label}</span></li>`; txt+=`  ${line}\n`; });
+    d.pieces.forEach(p=>{ const line=`${p.n} × ${fmt(p.w)}" × ${fmt(p.h)}" ${p.label}`; html+=`<li class="cutrow"><span class="n">${p.n}</span><span class="sz">${fmt(p.w)}" × ${fmt(p.h)}"</span><span class="lab">${p.label}</span></li>`; txt+=`  ${line}\n`; });
     html+='</ul>';
   });
   const perim=2*(d.W+d.H)+12, bindStrips=Math.ceil(perim/40), bindYd=Math.ceil(bindStrips*2.5/36*8)/8;
   const backPanels=Math.ceil((d.W+8)/40), backYd=Math.ceil(backPanels*(d.H+8)/36*8)/8;
   html+=`<div class="total"><span>Total, top</span><span class="mono">${fmtYd(total)}</span></div>`;
-  html+=`<ul style="margin-top:6px"><li><span class="mono">${bindStrips} ×</span> 2½" width-of-fabric strips <span style="color:var(--muted)">binding, ${fmtYd(bindYd)}</span></li><li><span class="mono">${backPanels} ×</span> ${fmt(d.H+8)}" width-of-fabric panel${backPanels>1?'s':''} <span style="color:var(--muted)">backing, ${fmtYd(backYd)}</span></li></ul>`;
+  html+=`<ul style="margin-top:8px"><li class="cutrow"><span class="n">${bindStrips}</span><span class="sz">2½" strips</span><span class="lab">binding, width of fabric, ${fmtYd(bindYd)}</span></li><li class="cutrow"><span class="n">${backPanels}</span><span class="sz">${fmt(d.H+8)}" panel${backPanels>1?'s':''}</span><span class="lab">backing, width of fabric, ${fmtYd(backYd)}</span></li></ul>`;
   html+=`<p class="note">Cut sizes include ¼" seams. Yardage assumes 40" usable width, cut in strips, rounded up to ⅛ yd. Backing allows 4" overhang each side. No batting.</p>`;
   txt+=`\nTotal, top ${fmtYd(total)}\nBinding: ${bindStrips} x 2.5" WOF strips (${fmtYd(bindYd)})\nBacking: ${backPanels} x ${fmt(d.H+8)}" WOF panel(s) (${fmtYd(backYd)})\n(Seams 1/4". 40" usable width. No batting.)`;
   $('cut').innerHTML=html; $('txt').value=txt;
