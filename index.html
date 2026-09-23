@@ -50,6 +50,12 @@ header .sub{color:var(--muted);font-size:1rem}
 @media (prefers-color-scheme: dark) and (max-width:1000px){:root:not([data-theme="light"]) .mbar button.on{color:#15192B}}
 .pane h2,.quilt h2{font-family:"Fraunces",Georgia,serif;font-size:1.25rem;font-weight:600;margin:0 0 12px;color:var(--ink)}
 .pane .section{margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)}
+.savebox{background:var(--indigo-soft);border:1px solid var(--indigo);border-radius:var(--radius);padding:14px}
+.savebox h2{margin-bottom:10px}
+.savebox .tip{margin-top:8px}
+.savebox .saved .it{background:var(--panel);border-radius:6px;padding:4px 6px}
+.h2row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.h2row h2{margin:0}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 label.f{font-size:.95rem;color:var(--muted);display:flex;flex-direction:column;gap:5px}
 select,input[type=number],input[type=text]{font:inherit;font-size:1rem;min-height:var(--ctl);padding:8px 10px;border:1px solid var(--rule);border-radius:var(--radius);background:var(--panel);color:var(--ink);min-width:0}
@@ -203,16 +209,18 @@ textarea{width:100%;height:140px;font:.95rem "IBM Plex Mono",monospace;border:1p
 
   <!-- RIGHT: cutting list and saving -->
   <section class="pane right">
-    <h2>Cutting list</h2>
-    <div class="stat" id="unitstat" style="text-align:left"></div>
-    <div class="cut" id="cut"></div>
-    <div class="row" style="margin-top:14px"><button id="copy">Copy list</button><span class="stat" id="copied"></span></div>
-    <textarea id="txt" readonly hidden></textarea>
-    <div class="section">
+    <div class="savebox">
       <h2>Save this block</h2>
       <div class="row"><input type="text" id="name" placeholder="Block name" style="flex:1;min-width:120px"><button class="primary" id="save">Save</button></div>
       <div class="saved" id="saved"></div>
       <p class="tip">Saved on this device only.</p>
+    </div>
+    <div class="section">
+      <div class="h2row"><h2>Cutting list</h2><button id="copy" class="small">Copy list</button></div>
+      <div class="stat" id="unitstat" style="text-align:left"></div>
+      <div class="stat" id="copied" style="text-align:left"></div>
+      <div class="cut" id="cut"></div>
+      <textarea id="txt" readonly hidden></textarea>
     </div>
   </section>
 </div>
