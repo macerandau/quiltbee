@@ -198,6 +198,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
   <p class="tip">Save keeps your blocks on this device. Nothing you make is sent anywhere.</p>
   <p class="tip">Baby and lap quilts are free, and so is your first throw. Bed sizes and more throws are $19.99, once.</p>
   <p class="tip" id="feedbackline"></p>
+  <p class="tip"><button id="replaywelcome" class="small">Show the welcome again</button></p>
 </div>
 <div class="veil" id="welcome" hidden>
   <div class="modal">
@@ -714,6 +715,7 @@ function showWelcome(){ $('welcome').hidden=false; setTimeout(()=>$('welcomego')
 function hideWelcome(){ $('welcome').hidden=true; try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} }
 $('welcomego').onclick=()=>{ hideWelcome(); snapshot(); PRESETS.sawtooth(); $('grid').value=S.n; setView('block'); render(); };
 $('welcomehelp').onclick=()=>{ hideWelcome(); openPop('helppop'); };
+$('replaywelcome').onclick=()=>{ closePops(); try{ localStorage.removeItem('qb_welcomed'); }catch(e){} showWelcome(); };
 $('welcome').addEventListener('click', e=>{ if (e.target===$('welcome')) hideWelcome(); });
 $('openbtn').onclick=()=>openPop($('openpop').hidden?'openpop':null);
 $('printbtn').onclick=()=>openPop($('printpop').hidden?'printpop':null);
