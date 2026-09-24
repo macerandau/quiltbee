@@ -1,0 +1,22 @@
+{
+  "name": "quiltbee",
+  "version": "1.0.0",
+  "description": "Quilt Bee — quilt block designer and quilt planner",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "private": "true",
+  "dependencies": {
+    "@capacitor/cli": "^6.2.2",
+    "@capacitor/core": "^6.2.2",
+    "@capacitor/ios": "^6.2.2",
+    "cordova-plugin-purchase": "^13.18.0"
+  }
+}

@@ -1,13 +1,13 @@
 # Quilt Bee
 
-Quilt block designer and quilt planner. Single-file web app, no build step.
+Quilt block designer and quilt planner. The app is a single HTML file with no build step.
 
-- `index.html` — the editor. Open it in a browser, or publish as an artifact.
-  Live prototype: https://claude.ai/artifact/5pTVtrjS2gbTQBPRsYTk4Z
-- `research/validation-report.html` — go/no-go validation (demand, competitors, review mining, tail check, wireframes, pricing).
-  Published: https://claude.ai/artifact/MidypbcJCV5d13ZfADW2Vs
-- `research/` — raw data behind the report: App Store reviews (`quilt_reviews*.json`), every quilt app found (`quilt_apps.json`),
-  Google autocomplete demand harvest (`demand.txt`, `harvest.sh`), App Store supply scripts (`supply.py`, `supply2.py`).
+- `docs/index.html` — the app. Served publicly by GitHub Pages at https://macerandau.github.io/quiltbee/ and bundled into the iOS shell.
+- `docs/privacy.html`, `docs/support.html` — the pages the App Store listing links to.
+- `icon.svg` — the mark. Rasterize with `magick -background none -density 384 icon.svg -resize 512x512 docs/icon-512.png`.
+- `art/` — the bee artwork sources.
+- `ios/` — Capacitor iOS shell (`npx cap sync ios` copies `docs/` into it). Purchases use cordova-plugin-purchase; product `com.quiltbee.app.plus`.
+- `codemagic.yaml` — builds and signs on Codemagic and uploads to TestFlight on every push to master.
+- `research/` — the niche validation report and the scripts behind it.
 
-Validation gate (from the report): put the editor in front of five quilters. If three build a block without asking a
-question, build the app. If they reach for graph paper, stop.
+Free: baby and lap quilts, and the first throw. Quilt Bee Plus ($19.99 once): bed sizes and unlimited throws.

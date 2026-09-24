@@ -1,0 +1,11 @@
+{
+  "appId": "com.quiltbee.app",
+  "appName": "Quilt Bee",
+  "webDir": "docs",
+  "ios": {
+    "contentInset": "automatic",
+    "backgroundColor": "#FAF6EE",
+    "preferredContentMode": "mobile"
+  },
+  "server": { "iosScheme": "quiltbee" }
+}

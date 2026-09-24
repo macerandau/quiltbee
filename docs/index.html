@@ -18,7 +18,7 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible","Trebuchet MS",Verdana,sans-serif;font-size:var(--fs);line-height:1.45;padding:0 18px;display:flex;flex-direction:column;overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible","Trebuchet MS",Verdana,sans-serif;font-size:var(--fs);line-height:1.45;padding:env(safe-area-inset-top,0px) 18px 0;display:flex;flex-direction:column;overflow:hidden}
 header{display:grid;grid-template-columns:300px minmax(320px,1fr) 340px;gap:14px;align-items:center;padding:10px 0 8px;width:100%;max-width:1400px;margin:0 auto;flex:none}
 .brandrow{display:flex;align-items:center;gap:10px;min-width:0}
 header .views{justify-self:start}
@@ -789,8 +789,11 @@ $('borders').addEventListener('click', e=>{ const b=e.target.closest('[data-bdel
 $('copy').onclick=async()=>{ const t=$('txt'); try{ await navigator.clipboard.writeText(t.value); $('copied').textContent='Copied.'; }catch(e){ t.hidden=false; t.select(); $('copied').textContent='Select and copy the text below.'; } setTimeout(()=>$('copied').textContent='',2500); };
 let curName='';
 // ---------- size gate (prototype of the free / Plus split) ----------
-const PRICE='$19.99';
+const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+const PLUS_ID='com.quiltbee.app.plus';
+let PRICE='$19.99';
 let plus=false, freeThrow='';
+let storeReady=false, storeErr='', storeBusy=false;
 try { plus=localStorage.getItem('qb_plus')==='1'; freeThrow=localStorage.getItem('qb_freethrow')||''; } catch(e){}
 function band(d){ const L=Math.max(d.W,d.H); return L<=65 ? {key:'lap',label:'Baby or lap size',free:true} : L<=80 ? {key:'throw',label:'Throw size',free:false} : {key:'bed',label:L<=95?'Bed size (twin)':L<=112?'Bed size (queen)':'Bed size (king)',free:false}; }
 function gate(){
@@ -804,14 +807,42 @@ function gate(){
   return {b,locked:true,reason:'Bed-size quilts are part of Quilt Bee Plus.'};
 }
 function lockHtml(g){
+  const note = NATIVE
+    ? (storeErr ? `<p class="tip">${esc(storeErr)}</p>` : (storeReady ? '<p class="tip">One purchase through the App Store. Yours on every device signed in with your Apple ID.</p>' : '<p class="tip">Connecting to the App Store…</p>'))
+    : '<p class="tip">Prototype: the unlock button pretends to buy. Nothing is charged.</p>';
   return `<div class="lock"><h3>Quilt Bee Plus</h3><p>${g.reason}</p><p>Baby and lap quilts are free, and so is your first throw. Bed sizes and more throws are ${PRICE}, once.</p>
-    <div class="row"><button class="primary" id="unlock">Unlock for ${PRICE}</button>${g.b.key==='throw'&&freeThrow?`<button id="openfree">Open “${esc(freeThrow)}”</button>`:''}</div>
-    <p class="tip">Prototype: the unlock button pretends to buy. Nothing is charged.</p></div>`;
+    <div class="row"><button class="primary" id="unlock" ${NATIVE&&(!storeReady||storeBusy)?'disabled':''}>${storeBusy?'Working…':`Unlock for ${PRICE}`}</button>${NATIVE?`<button id="restore" ${storeBusy?'disabled':''}>Restore purchases</button>`:''}${g.b.key==='throw'&&freeThrow?`<button id="openfree">Open “${esc(freeThrow)}”</button>`:''}</div>
+    ${note}</div>`;
 }
+// ---- App Store purchase (native shell only; cordova-plugin-purchase v13) ----
+function initStore(){
+  if (!window.CdvPurchase){ storeErr='The App Store is not available right now.'; renderCut(); return; }
+  const {store, ProductType, Platform, LogLevel} = CdvPurchase;
+  store.verbosity = LogLevel.WARNING;
+  store.register([{ id: PLUS_ID, type: ProductType.NON_CONSUMABLE, platform: Platform.APPLE_APPSTORE }]);
+  store.when()
+    .productUpdated(p=>{ if (p.id===PLUS_ID){ const pr=p.pricing&&p.pricing.price; if (pr) PRICE=pr; syncOwned(); } })
+    .approved(t=>{ storeBusy=false; t.verify(); })
+    .verified(r=>{ r.finish(); syncOwned(); })
+    .finished(()=>syncOwned())
+    .receiptUpdated(()=>syncOwned());
+  store.error(e=>{ storeBusy=false; if (e && e.code!==CdvPurchase.ErrorCode.PAYMENT_CANCELLED) storeErr=(e.message||'Something went wrong with the App Store.'); renderCut(); });
+  store.initialize([Platform.APPLE_APPSTORE]).then(()=>{ storeReady=true; syncOwned(); }).catch(e=>{ storeErr='Could not reach the App Store.'; renderCut(); });
+}
+function syncOwned(){ try { const owned=CdvPurchase.store.owned(PLUS_ID); if (owned!==plus){ plus=owned; try{ localStorage.setItem('qb_plus',owned?'1':'0'); }catch(e){} renderBadge(); } } catch(e){} render(); }
+async function buyPlus(){
+  const p=CdvPurchase.store.get(PLUS_ID, CdvPurchase.Platform.APPLE_APPSTORE); const offer=p&&p.getOffer();
+  if (!offer){ storeErr='Plus is not available right now. Please try again in a moment.'; renderCut(); return; }
+  storeErr=''; storeBusy=true; renderCut();
+  try { await offer.order(); } catch(e){ storeBusy=false; renderCut(); }
+}
+async function restorePlus(){ storeErr=''; storeBusy=true; renderCut(); try { await CdvPurchase.store.restorePurchases(); } catch(e){} storeBusy=false; syncOwned(); }
+if (NATIVE) document.addEventListener('deviceready', initStore, false);
 function setPlus(v){ plus=v; try{ localStorage.setItem('qb_plus',v?'1':'0'); }catch(e){} renderBadge(); render(); }
 function renderBadge(){ const h=document.querySelector('h1'); let b=h.querySelector('.plusbadge'); if (plus){ if(!b){ b=document.createElement('span'); b.className='plusbadge'; b.textContent='Plus'; h.appendChild(b);} } else if (b) b.remove(); }
 document.addEventListener('click', e=>{
-  if (e.target.id==='unlock'){ setPlus(true); closePops(); }
+  if (e.target.id==='unlock'){ if (NATIVE) buyPlus(); else { setPlus(true); closePops(); } }
+  if (e.target.id==='restore'){ restorePlus(); }
   if (e.target.id==='openfree'){ const list=loadSaved(); const i=list.findIndex(x=>x.name===freeThrow); if (i>=0){ snapshot(); const b=list[i]; S.n=b.n; S.size=b.size; S.cells=b.cells; S.fabrics=(b.fabrics||[]).map(normFabric); if (Array.isArray(b.colors)) S.colors=b.colors; if (Number.isInteger(b.bg)) S.bg=b.bg; if (Number.isInteger(b.main)) S.main=b.main; if (b.quilt) S.quilt=Object.assign({setting:'straight',setF:3},b.quilt); curName=b.name; syncControls(); render(); closePops(); } }
   if (e.target.id==='resetplus'){ setPlus(false); freeThrow=''; try{ localStorage.removeItem('qb_freethrow'); }catch(e){} render(); }
 });
@@ -896,6 +927,7 @@ else { const OLD=['#2E3F73','#F1E9D6','#D9A21B','#8A5A44','#7E9573','#9A3B3B']; 
 syncControls();
 try { setView(localStorage.getItem('qb_view')||'block'); } catch(e){ setView('block'); }
 renderBadge();
+if (NATIVE){ document.querySelectorAll('#resetplus,#printbtn,#print2').forEach(b=>{ const p=b.closest('p'); (p||b).hidden=true; }); }
 try { if (localStorage.getItem('qb_welcomed')!=='1') showWelcome(); } catch(e){ showWelcome(); }
 $('tip').innerHTML='<b>Half triangle</b> is picked. Tap a square on the block to place it. Tap it again to turn it.';
 render();
