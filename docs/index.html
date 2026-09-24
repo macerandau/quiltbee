@@ -92,6 +92,8 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
   .brand svg{width:28px;height:28px}
   .actions{gap:5px}
   .actions button{padding:6px 9px;font-size:.95rem;min-height:40px}
+  .toolbar{gap:6px}
+  .toolbar button{padding:6px 9px;font-size:.95rem;min-height:40px}
 }
 h2{font-family:"Fraunces",Georgia,serif;font-size:1.2rem;font-weight:600;margin:0 0 8px;color:var(--ink)}
 .section{margin-top:16px;padding-top:12px;border-top:1px solid var(--rule)}
@@ -884,6 +886,7 @@ let sheetFresh=false;
 $('printgo').onclick=()=>{ const g=gate(); if (g.locked){ $('printpop').querySelector('.tip').insertAdjacentHTML('beforebegin', lockHtml(g)); $('printgo').disabled=true; return; } buildPrintSheet(); sheetFresh=true; closePops(); setTimeout(()=>window.print(),50); setTimeout(()=>sheetFresh=false,2000); };
 window.addEventListener('beforeprint', ()=>{ if (!sheetFresh) buildPrintSheet(); });
 let rsT; window.addEventListener('resize', ()=>{ clearTimeout(rsT); rsT=setTimeout(()=>{ fitCanvases(); if (view==='quilt') renderQuilt(); },150); });
+if (window.ResizeObserver){ const ro=new ResizeObserver(()=>fitCanvases()); document.querySelectorAll('.canvaswrap').forEach(w=>ro.observe(w)); }
 const WOF=40;
 function orient(p){ // lay the piece across the 40" width whichever way uses less length
   const a={w:p.w,h:p.h}, b={w:p.h,h:p.w};
