@@ -85,6 +85,8 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
   .pane.left{grid-area:left}
   .pane.center{grid-area:center;height:min(56vh,calc(100vw - 230px))}
   .pane.right{grid-area:right}
+  .section{margin-top:12px;padding-top:9px}
+  .tip{margin-top:6px}
 }
 /* Phones: one column, canvas on top, sections switched with the bottom bar */
 @media (max-width:600px){
@@ -915,7 +917,7 @@ $('pluspop').addEventListener('click', e=>{ if (e.target===$('pluspop')) $('plus
 $('qsize').addEventListener('click', e=>{ if (e.target.closest('.band.plus')) openPlus(); });
 // Scroll cue on the side panels: shown while there is more below, tap to page down
 const moreT=[];
-function updateMore(){ document.querySelectorAll('.pane.left,.pane.right').forEach(p=>{ if (p.scrollHeight <= p.clientHeight + 1 && p.scrollTop) p.scrollTop = 0; p.classList.toggle('hasmore', p.scrollHeight - p.scrollTop - p.clientHeight > 28); }); }
+function updateMore(){ document.querySelectorAll('.pane.left,.pane.right').forEach(p=>{ if (p.scrollHeight <= p.clientHeight + 1 && p.scrollTop) p.scrollTop = 0; p.classList.toggle('hasmore', p.scrollHeight - p.scrollTop - p.clientHeight > 72); }); }
 document.querySelectorAll('.pane.left,.pane.right').forEach(p=>{ p.addEventListener('scroll', updateMore, {passive:true}); const b=p.querySelector('.more button'); if (b) b.onclick=()=>p.scrollBy({top:p.clientHeight*0.8, behavior:'smooth'}); });
 if (window.ResizeObserver){ const ro2=new ResizeObserver(()=>updateMore()); document.querySelectorAll('.pane.left,.pane.right').forEach(p=>ro2.observe(p)); }
 $('feedbackline').innerHTML=`Something wrong, or an idea? Email <a href="mailto:${FEEDBACK_EMAIL}?subject=Quilt%20Bee">${FEEDBACK_EMAIL}</a>.`;
@@ -939,6 +941,8 @@ window.addEventListener('beforeprint', ()=>{ if (!sheetFresh) buildPrintSheet();
 function afterResize(){ fitCanvases(); if (view==='quilt') renderQuilt(); document.querySelectorAll('.pane').forEach(p=>{ if (p.scrollHeight <= p.clientHeight + 1) p.scrollTop = 0; }); updateMore(); }
 let rsT; window.addEventListener('resize', ()=>{ clearTimeout(rsT); rsT=setTimeout(afterResize,150); });
 window.addEventListener('orientationchange', ()=>{ setTimeout(afterResize,350); setTimeout(afterResize,900); });
+try { matchMedia('(orientation: portrait)').addEventListener('change', ()=>{ afterResize(); setTimeout(afterResize,400); }); } catch(e){}
+if (window.visualViewport) visualViewport.addEventListener('resize', ()=>{ clearTimeout(rsT); rsT=setTimeout(afterResize,150); });
 if (window.ResizeObserver){ const ro=new ResizeObserver(()=>fitCanvases()); document.querySelectorAll('.canvaswrap').forEach(w=>ro.observe(w)); }
 const WOF=40;
 function orient(p){ // lay the piece across the 40" width whichever way uses less length
