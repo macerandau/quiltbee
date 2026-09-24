@@ -73,21 +73,39 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
 .stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:8px}
 .canvaswrap{flex:1;min-height:0;width:100%;display:flex;justify-content:center;align-items:center}
 .mbar{display:none}
+/* Portrait tablets: tall settings column on the left, canvas above the cutting list on the right */
 @media (max-width:1100px){
-  .app{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:10px;padding-block:4px 0}
-  header{display:flex;justify-content:space-between}
+  .app{grid-template-columns:300px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"left center" "left right";gap:12px;padding-block:4px 10px}
+  header{display:flex;justify-content:space-between;gap:12px}
+  .pane.left{grid-area:left}
+  .pane.center{grid-area:center;height:min(56vh,calc(100vw - 230px))}
+  .pane.right{grid-area:right}
+}
+/* Phones: one column, canvas on top, sections switched with the bottom bar */
+@media (max-width:600px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);grid-template-areas:"center" "left";gap:10px;padding-block:4px 0}
   .views{display:none}
-  .pane.center{height:min(50vh,calc(100vw - 36px));order:0}
-  .pane.left{order:1}
+  .pane.center{height:min(50vh,calc(100vw - 36px))}
   .pane.right{display:none}
   .app[data-mview="cut"] .pane.center,.app[data-mview="cut"] .pane.left{display:none}
-  .app[data-mview="cut"] .pane.right{display:block;grid-row:1 / -1}
+  .app[data-mview="cut"] .pane.right{display:block;grid-area:1 / 1 / 3 / 2}
   .mbar{display:flex;flex:none;gap:8px;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--rule);background:var(--bg)}
   .mbar button{flex:1;min-height:46px;font-weight:700}
   .mbar button.on{background:var(--rose);color:#fff;border-color:var(--rose)}
+  #printbtn{display:none}
 }
+.more{position:sticky;bottom:-14px;order:99;margin:auto -14px -14px;padding:34px 0 10px;text-align:center;pointer-events:none;background:linear-gradient(to bottom,rgba(255,253,249,0),var(--panel) 55%);flex:none}
+.more button{pointer-events:auto;min-height:34px;padding:2px 14px;border-radius:999px;background:#fff;border:1.5px solid var(--rule2);color:var(--muted);font-size:.95rem;font-weight:700;box-shadow:0 2px 8px rgba(60,40,40,.12)}
+.more button:hover{color:var(--rose)}
+.pane:not(.hasmore) .more{display:none}
+.actions button{white-space:nowrap}
+.plusbtn{background:var(--rose-soft);border-color:var(--rose-line);color:var(--rose);font-weight:700}
+.plusbtn:hover{background:var(--rose);color:#fff}
+.band.plus{cursor:pointer}
+#pluspop .modal p{margin-bottom:10px}
 @media (max-width:600px){
-  header{gap:8px}
+  header{gap:6px 8px;flex-wrap:wrap}
+  .brandrow{flex:1}
   h1{font-size:1.25rem;white-space:nowrap}
   .brand svg{width:28px;height:28px}
   .actions{gap:5px}
@@ -204,6 +222,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
     <button type="button" data-view="quilt">Quilt</button>
   </nav>
   <div class="actions">
+    <button type="button" id="plusbtn" class="plusbtn">Get Plus</button>
     <button type="button" id="helpbtn">Help</button>
     <button type="button" id="openbtn">Open</button>
     <button type="button" id="savebtn" class="primary">Save</button>
@@ -236,6 +255,15 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
   <p class="tip">Baby and lap quilts up to 60" are free. Throw and bed sizes are $19.99, once.</p>
   <p class="tip" id="feedbackline"></p>
   <p class="tip"><button id="replaywelcome" class="small">Show the welcome again</button></p>
+</div>
+<div class="veil" id="pluspop" hidden>
+  <div class="modal">
+    <h2>Quilt Bee Plus</h2>
+    <p><b>Free</b> covers baby and lap quilts up to 60" on the long side, with every feature: blocks, fabrics, sashing, borders, on point and the full cutting list.</p>
+    <p><b>Plus</b> adds throw and bed sizes, twin, queen and king, for one purchase you own forever.</p>
+    <div id="plusbody"></div>
+    <div class="row"><button type="button" id="plusclose">Not now</button></div>
+  </div>
 </div>
 <div class="veil" id="welcome" hidden>
   <div class="modal">
@@ -312,6 +340,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
         </div>
       </div>
     </div>
+  <div class="more" aria-hidden="true"><button type="button" tabindex="-1">More below ▾</button></div>
   </section>
 
   <!-- CENTER: canvas -->
@@ -344,6 +373,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
       <div class="cut" id="cut"></div>
       <textarea id="txt" readonly hidden></textarea>
     </div>
+    <div class="more" aria-hidden="true"><button type="button" tabindex="-1">More below ▾</button></div>
   </section>
 </div>
 
@@ -522,6 +552,7 @@ function render(){
   renderPatternDefs(); renderCut(); renderUnits(); renderFabrics();
   $('undo').disabled = !undoStack.length; $('redo').disabled = !redoStack.length;
   scheduleAutosave();
+  requestAnimationFrame(updateMore);
 }
 let autosaveT=null;
 function scheduleAutosave(){ clearTimeout(autosaveT); autosaveT=setTimeout(()=>{ try { localStorage.setItem('qb_current', JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,colors:S.colors,main:S.main,bg:S.bg,alt:S.alt,quilt:S.quilt})); } catch(e){} },400); }
@@ -656,7 +687,10 @@ function cutData(){
     return {i, fabric:S.fabrics[i], pieces, yards};
   }).filter(x=>x.pieces.length);
 }
+function renderPlusPop(){ if (plus) return; const g={reason:'', b:{key:'bed'}}; $('plusbody').innerHTML=lockHtml(g).replace('<h3>Quilt Bee Plus</h3>','').replace('<p></p>','').replace('<p>Baby and lap quilts up to 60" are free. Throw and bed sizes are '+PRICE+', once.</p>',''); }
+function openPlus(){ closePops(); renderPlusPop(); $('pluspop').hidden=false; }
 function renderCut(){
+  renderPlusPop();
   const g=gate();
   if (g.locked){ $('cut').innerHTML=lockHtml(g); $('txt').value=''; $('copy').disabled=true; $('print2').disabled=true; return; }
   $('copy').disabled=false; $('print2').disabled=false;
@@ -849,7 +883,7 @@ async function buyPlus(){
 async function restorePlus(){ storeErr=''; storeBusy=true; renderCut(); try { await CdvPurchase.store.restorePurchases(); } catch(e){} storeBusy=false; syncOwned(); }
 if (NATIVE) document.addEventListener('deviceready', initStore, false);
 function setPlus(v){ plus=v; try{ localStorage.setItem('qb_plus',v?'1':'0'); }catch(e){} renderBadge(); render(); }
-function renderBadge(){ const h=document.querySelector('h1'); let b=h.querySelector('.plusbadge'); if (plus){ if(!b){ b=document.createElement('span'); b.className='plusbadge'; b.textContent='Plus'; h.appendChild(b);} } else if (b) b.remove(); }
+function renderBadge(){ const h=document.querySelector('h1'); let b=h.querySelector('.plusbadge'); if (plus){ if(!b){ b=document.createElement('span'); b.className='plusbadge'; b.textContent='Plus'; h.appendChild(b);} $('pluspop').hidden=true; } else if (b) b.remove(); $('plusbtn').hidden=plus; }
 document.addEventListener('click', e=>{
   if (e.target.id==='unlock'){ if (NATIVE) buyPlus(); else { setPlus(true); closePops(); } }
   if (e.target.id==='restore'){ restorePlus(); }
@@ -861,6 +895,15 @@ function openPop(id){ POPS.forEach(k=>$(k).hidden = k!==id); if (id==='savepop')
 function closePops(){ POPS.forEach(k=>$(k).hidden=true); }
 $('savebtn').onclick=()=>openPop($('savepop').hidden?'savepop':null);
 $('helpbtn').onclick=()=>openPop($('helppop').hidden?'helppop':null);
+$('plusbtn').onclick=openPlus;
+$('plusclose').onclick=()=>{ $('pluspop').hidden=true; };
+$('pluspop').addEventListener('click', e=>{ if (e.target===$('pluspop')) $('pluspop').hidden=true; });
+$('qsize').addEventListener('click', e=>{ if (e.target.closest('.band.plus')) openPlus(); });
+// Scroll cue on the side panels: shown while there is more below, tap to page down
+const moreT=[];
+function updateMore(){ document.querySelectorAll('.pane.left,.pane.right').forEach(p=>{ p.classList.toggle('hasmore', p.scrollHeight - p.scrollTop - p.clientHeight > 28); }); }
+document.querySelectorAll('.pane.left,.pane.right').forEach(p=>{ p.addEventListener('scroll', updateMore, {passive:true}); const b=p.querySelector('.more button'); if (b) b.onclick=()=>p.scrollBy({top:p.clientHeight*0.8, behavior:'smooth'}); });
+if (window.ResizeObserver){ const ro2=new ResizeObserver(()=>updateMore()); document.querySelectorAll('.pane.left,.pane.right').forEach(p=>ro2.observe(p)); }
 $('feedbackline').innerHTML=`Something wrong, or an idea? Email <a href="mailto:${FEEDBACK_EMAIL}?subject=Quilt%20Bee">${FEEDBACK_EMAIL}</a>.`;
 function showWelcome(){ $('welcome').hidden=false; setTimeout(()=>$('welcomego').focus(),0); }
 function hideWelcome(){ $('welcome').hidden=true; try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} }
@@ -939,7 +982,7 @@ try { setView(localStorage.getItem('qb_view')||'block'); } catch(e){ setView('bl
 renderBadge();
 if (NATIVE){ document.querySelectorAll('#resetplus,#printbtn,#print2').forEach(b=>{ const p=b.closest('p'); (p||b).hidden=true; }); }
 const shot=new URLSearchParams(location.search).get('shot');
-if (shot){ try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} const qp=new URLSearchParams(location.search); if (qp.get('rows')) S.quilt.rows=+qp.get('rows'); if (qp.get('cols')) S.quilt.cols=+qp.get('cols'); setView(shot); fitCanvases(); if (view==='quilt') renderQuilt(); }
+if (shot){ try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} const qp=new URLSearchParams(location.search); if (qp.get('rows')) S.quilt.rows=+qp.get('rows'); if (qp.get('cols')) S.quilt.cols=+qp.get('cols'); setView(shot); if (qp.get('plus')) setTimeout(openPlus,50); fitCanvases(); if (view==='quilt') renderQuilt(); }
 else { try { if (localStorage.getItem('qb_welcomed')!=='1') showWelcome(); } catch(e){ showWelcome(); } }
 $('tip').innerHTML='<b>Half triangle</b> is picked. Tap a square on the block to place it. Tap it again to turn it.';
 render();
