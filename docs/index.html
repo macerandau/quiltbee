@@ -86,6 +86,13 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
   .mbar button{flex:1;min-height:46px;font-weight:700}
   .mbar button.on{background:var(--rose);color:#fff;border-color:var(--rose)}
 }
+@media (max-width:600px){
+  header{gap:8px}
+  h1{font-size:1.25rem;white-space:nowrap}
+  .brand svg{width:28px;height:28px}
+  .actions{gap:5px}
+  .actions button{padding:6px 9px;font-size:.95rem;min-height:40px}
+}
 h2{font-family:"Fraunces",Georgia,serif;font-size:1.2rem;font-weight:600;margin:0 0 8px;color:var(--ink)}
 .section{margin-top:16px;padding-top:12px;border-top:1px solid var(--rule)}
 .h2row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
@@ -322,7 +329,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
     <div class="stage only-quilt">
       <div class="canvaswrap"><svg class="rep" id="rep" viewBox="0 0 12 12" aria-label="Quilt layout with sashing and borders"></svg></div>
       <div class="qsize" id="qsize"></div>
-      <p class="hint" id="hint">Set rows, columns, sashing and borders on the left. Baby and lap quilts are free, and so is your first throw.</p>
+      <p class="hint" id="hint">Set rows, columns, sashing and borders in Quilt layout. Baby and lap quilts are free, and so is your first throw.</p>
     </div>
   </section>
 
