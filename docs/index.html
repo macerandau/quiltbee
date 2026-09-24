@@ -31,6 +31,7 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
 .views button.on{background:var(--rose);color:#fff}
 .actions{display:flex;gap:8px}
 .pop{position:fixed;top:62px;right:20px;z-index:30;width:min(360px,calc(100vw - 32px));background:#fff;border:1px solid var(--rule2);border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(60,40,40,.14)}
+.pop{max-height:calc(100vh - 80px - env(safe-area-inset-top,0px));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .pop h2{margin-bottom:8px}
 #printsheet{display:none}
 @media print{
@@ -271,7 +272,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
   <p class="tip"><button id="resetplus" class="small">Prototype: reset unlock</button></p>
 </div>
 <div class="pop" id="helppop" hidden>
-  <h2>How Quilt Bee works</h2>
+  <div class="h2row"><h2>How Quilt Bee works</h2><button id="tourbtn" class="small primary">Take the tour</button></div>
   <ol class="steps">
     <li><b>Set up the block.</b> Choose the grid and the finished size, or start from a classic block like a Sawtooth Star.</li>
     <li><b>Pick a piece.</b> Tap a piece, then tap a square on the block. It lands in your main fabric and background. Tap it again to turn it.</li>
@@ -283,7 +284,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
   <p class="tip">Save keeps your blocks on this device. Nothing you make is sent anywhere.</p>
   <p class="tip">Baby and lap quilts up to 60" are free. Throw and bed sizes are $19.99, once.</p>
   <p class="tip" id="feedbackline"></p>
-  <p class="tip"><button id="tourbtn" class="small">Take the tour</button> <button id="replaywelcome" class="small">Show the welcome again</button></p>
+  <p class="tip"><button id="replaywelcome" class="small">Show the welcome again</button></p>
 </div>
 <div id="tour" hidden>
   <div class="tour-hole" id="tourhole"></div>
