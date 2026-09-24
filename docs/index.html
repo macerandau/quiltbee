@@ -804,7 +804,7 @@ $('borders').addEventListener('click', e=>{ const b=e.target.closest('[data-bdel
 $('copy').onclick=async()=>{ const t=$('txt'); try{ await navigator.clipboard.writeText(t.value); $('copied').textContent='Copied.'; }catch(e){ t.hidden=false; t.select(); $('copied').textContent='Select and copy the text below.'; } setTimeout(()=>$('copied').textContent='',2500); };
 let curName='';
 // ---------- size gate (prototype of the free / Plus split) ----------
-const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) || new URLSearchParams(location.search).get('native')==='1';
 const PLUS_ID='com.quiltbee.app.plus';
 let PRICE='$19.99';
 let plus=false, freeThrow='';
@@ -945,7 +945,7 @@ try { setView(localStorage.getItem('qb_view')||'block'); } catch(e){ setView('bl
 renderBadge();
 if (NATIVE){ document.querySelectorAll('#resetplus,#printbtn,#print2').forEach(b=>{ const p=b.closest('p'); (p||b).hidden=true; }); }
 const shot=new URLSearchParams(location.search).get('shot');
-if (shot){ try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} setView(shot); fitCanvases(); if (view==='quilt') renderQuilt(); }
+if (shot){ try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} const qp=new URLSearchParams(location.search); if (qp.get('rows')) S.quilt.rows=+qp.get('rows'); if (qp.get('cols')) S.quilt.cols=+qp.get('cols'); setView(shot); fitCanvases(); if (view==='quilt') renderQuilt(); }
 else { try { if (localStorage.getItem('qb_welcomed')!=='1') showWelcome(); } catch(e){ showWelcome(); } }
 $('tip').innerHTML='<b>Half triangle</b> is picked. Tap a square on the block to place it. Tap it again to turn it.';
 render();

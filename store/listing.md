@@ -28,7 +28,7 @@ Free and Plus
 Baby and lap quilts are free, and so is your first throw. Quilt Bee Plus unlocks bed sizes — twin, queen and king — and unlimited throws, for one purchase you own forever.
 
 **Keywords** (100 max, comma separated):
-quilt,quilting,quilt block,quilt pattern,quilt design,patchwork,sewing,fabric,yardage,quilt calculator
+quilt,quilting,quilt block,quilt pattern,patchwork,sewing,fabric,yardage,quilt calculator
 
 **Support URL**: https://macerandau.github.io/quiltbee/support.html
 **Privacy Policy URL**: https://macerandau.github.io/quiltbee/privacy.html
