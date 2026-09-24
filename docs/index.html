@@ -106,8 +106,10 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
   header .actions{grid-area:actions;justify-self:end}
   header .views{grid-area:views;justify-self:start}
 }
-.more{position:sticky;bottom:-14px;order:99;margin:auto -14px -14px;padding:34px 0 10px;text-align:center;pointer-events:none;background:linear-gradient(to bottom,rgba(255,253,249,0),var(--panel) 55%);flex:none}
-.more button{pointer-events:auto;min-height:34px;padding:2px 14px;border-radius:999px;background:#fff;border:1.5px solid var(--rule2);color:var(--muted);font-size:.95rem;font-weight:700;box-shadow:0 2px 8px rgba(60,40,40,.12)}
+/* Scroll cue: zero height so it never adds to the scrollable length; the fade and pill hang above it */
+.more{position:sticky;bottom:-14px;order:99;height:0;margin:0 -14px;flex:none;pointer-events:none;z-index:2;overflow:visible}
+.more::before{content:"";position:absolute;left:0;right:0;bottom:0;height:64px;background:linear-gradient(to bottom,rgba(255,253,249,0),var(--panel) 60%)}
+.more button{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);pointer-events:auto;min-height:34px;padding:2px 14px;border-radius:999px;background:#fff;border:1.5px solid var(--rule2);color:var(--muted);font-size:.95rem;font-weight:700;box-shadow:0 2px 8px rgba(60,40,40,.12);white-space:nowrap}
 .more button:hover{color:var(--rose)}
 .pane:not(.hasmore) .more{display:none}
 .actions button{white-space:nowrap}
@@ -913,7 +915,7 @@ $('pluspop').addEventListener('click', e=>{ if (e.target===$('pluspop')) $('plus
 $('qsize').addEventListener('click', e=>{ if (e.target.closest('.band.plus')) openPlus(); });
 // Scroll cue on the side panels: shown while there is more below, tap to page down
 const moreT=[];
-function updateMore(){ document.querySelectorAll('.pane.left,.pane.right').forEach(p=>{ p.classList.toggle('hasmore', p.scrollHeight - p.scrollTop - p.clientHeight > 28); }); }
+function updateMore(){ document.querySelectorAll('.pane.left,.pane.right').forEach(p=>{ if (p.scrollHeight <= p.clientHeight + 1 && p.scrollTop) p.scrollTop = 0; p.classList.toggle('hasmore', p.scrollHeight - p.scrollTop - p.clientHeight > 28); }); }
 document.querySelectorAll('.pane.left,.pane.right').forEach(p=>{ p.addEventListener('scroll', updateMore, {passive:true}); const b=p.querySelector('.more button'); if (b) b.onclick=()=>p.scrollBy({top:p.clientHeight*0.8, behavior:'smooth'}); });
 if (window.ResizeObserver){ const ro2=new ResizeObserver(()=>updateMore()); document.querySelectorAll('.pane.left,.pane.right').forEach(p=>ro2.observe(p)); }
 $('feedbackline').innerHTML=`Something wrong, or an idea? Email <a href="mailto:${FEEDBACK_EMAIL}?subject=Quilt%20Bee">${FEEDBACK_EMAIL}</a>.`;
@@ -934,7 +936,9 @@ $('save').onclick=()=>{ const name=$('name').value.trim()||`Block ${new Date().t
 let sheetFresh=false;
 $('printgo').onclick=()=>{ const g=gate(); if (g.locked){ $('printpop').querySelector('.tip').insertAdjacentHTML('beforebegin', lockHtml(g)); $('printgo').disabled=true; return; } buildPrintSheet(); sheetFresh=true; closePops(); setTimeout(()=>window.print(),50); setTimeout(()=>sheetFresh=false,2000); };
 window.addEventListener('beforeprint', ()=>{ if (!sheetFresh) buildPrintSheet(); });
-let rsT; window.addEventListener('resize', ()=>{ clearTimeout(rsT); rsT=setTimeout(()=>{ fitCanvases(); if (view==='quilt') renderQuilt(); },150); });
+function afterResize(){ fitCanvases(); if (view==='quilt') renderQuilt(); document.querySelectorAll('.pane').forEach(p=>{ if (p.scrollHeight <= p.clientHeight + 1) p.scrollTop = 0; }); updateMore(); }
+let rsT; window.addEventListener('resize', ()=>{ clearTimeout(rsT); rsT=setTimeout(afterResize,150); });
+window.addEventListener('orientationchange', ()=>{ setTimeout(afterResize,350); setTimeout(afterResize,900); });
 if (window.ResizeObserver){ const ro=new ResizeObserver(()=>fitCanvases()); document.querySelectorAll('.canvaswrap').forEach(w=>ro.observe(w)); }
 const WOF=40;
 function orient(p){ // lay the piece across the 40" width whichever way uses less length
