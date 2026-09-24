@@ -119,6 +119,19 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
 .plusbtn:hover{background:var(--rose);color:#fff}
 .band.plus{cursor:pointer}
 #pluspop .modal p{margin-bottom:10px}
+/* Guided tour: a lit hole in a dim veil, a pulse ring, and a card with one instruction */
+#tour{position:fixed;inset:0;z-index:60;pointer-events:none}
+.tour-hole{position:fixed;border-radius:14px;box-shadow:0 0 0 200vmax rgba(46,42,51,.55);transition:left .35s ease,top .35s ease,width .35s ease,height .35s ease}
+.tour-hole::after{content:"";position:absolute;inset:-4px;border:3px solid var(--butter);border-radius:17px;animation:tourpulse 1.6s ease-out infinite}
+@keyframes tourpulse{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.07)}}
+.tour-card{position:fixed;width:min(360px,calc(100vw - 24px));background:#fff;border-radius:14px;padding:16px 16px 12px;box-shadow:0 12px 36px rgba(60,40,40,.3);pointer-events:auto;transition:left .35s ease,top .35s ease}
+.tour-card p{margin:0 0 12px;font-size:1.05rem;line-height:1.5}
+.tour-card .row{justify-content:space-between;flex-wrap:nowrap}
+.tour-card::before{content:"";position:absolute;left:var(--ax,40px);width:18px;height:18px;background:#fff;transform:rotate(45deg);display:none}
+.tour-card.below::before{display:block;top:-9px}
+.tour-card.above::before{display:block;bottom:-9px}
+.tour-step{font-size:.9rem;color:var(--muted);white-space:nowrap}
+@media (prefers-reduced-motion: reduce){.tour-hole::after{animation:none}}
 @media (max-width:600px){
   header{display:flex;justify-content:space-between;gap:6px 8px;flex-wrap:wrap}
   .brandrow{flex:1}
@@ -270,7 +283,14 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
   <p class="tip">Save keeps your blocks on this device. Nothing you make is sent anywhere.</p>
   <p class="tip">Baby and lap quilts up to 60" are free. Throw and bed sizes are $19.99, once.</p>
   <p class="tip" id="feedbackline"></p>
-  <p class="tip"><button id="replaywelcome" class="small">Show the welcome again</button></p>
+  <p class="tip"><button id="tourbtn" class="small">Take the tour</button> <button id="replaywelcome" class="small">Show the welcome again</button></p>
+</div>
+<div id="tour" hidden>
+  <div class="tour-hole" id="tourhole"></div>
+  <div class="tour-card" id="tourcard" role="dialog" aria-live="polite">
+    <p id="tourtext"></p>
+    <div class="row"><span class="tour-step" id="tourstep"></span><span class="row" style="gap:6px"><button type="button" id="tourskip" class="small">Skip</button><button type="button" id="tournext" class="primary small">Next</button></span></div>
+  </div>
 </div>
 <div class="veil" id="pluspop" hidden>
   <div class="modal">
@@ -924,7 +944,50 @@ $('feedbackline').innerHTML=`Something wrong, or an idea? Email <a href="mailto:
 function showWelcome(){ $('welcome').hidden=false; setTimeout(()=>$('welcomego').focus(),0); }
 function hideWelcome(){ $('welcome').hidden=true; try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} }
 $('welcomego').onclick=()=>{ hideWelcome(); snapshot(); PRESETS.sawtooth(); $('grid').value=S.n; setView('block'); render(); };
-$('welcomehelp').onclick=()=>{ hideWelcome(); openPop('helppop'); };
+$('welcomehelp').onclick=()=>{ hideWelcome(); tourStart(); };
+$('tourbtn').onclick=()=>{ closePops(); tourStart(); };
+// ---- Guided tour: six steps, each lit and waiting for the real action (Next skips ahead) ----
+const TOUR=[
+  {sel:()=>$('preset'), text:'<b>Start from a classic block.</b> Open this menu and pick one, say a Churn Dash.', on:'change', view:'block'},
+  {sel:()=>$('units'), text:'<b>Pick a piece.</b> Tap Half triangle, Square or any other piece.', on:'click'},
+  {sel:()=>$('svg'), text:'<b>Place it.</b> Tap a square on the block. Tap the same square again to turn it.', on:'click'},
+  {sel:()=>document.querySelector('.palsec'), text:'<b>Choose fabrics.</b> Tap a color chip to recolor the lit fabric. Tap Background first to color that one instead.', on:'click'},
+  {sel:()=>[...document.querySelectorAll('.views [data-view=quilt],.mbar [data-m=quilt]')].find(b=>b.offsetParent), text:'<b>See the whole quilt.</b> Switch to Quilt for rows, columns, sashing and borders.', on:'click'},
+  {sel:()=>$('rep'), text:'<b>That is the whole idea.</b> Pieces to cut lists every piece and how much fabric to buy. Save keeps your work on this device.', done:true, view:'quilt'}
+];
+let tourI=-1, tourEl=null;
+function tourStart(){ hideWelcome(); closePops(); $('pluspop').hidden=true; setView('block'); $('tour').hidden=false; tourGo(0); }
+function tourGo(i){
+  if (i>=TOUR.length) return tourEnd();
+  tourI=i; const st=TOUR[i]; if (st.view) setView(st.view);
+  tourEl=st.sel(); if (!tourEl) return tourGo(i+1);
+  tourEl.scrollIntoView({block:'center',inline:'nearest'});
+  $('tourtext').innerHTML=st.text; $('tournext').textContent=st.done?'Done':'Next'; $('tourstep').textContent=`${i+1} of ${TOUR.length}`;
+  tourPlace(); setTimeout(tourPlace,150); setTimeout(tourPlace,450);
+}
+function tourPlace(){
+  if (tourI<0||!tourEl) return;
+  const r=tourEl.getBoundingClientRect(), pad=8, h=$('tourhole'), c=$('tourcard');
+  h.style.left=(r.left-pad)+'px'; h.style.top=(r.top-pad)+'px'; h.style.width=(r.width+2*pad)+'px'; h.style.height=(r.height+2*pad)+'px';
+  const cw=c.offsetWidth, ch=c.offsetHeight, vw=innerWidth, vh=innerHeight;
+  const left=Math.min(Math.max(12, r.left+r.width/2-cw/2), vw-cw-12); let top;
+  if (r.bottom+pad+16+ch < vh-8){ top=r.bottom+pad+16; c.classList.add('below'); c.classList.remove('above'); }
+  else if (r.top-pad-16-ch > 8){ top=r.top-pad-16-ch; c.classList.add('above'); c.classList.remove('below'); }
+  else { top=Math.max(8, vh-ch-12); c.classList.remove('above','below'); }
+  c.style.left=left+'px'; c.style.top=top+'px';
+  c.style.setProperty('--ax', Math.min(Math.max(20, r.left+r.width/2-left-9), cw-38)+'px');
+}
+function tourEnd(){ tourI=-1; tourEl=null; $('tour').hidden=true; try{ localStorage.setItem('qb_toured','1'); }catch(e){} }
+$('tournext').onclick=()=>tourGo(tourI+1);
+$('tourskip').onclick=tourEnd;
+['pointerdown','click','change'].forEach(type=>document.addEventListener(type, e=>{
+  if (tourI<0 || e.target.closest('#tourcard')) return;
+  const st=TOUR[tourI], inside=tourEl && tourEl.contains(e.target);
+  if (!inside){ if (type!=='pointerdown') e.preventDefault(); e.stopPropagation(); return; }
+  if (st.on===type) setTimeout(()=>{ if (tourI>=0 && TOUR[tourI]===st) tourGo(tourI+1); }, 400);
+}, true));
+window.addEventListener('resize', ()=>{ if (tourI>=0) setTimeout(tourPlace,250); });
+document.addEventListener('scroll', ()=>{ if (tourI>=0) tourPlace(); }, true);
 $('replaywelcome').onclick=()=>{ closePops(); try{ localStorage.removeItem('qb_welcomed'); }catch(e){} showWelcome(); };
 $('welcome').addEventListener('click', e=>{ if (e.target===$('welcome')) hideWelcome(); });
 $('openbtn').onclick=()=>openPop($('openpop').hidden?'openpop':null);
@@ -1002,7 +1065,7 @@ try { setView(localStorage.getItem('qb_view')||'block'); } catch(e){ setView('bl
 renderBadge();
 if (NATIVE){ document.querySelectorAll('#resetplus,#printbtn,#print2').forEach(b=>{ const p=b.closest('p'); (p||b).hidden=true; }); }
 const shot=new URLSearchParams(location.search).get('shot');
-if (shot){ try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} const qp=new URLSearchParams(location.search); if (qp.get('rows')) S.quilt.rows=+qp.get('rows'); if (qp.get('cols')) S.quilt.cols=+qp.get('cols'); setView(shot); if (qp.get('plus')) setTimeout(openPlus,50); if (qp.get('preset') && PRESETS[qp.get('preset')]){ PRESETS[qp.get('preset')](); $('grid').value=S.n; } fitCanvases(); if (view==='quilt') renderQuilt(); }
+if (shot){ try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} const qp=new URLSearchParams(location.search); if (qp.get('rows')) S.quilt.rows=+qp.get('rows'); if (qp.get('cols')) S.quilt.cols=+qp.get('cols'); setView(shot); if (qp.get('plus')) setTimeout(openPlus,50); if (qp.get('tour')) setTimeout(()=>{ tourStart(); const n=+qp.get('tour'); if (n>1) tourGo(n-1); },200); if (qp.get('preset') && PRESETS[qp.get('preset')]){ PRESETS[qp.get('preset')](); $('grid').value=S.n; } fitCanvases(); if (view==='quilt') renderQuilt(); }
 else { try { if (localStorage.getItem('qb_welcomed')!=='1') showWelcome(); } catch(e){ showWelcome(); } }
 $('tip').innerHTML='<b>Half triangle</b> is picked. Tap a square on the block to place it. Tap it again to turn it.';
 render();
