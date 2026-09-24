@@ -76,7 +76,9 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
 /* Portrait tablets: tall settings column on the left, canvas above the cutting list on the right */
 @media (max-width:1100px){
   .app{grid-template-columns:300px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"left center" "left right";gap:12px;padding-block:4px 10px}
-  header{display:flex;justify-content:space-between;gap:12px}
+  header{grid-template-columns:minmax(auto,300px) minmax(auto,1fr) auto;gap:12px}
+  .actions button{padding:6px 9px}
+  header .views{justify-self:start}
   .pane.left{grid-area:left}
   .pane.center{grid-area:center;height:min(56vh,calc(100vw - 230px))}
   .pane.right{grid-area:right}
@@ -104,7 +106,7 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
 .band.plus{cursor:pointer}
 #pluspop .modal p{margin-bottom:10px}
 @media (max-width:600px){
-  header{gap:6px 8px;flex-wrap:wrap}
+  header{display:flex;justify-content:space-between;gap:6px 8px;flex-wrap:wrap}
   .brandrow{flex:1}
   h1{font-size:1.25rem;white-space:nowrap}
   .brand svg{width:28px;height:28px}
