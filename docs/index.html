@@ -58,7 +58,7 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
   .ps-diag svg{width:88mm;height:auto;display:block}
   .ps-diag .cap{font-size:8.5pt;color:#333;margin-top:2pt}
 }
-@media (max-width:1000px){ .actions{margin-left:auto} .actions button{padding:6px 10px} }
+@media (max-width:1100px){ .actions{margin-left:auto} .actions button{padding:6px 10px} }
 .app{display:grid;grid-template-columns:300px minmax(320px,1fr) 340px;gap:14px;padding-block:6px 12px;width:100%;max-width:1400px;margin:0 auto;flex:1;min-height:0}
 .pane{background:var(--panel);border:1.5px dashed var(--rule2);border-radius:14px;padding:14px;overflow-y:auto;overflow-x:hidden;min-height:0;overscroll-behavior:contain}
 .pane.center{display:flex;flex-direction:column;overflow:hidden;background:transparent;border:none;padding:4px 0}
@@ -73,7 +73,7 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
 .stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:8px}
 .canvaswrap{flex:1;min-height:0;width:100%;display:flex;justify-content:center;align-items:center}
 .mbar{display:none}
-@media (max-width:1000px){
+@media (max-width:1100px){
   .app{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:10px;padding-block:4px 0}
   header{display:flex;justify-content:space-between}
   .views{display:none}
@@ -141,11 +141,11 @@ button.small{min-height:34px;padding:2px 10px;font-size:.95rem}
 .swatch svg{display:block}
 .tip{font-size:.95rem;color:var(--muted);margin:8px 0 0;line-height:1.4}
 .tip b{color:var(--ink)}
-svg.block{height:100%;width:auto;max-width:100%;aspect-ratio:1;touch-action:manipulation;background:var(--panel2);padding:14px;border:1px solid var(--rule2);border-radius:var(--radius);display:block}
+svg.block{touch-action:manipulation;background:var(--panel2);padding:14px;border:1px solid var(--rule2);border-radius:var(--radius);display:block}
 svg.block .empty{fill:var(--panel2);stroke:var(--rule2);stroke-width:.02;stroke-dasharray:.06 .05}
 svg.block polygon{stroke:var(--seam);stroke-width:.025;stroke-linejoin:round;cursor:pointer}
 svg.block polygon:hover{stroke:var(--rose);stroke-width:.05}
-svg.rep{height:100%;width:auto;max-width:100%;background:var(--panel2);padding:14px;border:1px solid var(--rule2);border-radius:var(--radius);display:block}
+svg.rep{background:var(--panel2);padding:14px;border:1px solid var(--rule2);border-radius:var(--radius);display:block}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .stat{font-size:.95rem;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
 .qsize{font-size:.95rem;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center;flex:none}
@@ -431,6 +431,7 @@ function setView(v){
   document.querySelectorAll('.mbar button').forEach(b=>b.classList.toggle('on', b.dataset.m===view));
 
   try { localStorage.setItem('qb_view', view); } catch(e){}
+  fitCanvases();
   if (view==='quilt' && quiltStale) renderQuilt();
 }
 document.querySelector('.views').addEventListener('click', e=>{ const b=e.target.closest('[data-view]'); if (b) setView(b.dataset.view); });
@@ -497,7 +498,12 @@ function blockMarkup(pfx='pat'){
   }
   return out;
 }
+function fitCanvases(){
+  const b=$('svg'), bw=b.parentElement; if (bw && bw.clientWidth){ const s=Math.max(120,Math.min(bw.clientWidth,bw.clientHeight||bw.clientWidth)); b.style.width=s+'px'; b.style.height=s+'px'; }
+  const r=$('rep'), rw=r.parentElement; if (rw && rw.clientWidth){ const d=quiltDims(); const ar=d.W/d.H; let w=rw.clientWidth, h=w/ar; const maxH=rw.clientHeight||w; if (h>maxH){ h=maxH; w=h*ar; } r.style.width=Math.max(120,w)+'px'; r.style.height=Math.max(120,h)+'px'; }
+}
 function render(){
+  fitCanvases();
   const svg=$('svg'); svg.setAttribute('viewBox',`0 0 ${S.n} ${S.n}`);
   svg.innerHTML = defs('pat',S.n/S.size)+`<g id="blockg">${blockMarkup()}</g>`;
   renderQuilt();
@@ -870,7 +876,7 @@ $('save').onclick=()=>{ const name=$('name').value.trim()||`Block ${new Date().t
 let sheetFresh=false;
 $('printgo').onclick=()=>{ const g=gate(); if (g.locked){ $('printpop').querySelector('.tip').insertAdjacentHTML('beforebegin', lockHtml(g)); $('printgo').disabled=true; return; } buildPrintSheet(); sheetFresh=true; closePops(); setTimeout(()=>window.print(),50); setTimeout(()=>sheetFresh=false,2000); };
 window.addEventListener('beforeprint', ()=>{ if (!sheetFresh) buildPrintSheet(); });
-let rsT; window.addEventListener('resize', ()=>{ clearTimeout(rsT); rsT=setTimeout(()=>{ if (view==='quilt') renderQuilt(); },150); });
+let rsT; window.addEventListener('resize', ()=>{ clearTimeout(rsT); rsT=setTimeout(()=>{ fitCanvases(); if (view==='quilt') renderQuilt(); },150); });
 const WOF=40;
 function orient(p){ // lay the piece across the 40" width whichever way uses less length
   const a={w:p.w,h:p.h}, b={w:p.h,h:p.w};
@@ -928,7 +934,9 @@ syncControls();
 try { setView(localStorage.getItem('qb_view')||'block'); } catch(e){ setView('block'); }
 renderBadge();
 if (NATIVE){ document.querySelectorAll('#resetplus,#printbtn,#print2').forEach(b=>{ const p=b.closest('p'); (p||b).hidden=true; }); }
-try { if (localStorage.getItem('qb_welcomed')!=='1') showWelcome(); } catch(e){ showWelcome(); }
+const shot=new URLSearchParams(location.search).get('shot');
+if (shot){ try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} setView(shot); fitCanvases(); if (view==='quilt') renderQuilt(); }
+else { try { if (localStorage.getItem('qb_welcomed')!=='1') showWelcome(); } catch(e){ showWelcome(); } }
 $('tip').innerHTML='<b>Half triangle</b> is picked. Tap a square on the block to place it. Tap it again to turn it.';
 render();
 })();
