@@ -4,7 +4,7 @@
 **Subtitle** (30 max): Design blocks, plan quilts
 
 **Promotional text** (170 max):
-Baby and lap quilts are free, and so is your first throw. Bed sizes are one purchase, once.
+Baby and lap quilts are free. Throw and bed sizes are one purchase, once.
 
 **Description** (4000 max):
 Quilt Bee is a quilt block designer and quilt planner made for the way quilters actually work.
@@ -25,7 +25,7 @@ Made for the sewing table
 Big type, large buttons, no accounts and no sign-in. Everything you make stays on your device.
 
 Free and Plus
-Baby and lap quilts are free, and so is your first throw. Quilt Bee Plus unlocks bed sizes — twin, queen and king — and unlimited throws, for one purchase you own forever.
+Baby and lap quilts up to 60" are free, with every feature. Quilt Bee Plus unlocks throw and bed sizes — twin, queen and king — for one purchase you own forever.
 
 **Keywords** (100 max, comma separated):
 quilt,quilting,quilt block,quilt pattern,patchwork,sewing,fabric,yardage,quilt calculator
@@ -38,10 +38,10 @@ quilt,quilting,quilt block,quilt pattern,patchwork,sewing,fabric,yardage,quilt c
 **Age rating**: 4+ (no objectionable content)
 **Copyright**: 2026 Randy McKnight
 
-**In-app purchase display** — Quilt Bee Plus: "Bed sizes, unlimited throws."
+**In-app purchase display** — Quilt Bee Plus: "Throw and bed sizes."
 
 **App Review notes**:
-Free tier covers baby and lap quilts (up to 65" on the long side) and the first throw-size quilt you save. Larger quilts show a "Quilt Bee Plus" panel in the Pieces to cut list with the purchase and a Restore purchases button. To see it: open the Quilt tab and set rows and columns to 5 × 6. The app has no accounts and stores everything on the device.
+Free tier covers baby and lap quilts (up to 60" on the long side). Larger quilts show a "Quilt Bee Plus" panel in the Pieces to cut list with the purchase and a Restore purchases button. To see it: open the Quilt tab and set rows and columns to 5 × 6. The app has no accounts and stores everything on the device.
 
 **What's new** (version 1.0):
 First release.

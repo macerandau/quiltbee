@@ -220,7 +220,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
   <h2>Saved blocks</h2>
   <div class="saved" id="saved"></div>
   <p class="tip" id="opentip">Nothing saved yet. Use Save to keep a block.</p>
-  <p class="tip"><button id="resetplus" class="small">Prototype: reset unlock and free throw</button></p>
+  <p class="tip"><button id="resetplus" class="small">Prototype: reset unlock</button></p>
 </div>
 <div class="pop" id="helppop" hidden>
   <h2>How Quilt Bee works</h2>
@@ -233,14 +233,14 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
     <li><b>Keep your work.</b> Save names the block and Open brings it back, quilt layout and all.</li>
   </ol>
   <p class="tip">Save keeps your blocks on this device. Nothing you make is sent anywhere.</p>
-  <p class="tip">Baby and lap quilts are free, and so is your first throw. Bed sizes and more throws are $19.99, once.</p>
+  <p class="tip">Baby and lap quilts up to 60" are free. Throw and bed sizes are $19.99, once.</p>
   <p class="tip" id="feedbackline"></p>
   <p class="tip"><button id="replaywelcome" class="small">Show the welcome again</button></p>
 </div>
 <div class="veil" id="welcome" hidden>
   <div class="modal">
     <h2>Welcome to Quilt Bee</h2>
-    <p>Design a quilt block, lay out the whole quilt, and get the list of pieces to cut. Baby and lap quilts are free, and so is your first throw.</p>
+    <p>Design a quilt block, lay out the whole quilt, and get the list of pieces to cut. Baby and lap quilts up to 60" are free.</p>
     <div class="row"><button class="primary" id="welcomego">Start with a Sawtooth Star</button><button id="welcomehelp">Show me how</button></div>
   </div>
 </div>
@@ -331,7 +331,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
     <div class="stage only-quilt">
       <div class="canvaswrap"><svg class="rep" id="rep" viewBox="0 0 12 12" aria-label="Quilt layout with sashing and borders"></svg></div>
       <div class="qsize" id="qsize"></div>
-      <p class="hint" id="hint">Set rows, columns, sashing and borders in Quilt layout. Baby and lap quilts are free, and so is your first throw.</p>
+      <p class="hint" id="hint">Set rows, columns, sashing and borders in Quilt layout. Baby and lap quilts up to 60" are free.</p>
     </div>
   </section>
 
@@ -578,7 +578,7 @@ function renderQuilt(){
 }
 function updateQuiltSize(d){
   const g=gate(); const cls=g.locked?'plus':'free';
-  $('qsize').innerHTML=`Finished quilt ${fmtAbout(d.W)}" × ${fmtAbout(d.H)}" · ${d.blocks} blocks of ${d.B}"${d.onpoint?' set on point':''}<span class="band ${cls}">${g.b.label}${g.locked?' · Plus':g.isFree?' · your free throw':g.claimable?' · free once saved':' · free'}</span>`;
+  $('qsize').innerHTML=`Finished quilt ${fmtAbout(d.W)}" × ${fmtAbout(d.H)}" · ${d.blocks} blocks of ${d.B}"${d.onpoint?' set on point':''}<span class="band ${cls}">${g.b.label}${g.locked?' · Plus':' · free'}</span>`;
 }
 function fabricOptions(sel){ return S.fabrics.map((f,i)=>`<option value="${i}" ${i===sel?'selected':''}>${esc(fabName(f))}</option>`).join(''); }
 function renderQuiltControls(){
@@ -807,26 +807,21 @@ let curName='';
 const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) || new URLSearchParams(location.search).get('native')==='1';
 const PLUS_ID='com.quiltbee.app.plus';
 let PRICE='$19.99';
-let plus=false, freeThrow='';
+let plus=false;
 let storeReady=false, storeErr='', storeBusy=false;
-try { plus=localStorage.getItem('qb_plus')==='1'; freeThrow=localStorage.getItem('qb_freethrow')||''; } catch(e){}
-function band(d){ const L=Math.max(d.W,d.H); return L<=65 ? {key:'lap',label:'Baby or lap size',free:true} : L<=80 ? {key:'throw',label:'Throw size',free:false} : {key:'bed',label:L<=95?'Bed size (twin)':L<=112?'Bed size (queen)':'Bed size (king)',free:false}; }
+try { plus=localStorage.getItem('qb_plus')==='1'; } catch(e){}
+function band(d){ const L=Math.max(d.W,d.H); return L<=60 ? {key:'lap',label:'Baby or lap size',free:true} : L<=80 ? {key:'throw',label:'Throw size',free:false} : {key:'bed',label:L<=95?'Bed size (twin)':L<=112?'Bed size (queen)':'Bed size (king)',free:false}; }
 function gate(){
   const d=quiltDims(), b=band(d);
   if (plus || b.key==='lap') return {b,locked:false};
-  if (b.key==='throw'){
-    if (!freeThrow) return {b,locked:false,claimable:true};
-    if (curName && curName===freeThrow) return {b,locked:false,isFree:true};
-    return {b,locked:true,reason:`Your free throw is “${esc(freeThrow)}”. Open it to keep working on it for free, or unlock Quilt Bee Plus for more throws and every bed size.`};
-  }
-  return {b,locked:true,reason:'Bed-size quilts are part of Quilt Bee Plus.'};
+  return {b,locked:true,reason:b.key==='throw'?'Throw-size quilts are part of Quilt Bee Plus.':'Bed-size quilts are part of Quilt Bee Plus.'};
 }
 function lockHtml(g){
   const note = NATIVE
     ? (storeErr ? `<p class="tip">${esc(storeErr)}</p>` : (storeReady ? '<p class="tip">One purchase through the App Store. Yours on every device signed in with your Apple ID.</p>' : '<p class="tip">Connecting to the App Store…</p>'))
     : '<p class="tip">Prototype: the unlock button pretends to buy. Nothing is charged.</p>';
-  return `<div class="lock"><h3>Quilt Bee Plus</h3><p>${g.reason}</p><p>Baby and lap quilts are free, and so is your first throw. Bed sizes and more throws are ${PRICE}, once.</p>
-    <div class="row"><button class="primary" id="unlock" ${NATIVE&&(!storeReady||storeBusy)?'disabled':''}>${storeBusy?'Working…':`Unlock for ${PRICE}`}</button>${NATIVE?`<button id="restore" ${storeBusy?'disabled':''}>Restore purchases</button>`:''}${g.b.key==='throw'&&freeThrow?`<button id="openfree">Open “${esc(freeThrow)}”</button>`:''}</div>
+  return `<div class="lock"><h3>Quilt Bee Plus</h3><p>${g.reason}</p><p>Baby and lap quilts up to 60" are free. Throw and bed sizes are ${PRICE}, once.</p>
+    <div class="row"><button class="primary" id="unlock" ${NATIVE&&(!storeReady||storeBusy)?'disabled':''}>${storeBusy?'Working…':`Unlock for ${PRICE}`}</button>${NATIVE?`<button id="restore" ${storeBusy?'disabled':''}>Restore purchases</button>`:''}</div>
     ${note}</div>`;
 }
 // ---- App Store purchase (native shell only; cordova-plugin-purchase v13) ----
@@ -858,8 +853,7 @@ function renderBadge(){ const h=document.querySelector('h1'); let b=h.querySelec
 document.addEventListener('click', e=>{
   if (e.target.id==='unlock'){ if (NATIVE) buyPlus(); else { setPlus(true); closePops(); } }
   if (e.target.id==='restore'){ restorePlus(); }
-  if (e.target.id==='openfree'){ const list=loadSaved(); const i=list.findIndex(x=>x.name===freeThrow); if (i>=0){ snapshot(); const b=list[i]; S.n=b.n; S.size=b.size; S.cells=b.cells; S.fabrics=(b.fabrics||[]).map(normFabric); if (Array.isArray(b.colors)) S.colors=b.colors; if (Number.isInteger(b.bg)) S.bg=b.bg; if (Number.isInteger(b.main)) S.main=b.main; if (b.quilt) S.quilt=Object.assign({setting:'straight',setF:3},b.quilt); curName=b.name; syncControls(); render(); closePops(); } }
-  if (e.target.id==='resetplus'){ setPlus(false); freeThrow=''; try{ localStorage.removeItem('qb_freethrow'); }catch(e){} render(); }
+  if (e.target.id==='resetplus'){ setPlus(false); render(); }
 });
 const FEEDBACK_EMAIL='randy1701d@gmail.com';   // change this before going public if you want a different address
 const POPS=['savepop','openpop','printpop','helppop'];
@@ -881,7 +875,7 @@ $('savecancel').onclick=closePops; $('printcancel').onclick=closePops;
 document.addEventListener('pointerdown', e=>{ if (!e.target.closest('.pop') && !e.target.closest('.actions') && e.target.id!=='print2') closePops(); });
 document.addEventListener('keydown', e=>{ if (e.key==='Escape'){ closePops(); if (!$('welcome').hidden) hideWelcome(); } });
 $('name').addEventListener('keydown', e=>{ if (e.key==='Enter') $('save').click(); });
-$('save').onclick=()=>{ const name=$('name').value.trim()||`Block ${new Date().toLocaleDateString()}`; const list=loadSaved(); const entry={name,n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,colors:S.colors,main:S.main,bg:S.bg,quilt:S.quilt,when:Date.now()}; const i=list.findIndex(b=>b.name===name); if (i>=0) list[i]=entry; else list.unshift(entry); try{ localStorage.setItem('qb_saved',JSON.stringify(list.slice(0,40))); curName=name; let msg='Saved.'; const g=gate(); if (g.claimable){ freeThrow=name; try{ localStorage.setItem('qb_freethrow',name); }catch(e){} msg='Saved. This is your free throw.'; } $('savedmsg').textContent=msg; setTimeout(closePops, msg.length>7?1600:700); render(); }catch(e){ $('savedmsg').textContent='Could not save on this device.'; } renderSaved(); };
+$('save').onclick=()=>{ const name=$('name').value.trim()||`Block ${new Date().toLocaleDateString()}`; const list=loadSaved(); const entry={name,n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,colors:S.colors,main:S.main,bg:S.bg,quilt:S.quilt,when:Date.now()}; const i=list.findIndex(b=>b.name===name); if (i>=0) list[i]=entry; else list.unshift(entry); try{ localStorage.setItem('qb_saved',JSON.stringify(list.slice(0,40))); curName=name; $('savedmsg').textContent='Saved.'; setTimeout(closePops, 700); render(); }catch(e){ $('savedmsg').textContent='Could not save on this device.'; } renderSaved(); };
 let sheetFresh=false;
 $('printgo').onclick=()=>{ const g=gate(); if (g.locked){ $('printpop').querySelector('.tip').insertAdjacentHTML('beforebegin', lockHtml(g)); $('printgo').disabled=true; return; } buildPrintSheet(); sheetFresh=true; closePops(); setTimeout(()=>window.print(),50); setTimeout(()=>sheetFresh=false,2000); };
 window.addEventListener('beforeprint', ()=>{ if (!sheetFresh) buildPrintSheet(); });
@@ -912,7 +906,7 @@ function stripSvg(strips,color){
   return `<svg viewBox="-0.2 -0.2 ${WOF+38} ${L+0.4}" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="${WOF}" height="${L.toFixed(2)}" fill="none" stroke="#000" stroke-width=".25" stroke-dasharray="1 .6"/>${out}</svg>`;
 }
 function buildPrintSheet(){
-  const gg=gate(); if (gg.locked){ $('printsheet').innerHTML=`<div class="ps-head"><h1>Quilt Bee</h1></div><p>${gg.reason} Baby and lap quilts are free, and so is your first throw. Bed sizes and more throws are ${PRICE}, once.</p>`; return; }
+  const gg=gate(); if (gg.locked){ $('printsheet').innerHTML=`<div class="ps-head"><h1>Quilt Bee</h1></div><p>${gg.reason} Baby and lap quilts up to 60" are free. Throw and bed sizes are ${PRICE}, once.</p>`; return; }
   const data=cutData(), d=quiltDims(), B=blocksCount();
   const title=curName || 'Quilt block';
   const mB=lodFor(234,S.size), mQ=lodFor(325,d.W);            // 62mm and 86mm figures at 96 dpi
