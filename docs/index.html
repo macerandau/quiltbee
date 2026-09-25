@@ -306,7 +306,7 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
   <div class="modal">
     <h2>Welcome to Quilt Bee</h2>
     <p>Design a quilt block, lay out the whole quilt, and get the list of pieces to cut. Baby and lap quilts up to 60" are free.</p>
-    <div class="row"><button class="primary" id="welcomego">Start with a Sawtooth Star</button><button id="welcomehelp">Show me how</button></div>
+    <div class="row"><button class="primary" id="welcomehelp">Take the tour</button><button id="welcomego">Dismiss</button></div>
   </div>
 </div>
 <div class="pop" id="printpop" hidden>
@@ -942,9 +942,9 @@ function updateMore(){ document.querySelectorAll('.pane.left,.pane.right').forEa
 document.querySelectorAll('.pane.left,.pane.right').forEach(p=>{ p.addEventListener('scroll', updateMore, {passive:true}); const b=p.querySelector('.more button'); if (b) b.onclick=()=>p.scrollBy({top:p.clientHeight*0.8, behavior:'smooth'}); });
 if (window.ResizeObserver){ const ro2=new ResizeObserver(()=>updateMore()); document.querySelectorAll('.pane.left,.pane.right').forEach(p=>ro2.observe(p)); }
 $('feedbackline').innerHTML=`Something wrong, or an idea? Email <a href="mailto:${FEEDBACK_EMAIL}?subject=Quilt%20Bee">${FEEDBACK_EMAIL}</a>.`;
-function showWelcome(){ $('welcome').hidden=false; setTimeout(()=>$('welcomego').focus(),0); }
+function showWelcome(){ $('welcome').hidden=false; setTimeout(()=>$('welcomehelp').focus(),0); }
 function hideWelcome(){ $('welcome').hidden=true; try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} }
-$('welcomego').onclick=()=>{ hideWelcome(); snapshot(); PRESETS.sawtooth(); $('grid').value=S.n; setView('block'); render(); };
+$('welcomego').onclick=()=>{ hideWelcome(); };
 $('welcomehelp').onclick=()=>{ hideWelcome(); tourStart(); };
 $('tourbtn').onclick=()=>{ closePops(); tourStart(); };
 // ---- Guided tour: six steps, each lit and waiting for the real action (Next skips ahead) ----
