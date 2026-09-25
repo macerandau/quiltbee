@@ -20,7 +20,7 @@ Keep it under 2 minutes. The app has no accounts, no sign-in and no user-generat
 
 ## Written answers
 
-1. Screen recording: attached in App Review Information (ScreenRecording_09-25-2026 10-33-13_1.mov, build 9 on an iPad Pro 12.9-inch (6th generation) running the latest iPadOS). It starts at app launch and shows the main flow and the In-App Purchase.
+1. Screen recording: attached in App Review Information (ScreenRecording_09-25-2026 10-33-13_1.mov, build 9 on an iPad Pro 12.9-inch (6th generation) running iPadOS 27.0). It starts at app launch and shows the main flow and the In-App Purchase.
 
 2. Purpose and audience: Quilt Bee is a quilt block designer and quilt planner for hobby quilters. Quilters design a block, choose fabrics, lay out a whole quilt (sashing, borders, on-point setting), and get a cutting list with the cut sizes and the yardage to buy for each fabric. It replaces graph paper and hand calculation, which are slow and prone to errors, and costly desktop software.
 
