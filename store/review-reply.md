@@ -20,7 +20,7 @@ Keep it under 2 minutes. The app has no accounts, no sign-in and no user-generat
 
 ## Written answers
 
-1. Screen recording: attached. It starts at app launch and shows the main flow and the In-App Purchase.
+1. Screen recording: attached in App Review Information (ScreenRecording_09-25-2026 10-33-13_1.mov, build 9 on an iPad Pro 12.9-inch (6th generation) running the latest iPadOS). It starts at app launch and shows the main flow and the In-App Purchase.
 
 2. Purpose and audience: Quilt Bee is a quilt block designer and quilt planner for hobby quilters. Quilters design a block, choose fabrics, lay out a whole quilt (sashing, borders, on-point setting), and get a cutting list with the cut sizes and the yardage to buy for each fabric. It replaces graph paper and hand calculation, which are slow and prone to errors, and costly desktop software.
 
@@ -32,4 +32,4 @@ Keep it under 2 minutes. The app has no accounts, no sign-in and no user-generat
 
 6. Regulated industry / third-party material: Not applicable. The app is not in a regulated industry and contains no third-party protected material. Block names such as Ohio Star and Churn Dash are traditional public-domain quilt patterns, and all prints are drawn by the app's own code.
 
-7. In-App Purchase: One non-consumable product, Quilt Bee Plus (com.quiltbee.app.plus, $19.99). Baby and lap quilts up to 60 inches on the long side are free with every feature. Quilt Bee Plus unlocks throw and bed sizes (twin, queen, king). To reach it: open the Quilt tab and set rows and columns to 5 × 6 (or any quilt over 60"). A Quilt Bee Plus panel appears in the Pieces to cut list with the purchase and a Restore purchases button. It is also available from the Get Plus button in the header.
+7. In-App Purchase: One non-consumable product, Quilt Bee Plus (com.quiltbee.app.plus, $19.99). Baby and lap quilts up to 60 inches on the long side are free with every feature. Quilt Bee Plus unlocks throw and bed sizes (twin, queen, king). To reach it: open the Quilt tab and set rows and columns to 5 × 6 (or any quilt over 60"). A Quilt Bee Plus panel appears in the Pieces to cut list with the purchase and a Restore purchases button. It is also available from the Get Plus button in the header. The recording shows the purchase flow: the Quilt Bee Plus panel, the $19.99 purchase sheet, Face ID and the unlocked quilt. The recording device's Apple ID had already bought Quilt Bee Plus during TestFlight testing, so Apple's "already purchased, get it again for free" message appears. A new customer is charged $19.99.
