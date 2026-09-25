@@ -157,7 +157,8 @@ input[type=checkbox]{width:22px;height:22px;accent-color:var(--rose);margin:0;fl
 button{font:inherit;font-size:1rem;min-height:var(--ctl);padding:6px 14px;border:1px solid var(--rule2);border-radius:var(--radius);background:#fff;color:var(--ink);cursor:pointer}
 button:hover{border-color:var(--rose)}
 button:focus-visible,select:focus-visible,input:focus-visible,.unitbtn:focus-visible{outline:3px solid var(--butter);outline-offset:2px}
-button.primary{background:var(--rose);color:#fff;border-color:var(--rose);font-weight:700}
+button.primary,a.primary{background:var(--rose);color:#fff;border-color:var(--rose);font-weight:700}
+a.primary{display:inline-flex;align-items:center;min-height:var(--ctl);padding:6px 14px;border:1px solid var(--rose);border-radius:var(--radius);text-decoration:none}
 button:disabled{opacity:.45;cursor:default}
 button.small{min-height:34px;padding:2px 10px;font-size:.95rem}
 .units{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
@@ -264,7 +265,6 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
   <h2>Saved blocks</h2>
   <div class="saved" id="saved"></div>
   <p class="tip" id="opentip">Nothing saved yet. Use Save to keep a block.</p>
-  <p class="tip"><button id="resetplus" class="small">Prototype: reset unlock</button></p>
 </div>
 <div class="pop" id="helppop" hidden>
   <div class="h2row"><h2>How Quilt Bee works</h2><button id="tourbtn" class="small primary">Take the tour</button></div>
@@ -871,6 +871,7 @@ let curName='';
 const QP=new URLSearchParams(location.search), SHOT=QP.get('shot');   // ?shot=block|quilt|cut renders a view for store screenshots; the other params only count with it
 const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) || (!!SHOT && QP.get('native')==='1');
 const PLUS_ID='com.quiltbee.app.plus';
+const STORE_URL='https://apps.apple.com/app/id6815472577';   // the web version sends Plus buyers to the app
 let PRICE='$19.99';
 let plus=false;
 let storeReady=false, storeErr='', storeBusy=false;
@@ -884,10 +885,12 @@ function gate(){
 function lockHtml(g, compact){
   const note = NATIVE
     ? (storeErr ? `<p class="tip">${esc(storeErr)}</p>` : (storeReady ? '<p class="tip">One purchase through the App Store. Yours on every device signed in with your Apple ID.</p>' : '<p class="tip">Connecting to the App Store…</p>'))
-    : '<p class="tip">Prototype: the unlock button pretends to buy. Nothing is charged.</p>';
+    : '<p class="tip">Plus is unlocked inside the Quilt Bee app for iPhone, iPad and Mac. This web version is the free sample.</p>';
   const head = compact ? '' : `<h3>Quilt Bee Plus</h3><p>${g.reason}</p><p>Baby and lap quilts up to 60" are free. Throw and bed sizes are ${PRICE}, once.</p>`;
   return `<div class="lock">${head}
-    <div class="row"><button class="primary" id="unlock" ${NATIVE&&(!storeReady||storeBusy)?'disabled':''}>${storeBusy?'Working…':`Unlock for ${PRICE}`}</button>${NATIVE?`<button id="restore" ${storeBusy?'disabled':''}>Restore purchases</button>`:''}</div>
+    <div class="row">${NATIVE
+      ? `<button class="primary" id="unlock" ${(!storeReady||storeBusy)?'disabled':''}>${storeBusy?'Working…':`Unlock for ${PRICE}`}</button><button id="restore" ${storeBusy?'disabled':''}>Restore purchases</button>`
+      : `<a class="primary" id="unlock" href="${STORE_URL}" target="_blank" rel="noopener">Get Quilt Bee on the App Store</a>`}</div>
     ${note}</div>`;
 }
 // ---- App Store purchase (native shell only; cordova-plugin-purchase v13) ----
@@ -914,12 +917,10 @@ async function buyPlus(){
 }
 async function restorePlus(){ storeErr=''; storeBusy=true; renderCut(); try { await CdvPurchase.store.restorePurchases(); } catch(e){} storeBusy=false; syncOwned(); }
 if (NATIVE) document.addEventListener('deviceready', initStore, false);
-function setPlus(v){ plus=v; try{ localStorage.setItem('qb_plus',v?'1':'0'); }catch(e){} renderBadge(); render(); }
 function renderBadge(){ const h=document.querySelector('h1'); let b=h.querySelector('.plusbadge'); if (plus){ if(!b){ b=document.createElement('span'); b.className='plusbadge'; b.textContent='Plus'; h.appendChild(b);} $('pluspop').hidden=true; } else if (b) b.remove(); $('plusbtn').hidden=plus; }
 document.addEventListener('click', e=>{
-  if (e.target.id==='unlock'){ if (NATIVE) buyPlus(); else { setPlus(true); closePops(); } }
-  if (e.target.id==='restore'){ restorePlus(); }
-  if (e.target.id==='resetplus'){ setPlus(false); render(); }
+  if (e.target.id==='unlock' && NATIVE) buyPlus();
+  if (e.target.id==='restore') restorePlus();
 });
 const FEEDBACK_EMAIL='support@quiltbee.app';
 const POPS=['savepop','openpop','printpop','helppop'];
@@ -1057,7 +1058,7 @@ else { const OLD=['#2E3F73','#F1E9D6','#D9A21B','#8A5A44','#7E9573','#9A3B3B']; 
 syncControls();
 try { setView(localStorage.getItem('qb_view')||'block'); } catch(e){ setView('block'); }
 renderBadge();
-if (NATIVE){ document.querySelectorAll('#resetplus,#printbtn,#print2').forEach(b=>{ const p=b.closest('p'); (p||b).hidden=true; }); }
+if (NATIVE){ document.querySelectorAll('#printbtn,#print2').forEach(b=>{ b.hidden=true; }); }
 if (SHOT){ try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} if (QP.get('rows')) S.quilt.rows=+QP.get('rows'); if (QP.get('cols')) S.quilt.cols=+QP.get('cols'); if (QP.get('preset') && PRESETS[QP.get('preset')]){ PRESETS[QP.get('preset')](); $('grid').value=S.n; } setView(SHOT); if (QP.get('plus')) setTimeout(openPlus,50); if (QP.get('tour')) setTimeout(()=>{ tourStart(); const n=+QP.get('tour'); if (n>1) tourGo(n-1); },200); }
 else { try { if (localStorage.getItem('qb_welcomed')!=='1') showWelcome(); } catch(e){ showWelcome(); } }
 $('tip').innerHTML='<b>Half triangle</b> is picked. Tap a square on the block to place it. Tap it again to turn it.';
