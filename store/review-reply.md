@@ -28,7 +28,7 @@ Keep it under 2 minutes. The app has no accounts, no sign-in and no user-generat
 
 4. External services: Apple In-App Purchase (StoreKit, through the open-source cordova-plugin-purchase library) for the single Quilt Bee Plus purchase. The typefaces are bundled in the app. There is no backend server, analytics, advertising, AI service or data provider. All designs are stored only on the device.
 
-5. Regional differences: None. The app and Quilt Bee Plus work the same in every region where the app is offered, at the local equivalent of the $19.99 tier. The app is not offered in European storefronts for now.
+5. Regional differences: None. The app and Quilt Bee Plus work the same in every region where the app is offered, at the local equivalent of the $19.99 tier. The app is not offered in the European Union for now.
 
 6. Regulated industry / third-party material: Not applicable. The app is not in a regulated industry and contains no third-party protected material. Block names such as Ohio Star and Churn Dash are traditional public-domain quilt patterns, and all prints are drawn by the app's own code.
 
