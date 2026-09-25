@@ -30,9 +30,9 @@ Baby and lap quilts up to 60" are free, with every feature. Quilt Bee Plus unloc
 **Keywords** (100 max, comma separated):
 quilt,quilting,quilt block,quilt pattern,patchwork,sewing,fabric,yardage,quilt calculator
 
-**Support URL**: https://macerandau.github.io/quiltbee/support.html
-**Privacy Policy URL**: https://macerandau.github.io/quiltbee/privacy.html
-**Marketing URL** (optional): https://macerandau.github.io/quiltbee/
+**Support URL**: https://quiltbee.app/support.html
+**Privacy Policy URL**: https://quiltbee.app/privacy.html
+**Marketing URL** (optional): https://quiltbee.app/
 
 **Category**: Primary Lifestyle, Secondary Utilities
 **Age rating**: 4+ (no objectionable content)

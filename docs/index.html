@@ -926,7 +926,7 @@ document.addEventListener('click', e=>{
   if (e.target.id==='restore'){ restorePlus(); }
   if (e.target.id==='resetplus'){ setPlus(false); render(); }
 });
-const FEEDBACK_EMAIL='randy1701d@gmail.com';   // change this before going public if you want a different address
+const FEEDBACK_EMAIL='support@quiltbee.app';
 const POPS=['savepop','openpop','printpop','helppop'];
 function openPop(id){ POPS.forEach(k=>$(k).hidden = k!==id); if (id==='savepop'){ $('name').value=curName; $('savedmsg').textContent=''; setTimeout(()=>$('name').focus(),0); } if (id==='openpop') renderSaved(); if (id==='printpop'){ $('printpop').querySelectorAll('.lock').forEach(x=>x.remove()); $('printgo').disabled=false; } if (id==='printpop') $('printnote').textContent = (window.self!==window.top) ? 'Printing is blocked inside this preview. Open the app in its own browser tab (Safari or Chrome) and it will work there.' : ''; }
 function closePops(){ POPS.forEach(k=>$(k).hidden=true); }
