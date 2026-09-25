@@ -26,7 +26,7 @@ Keep it under 2 minutes. The app has no accounts, no sign-in and no user-generat
 
 3. Setup and instructions: No setup, account or login. Launch the app. The welcome card offers a guided tour. Block tab: choose a starting block or a grid size, choose a piece shape, and tap squares to place pieces (tap again to rotate). Pick a color and print for Main fabric and Background and tap patches to paint them. Quilt tab: set rows, columns, block size, sashing, borders and on-point. The Pieces to cut list below the canvas shows cut sizes and yardage. Open/Save/Print are in the header. No sample files are needed.
 
-4. External services: Apple In-App Purchase (StoreKit, through the open-source cordova-plugin-purchase library) for the single Quilt Bee Plus purchase. Google Fonts supplies the typefaces. There is no backend server, analytics, advertising, AI service or data provider. All designs are stored only on the device.
+4. External services: Apple In-App Purchase (StoreKit, through the open-source cordova-plugin-purchase library) for the single Quilt Bee Plus purchase. The typefaces are bundled in the app. There is no backend server, analytics, advertising, AI service or data provider. All designs are stored only on the device.
 
 5. Regional differences: None. The app works the same in all regions. The purchase is available in all App Store regions at the local equivalent of the $19.99 tier.
 
