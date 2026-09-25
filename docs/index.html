@@ -30,8 +30,7 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
 .views button{border:none;border-radius:999px;min-height:36px;padding:2px 18px;background:transparent;font-weight:700;color:var(--muted)}
 .views button.on{background:var(--rose);color:#fff}
 .actions{display:flex;gap:8px}
-.pop{position:fixed;top:62px;right:20px;z-index:30;width:min(360px,calc(100vw - 32px));background:#fff;border:1px solid var(--rule2);border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(60,40,40,.14)}
-.pop{max-height:calc(100vh - 80px - env(safe-area-inset-top,0px));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.pop{position:fixed;top:62px;right:20px;z-index:30;width:min(360px,calc(100vw - 32px));max-height:calc(100vh - 80px - env(safe-area-inset-top,0px));overflow-y:auto;overscroll-behavior:contain;background:#fff;border:1px solid var(--rule2);border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(60,40,40,.14)}
 .pop h2{margin-bottom:8px}
 #printsheet{display:none}
 @media print{
@@ -59,7 +58,6 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
   .ps-diag svg{width:88mm;height:auto;display:block}
   .ps-diag .cap{font-size:8.5pt;color:#333;margin-top:2pt}
 }
-@media (max-width:1100px){ .actions{margin-left:auto} .actions button{padding:6px 10px} }
 .app{display:grid;grid-template-columns:300px minmax(320px,1fr) 340px;gap:14px;padding-block:6px 12px;width:100%;max-width:1400px;margin:0 auto;flex:1;min-height:0}
 .pane{background:var(--panel);border:1.5px dashed var(--rule2);border-radius:14px;padding:14px;overflow-y:auto;overflow-x:hidden;min-height:0;overscroll-behavior:contain}
 .pane.center{display:flex;flex-direction:column;overflow:hidden;background:transparent;border:none;padding:4px 0}
@@ -100,7 +98,6 @@ h1{font-family:"Fraunces",Georgia,serif;font-size:1.55rem;margin:0;font-weight:7
   .mbar{display:flex;flex:none;gap:8px;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--rule);background:var(--bg)}
   .mbar button{flex:1;min-height:46px;font-weight:700}
   .mbar button.on{background:var(--rose);color:#fff;border-color:var(--rose)}
-  #printbtn{display:none}
 }
 /* Narrow tablets and split view: logo and buttons on one row, the Block/Quilt switch on its own row over the canvas */
 @media (max-width:820px) and (min-width:601px){
@@ -150,7 +147,7 @@ h2{font-family:"Fraunces",Georgia,serif;font-size:1.2rem;font-weight:600;margin:
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .field{display:flex;flex-direction:column;gap:3px;min-width:0}
-.field > label,.field > .lab,label.f{font-size:.95rem;color:var(--muted)}
+.field > label,.field > .lab{font-size:.95rem;color:var(--muted)}
 .field select,.field input[type=text]{width:100%}
 select,input[type=number],input[type=text]{font:inherit;font-size:1rem;min-height:var(--ctl);padding:6px 10px;border:1px solid var(--rule2);border-radius:var(--radius);background:#fff;color:var(--ink);min-width:0}
 select{appearance:none;-webkit-appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23665F6B' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;padding-right:32px}
@@ -191,7 +188,6 @@ button.small{min-height:34px;padding:2px 10px;font-size:.95rem}
 .palgrid .print .plab{position:absolute;left:0;right:0;bottom:0;background:rgba(255,253,249,.88);font-size:.85rem;padding:1px 0;text-align:center;color:var(--ink)}
 .palgrid .print.photo{display:flex;align-items:center;justify-content:center;border-style:dashed}
 .paintrow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 10px;align-items:center;margin-top:10px;min-height:44px}
-.paintrow .swatch{flex:none;border-radius:7px;border:1px solid var(--rule2);overflow:hidden;display:inline-block}
 .paintrow input[type=text]{flex:1;min-width:0;min-height:40px}
 .swatch{display:inline-block;vertical-align:middle;border-radius:4px;border:1px solid var(--rule2);overflow:hidden;line-height:0}
 .swatch.inl{margin-right:8px;vertical-align:-4px}
@@ -211,7 +207,6 @@ svg.rep{background:var(--panel2);padding:14px;border:1px solid var(--rule2);bord
 .qc{display:flex;flex-direction:column;gap:10px}
 .brow{display:flex;flex-direction:column;gap:6px}
 .brow .lab{font-size:.95rem;color:var(--muted)}
-.binputs{display:grid;grid-template-columns:84px minmax(0,1fr);gap:8px}
 .saved{display:flex;flex-direction:column;gap:4px;margin-top:8px}
 .saved .it{display:flex;gap:6px;align-items:center;font-size:1rem;background:#fff;border-radius:7px;padding:3px 4px 3px 10px}
 .saved .it span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -340,7 +335,6 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
     <div class="section piecesec only-block">
       <h2>Pieces</h2>
       <div class="units" id="units"></div>
-      <p class="tip" id="unittip">Pick a piece, then tap a square on the block. It lands in your main fabric and background. Tap it again to turn it.</p>
     </div>
     <div class="section palsec">
       <div class="h2row"><h2>Fabrics</h2><button id="resetfab" class="small" title="Go back to the starting colors">Reset</button></div>
@@ -348,7 +342,6 @@ textarea{width:100%;height:140px;font:.95rem ui-monospace,monospace;border:1px s
       <div class="paltabs" id="paltabs"><button type="button" data-tab="colors" class="on">Colors</button><button type="button" data-tab="prints">Prints</button></div>
       <div class="palgrid" id="palgrid"></div>
       <div class="paintrow" id="paintrow"></div>
-      <p class="tip" id="bgline"></p>
       <p class="tip" id="paltip">Tap a chip, then pick its color or print. Tap any patch on the block to repaint it with the lit one.</p>
     </div>
     <div class="only-quilt">
@@ -442,7 +435,6 @@ function geom(t, rot){
 }
 function inPoly(p, poly){ let c=false; for (let i=0,j=poly.length-1;i<poly.length;j=i++){ const [xi,yi]=poly[i],[xj,yj]=poly[j]; if (((yi>p[1])!==(yj>p[1])) && (p[0] < (xj-xi)*(p[1]-yi)/(yj-yi)+xi)) c=!c; } return c; }
 
-// ---------- state ----------
 // ---------- colors, prints, fabrics ----------
 const NAMED_COLORS=[['Rose','#B85C72'],['Cream','#F6EFE2'],['Butter','#EFD27A'],['Sage','#8AA58A'],['Denim','#5B79A6'],['Plum','#7A5578'],['Brick','#A8503C'],['Teal','#3F8A8C'],['Navy','#2E3F73'],['Mustard','#D9A21B'],['Lilac','#B39BC8'],['Charcoal','#4A4A4A'],['Gray','#8C8C8C'],['Brown','#8A5A44'],['Coral','#E07A6E'],['Olive','#7D8B3E'],['Sky','#9DBBD8'],['Pink','#E8A2B4'],['Cranberry','#9A3B3B'],['Forest','#3F5F4A'],['Peach','#F2C4A6'],['White','#FFFFFF'],['Black','#2B2B2B']];
 const DEFAULT_COLORS=NAMED_COLORS.slice(0,12).filter(c=>c[0]!=='Mustard').map(c=>c[1]);
@@ -480,7 +472,6 @@ function patternDef(id,f,upi){
 }
 function defs(pfx,upi){ return '<defs>'+S.fabrics.map((f,i)=>patternDef(pfx+i,f,upi)).join('')+'</defs>'; }
 function fillRef(i,pfx){ const f=S.fabrics[i]||S.fabrics[0]; return (!f.print||f.print==='solid') ? f.color : `url(#${pfx}${i})`; }
-function fill(i){ return fillRef(i,'pat'); }        // block canvas (grid units)
 // Shared pattern definitions: one hidden <svg> holds every fabric at the three scales the UI uses,
 // so swatches, piece tiles and the preview reference them instead of each carrying its own copy.
 const UI_SCALES={sw:1, ic:1/1.6, pv:1/2.2};
@@ -516,9 +507,9 @@ let undoStack=[], redoStack=[];
 const $ = id => document.getElementById(id);
 
 function blankCells(n){ return Array.from({length:n},()=>Array(n).fill(null)); }
-const snapState=()=>JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,colors:S.colors,main:S.main,bg:S.bg,quilt:S.quilt});
-function snapshot(){ undoStack.push(snapState()); if (undoStack.length>60) undoStack.shift(); redoStack.length=0; }
-function restore(json){ const o=JSON.parse(json); S.n=o.n; S.size=o.size; S.cells=o.cells; S.fabrics=o.fabrics; if (o.colors) S.colors=o.colors; if (Number.isInteger(o.bg)) S.bg=o.bg; if (Number.isInteger(o.main)) S.main=o.main; if (o.quilt) S.quilt=o.quilt; syncControls(); render(); }
+const stateJson=()=>JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,colors:S.colors,main:S.main,bg:S.bg,alt:S.alt,quilt:S.quilt});
+function snapshot(){ undoStack.push(stateJson()); if (undoStack.length>60) undoStack.shift(); redoStack.length=0; }
+function restore(json){ const o=JSON.parse(json); S.n=o.n; S.size=o.size; S.cells=o.cells; S.fabrics=o.fabrics; if (o.colors) S.colors=o.colors; if (Number.isInteger(o.bg)) S.bg=o.bg; if (Number.isInteger(o.main)) S.main=o.main; if (o.quilt) S.quilt=o.quilt; if ('alt' in o) S.alt=!!o.alt; syncControls(); render(); }
 
 function clearUnitAt(r,c){
   const cell=S.cells[r]?.[c]; if (!cell) return;
@@ -585,15 +576,17 @@ function render(){
   renderQuilt();
   const unit=S.size/S.n;
   $('stat').textContent = `${S.n} × ${S.n} grid · ${S.size}" finished block · each unit ${fmt(unit)}" finished`;
-  $('unitstat').textContent = `${blocksCount()} block${blocksCount()>1?'s':''} · unit ${fmt(unit)}" finished`;
+  const B=blocksCount();
+  $('unitstat').textContent = `${B} block${B>1?'s':''} · unit ${fmt(unit)}" finished`;
   renderPatternDefs(); renderCut(); renderUnits(); renderFabrics();
   $('undo').disabled = !undoStack.length; $('redo').disabled = !redoStack.length;
   scheduleAutosave();
   requestAnimationFrame(updateMore);
 }
 let autosaveT=null;
-function scheduleAutosave(){ clearTimeout(autosaveT); autosaveT=setTimeout(()=>{ try { localStorage.setItem('qb_current', JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,colors:S.colors,main:S.main,bg:S.bg,alt:S.alt,quilt:S.quilt})); } catch(e){} },400); }
-window.addEventListener('pagehide', ()=>{ clearTimeout(autosaveT); try { localStorage.setItem('qb_current', JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics,colors:S.colors,main:S.main,bg:S.bg,alt:S.alt,quilt:S.quilt})); } catch(e){} });
+function saveNow(){ clearTimeout(autosaveT); try { localStorage.setItem('qb_current', stateJson()); } catch(e){} }
+function scheduleAutosave(){ clearTimeout(autosaveT); autosaveT=setTimeout(saveNow,400); }
+window.addEventListener('pagehide', saveNow);
 function quiltDims(){
   const q=S.quilt, B=S.size, sash=Math.max(0,+q.sash||0);
   let rows=Math.max(1,q.rows|0), cols=Math.max(1,q.cols|0);
@@ -672,6 +665,7 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').r
 
 // ---------- cutting list & yardage ----------
 const EIGHTHS=['','⅛','¼','⅜','½','⅝','¾','⅞'];
+const WOF=40;                                        // usable fabric width in inches
 function fmt(x){ const e=Math.round(x*8); if (Math.abs(x*8-e)<0.02){ const w=Math.floor(e/8), r=e%8; return (w||!r?w:'')+EIGHTHS[r]; } return x.toFixed(2); }
 const up8=x=>Math.ceil(x*8-1e-6)/8;                 // cut sizes round UP to the nearest eighth
 function fmtAbout(x){ const e=Math.round(x*8); return (Math.abs(x*8-e)<0.02?'':'about ')+fmt(e/8); }
@@ -724,8 +718,8 @@ function cutData(){
     return {i, fabric:S.fabrics[i], pieces, yards};
   }).filter(x=>x.pieces.length);
 }
-function renderPlusPop(){ if (plus) return; const g={reason:'', b:{key:'bed'}}; $('plusbody').innerHTML=lockHtml(g).replace('<h3>Quilt Bee Plus</h3>','').replace('<p></p>','').replace('<p>Baby and lap quilts up to 60" are free. Throw and bed sizes are '+PRICE+', once.</p>',''); }
-function openPlus(){ closePops(); renderPlusPop(); $('pluspop').hidden=false; }
+function renderPlusPop(){ if (!plus && !$('pluspop').hidden) $('plusbody').innerHTML=lockHtml(null,true); }
+function openPlus(){ closePops(); $('pluspop').hidden=false; renderPlusPop(); }
 function renderCut(){
   renderPlusPop();
   const g=gate();
@@ -816,7 +810,6 @@ function renderFabrics(){
       + `<button type="button" class="csw print photo" data-photo="1" title="Use a photo of real fabric"><span class="plab" style="position:static">Photo…</span></button>`;
   }
   $('paintrow').innerHTML = pf ? `<span class="tip" style="margin:0">Name</span><input type="text" id="fabname" value="${esc(fabName(pf))}" aria-label="Fabric name" title="Rename the ${slot==='bg'?'background':'main'} fabric">` : '';
-  $('bgline').textContent = '';
 }
 $('paltabs').addEventListener('click', e=>{ const b=e.target.closest('[data-tab]'); if(!b) return; palTab=b.dataset.tab; try{ localStorage.setItem('qb_paltab',palTab); }catch(e){} renderFabrics(); });
 try { const t=localStorage.getItem('qb_paltab'); if (['colors','prints'].includes(t)) palTab=t; } catch(e){}
@@ -844,8 +837,8 @@ $('resetfab').onclick=()=>{ snapshot(); S.colors=DEFAULT_COLORS.slice(); S.fabri
 $('grid').onchange=()=>{ snapshot(); S.n=+$('grid').value; S.cells=blankCells(S.n); render(); };
 $('size').onchange=()=>{ S.size=+$('size').value; render(); };
 $('preset').onchange=()=>{ const k=$('preset').value; if(!k) return; snapshot(); PRESETS[k](); $('grid').value=S.n; $('preset').value=''; render(); };
-$('undo').onclick=()=>{ if(!undoStack.length) return; redoStack.push(JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics})); restore(undoStack.pop()); };
-$('redo').onclick=()=>{ if(!redoStack.length) return; undoStack.push(JSON.stringify({n:S.n,size:S.size,cells:S.cells,fabrics:S.fabrics})); restore(redoStack.pop()); };
+$('undo').onclick=()=>{ if(!undoStack.length) return; redoStack.push(stateJson()); restore(undoStack.pop()); };
+$('redo').onclick=()=>{ if(!redoStack.length) return; undoStack.push(stateJson()); restore(redoStack.pop()); };
 $('clear').onclick=()=>{ snapshot(); S.cells=blankCells(S.n); render(); };
 $('rotblock').onclick=()=>{ snapshot(); const n=S.n; const old=S.cells; S.cells=blankCells(n);
   for (let r=0;r<n;r++) for (let c=0;c<n;c++){ const u=old[r][c]; if(!u||u.cover) continue; const g0=geom(u.t,u.rot); const nr=(u.rot+1)%4; // anchor moves: new col = n - r - h, new row = c
@@ -875,7 +868,8 @@ $('borders').addEventListener('click', e=>{ const b=e.target.closest('[data-bdel
 $('copy').onclick=async()=>{ const t=$('txt'); try{ await navigator.clipboard.writeText(t.value); $('copied').textContent='Copied.'; }catch(e){ t.hidden=false; t.select(); $('copied').textContent='Select and copy the text below.'; } setTimeout(()=>$('copied').textContent='',2500); };
 let curName='';
 // ---------- size gate (prototype of the free / Plus split) ----------
-const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) || new URLSearchParams(location.search).get('native')==='1';
+const QP=new URLSearchParams(location.search), SHOT=QP.get('shot');   // ?shot=block|quilt|cut renders a view for store screenshots; the other params only count with it
+const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) || (!!SHOT && QP.get('native')==='1');
 const PLUS_ID='com.quiltbee.app.plus';
 let PRICE='$19.99';
 let plus=false;
@@ -887,11 +881,12 @@ function gate(){
   if (plus || b.key==='lap') return {b,locked:false};
   return {b,locked:true,reason:b.key==='throw'?'Throw-size quilts are part of Quilt Bee Plus.':'Bed-size quilts are part of Quilt Bee Plus.'};
 }
-function lockHtml(g){
+function lockHtml(g, compact){
   const note = NATIVE
     ? (storeErr ? `<p class="tip">${esc(storeErr)}</p>` : (storeReady ? '<p class="tip">One purchase through the App Store. Yours on every device signed in with your Apple ID.</p>' : '<p class="tip">Connecting to the App Store…</p>'))
     : '<p class="tip">Prototype: the unlock button pretends to buy. Nothing is charged.</p>';
-  return `<div class="lock"><h3>Quilt Bee Plus</h3><p>${g.reason}</p><p>Baby and lap quilts up to 60" are free. Throw and bed sizes are ${PRICE}, once.</p>
+  const head = compact ? '' : `<h3>Quilt Bee Plus</h3><p>${g.reason}</p><p>Baby and lap quilts up to 60" are free. Throw and bed sizes are ${PRICE}, once.</p>`;
+  return `<div class="lock">${head}
     <div class="row"><button class="primary" id="unlock" ${NATIVE&&(!storeReady||storeBusy)?'disabled':''}>${storeBusy?'Working…':`Unlock for ${PRICE}`}</button>${NATIVE?`<button id="restore" ${storeBusy?'disabled':''}>Restore purchases</button>`:''}</div>
     ${note}</div>`;
 }
@@ -937,7 +932,6 @@ $('plusclose').onclick=()=>{ $('pluspop').hidden=true; };
 $('pluspop').addEventListener('click', e=>{ if (e.target===$('pluspop')) $('pluspop').hidden=true; });
 $('qsize').addEventListener('click', e=>{ if (e.target.closest('.band.plus')) openPlus(); });
 // Scroll cue on the side panels: shown while there is more below, tap to page down
-const moreT=[];
 function updateMore(){ document.querySelectorAll('.pane.left,.pane.right').forEach(p=>{ if (p.scrollHeight <= p.clientHeight + 1 && p.scrollTop) p.scrollTop = 0; p.classList.toggle('hasmore', p.scrollHeight - p.scrollTop - p.clientHeight > 72); }); }
 document.querySelectorAll('.pane.left,.pane.right').forEach(p=>{ p.addEventListener('scroll', updateMore, {passive:true}); const b=p.querySelector('.more button'); if (b) b.onclick=()=>p.scrollBy({top:p.clientHeight*0.8, behavior:'smooth'}); });
 if (window.ResizeObserver){ const ro2=new ResizeObserver(()=>updateMore()); document.querySelectorAll('.pane.left,.pane.right').forEach(p=>ro2.observe(p)); }
@@ -978,7 +972,7 @@ function tourPlace(){
   c.style.left=left+'px'; c.style.top=top+'px';
   c.style.setProperty('--ax', Math.min(Math.max(20, r.left+r.width/2-left-9), cw-38)+'px');
 }
-function tourEnd(){ tourI=-1; tourEl=null; $('tour').hidden=true; try{ localStorage.setItem('qb_toured','1'); }catch(e){} }
+function tourEnd(){ tourI=-1; tourEl=null; $('tour').hidden=true; }
 $('tournext').onclick=()=>tourGo(tourI+1);
 $('tourskip').onclick=tourEnd;
 ['pointerdown','click','change'].forEach(type=>document.addEventListener(type, e=>{
@@ -1008,7 +1002,6 @@ window.addEventListener('orientationchange', ()=>{ setTimeout(afterResize,350); 
 try { matchMedia('(orientation: portrait)').addEventListener('change', ()=>{ afterResize(); setTimeout(afterResize,400); }); } catch(e){}
 if (window.visualViewport) visualViewport.addEventListener('resize', ()=>{ clearTimeout(rsT); rsT=setTimeout(afterResize,150); });
 if (window.ResizeObserver){ const ro=new ResizeObserver(()=>fitCanvases()); document.querySelectorAll('.canvaswrap').forEach(w=>ro.observe(w)); }
-const WOF=40;
 function orient(p){ // lay the piece across the 40" width whichever way uses less length
   const a={w:p.w,h:p.h}, b={w:p.h,h:p.w};
   const len=o=>Math.ceil(p.n/Math.max(1,Math.floor(WOF/o.w)))*o.h;
@@ -1065,8 +1058,7 @@ syncControls();
 try { setView(localStorage.getItem('qb_view')||'block'); } catch(e){ setView('block'); }
 renderBadge();
 if (NATIVE){ document.querySelectorAll('#resetplus,#printbtn,#print2').forEach(b=>{ const p=b.closest('p'); (p||b).hidden=true; }); }
-const shot=new URLSearchParams(location.search).get('shot');
-if (shot){ try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} const qp=new URLSearchParams(location.search); if (qp.get('rows')) S.quilt.rows=+qp.get('rows'); if (qp.get('cols')) S.quilt.cols=+qp.get('cols'); setView(shot); if (qp.get('plus')) setTimeout(openPlus,50); if (qp.get('tour')) setTimeout(()=>{ tourStart(); const n=+qp.get('tour'); if (n>1) tourGo(n-1); },200); if (qp.get('preset') && PRESETS[qp.get('preset')]){ PRESETS[qp.get('preset')](); $('grid').value=S.n; } fitCanvases(); if (view==='quilt') renderQuilt(); }
+if (SHOT){ try{ localStorage.setItem('qb_welcomed','1'); }catch(e){} if (QP.get('rows')) S.quilt.rows=+QP.get('rows'); if (QP.get('cols')) S.quilt.cols=+QP.get('cols'); if (QP.get('preset') && PRESETS[QP.get('preset')]){ PRESETS[QP.get('preset')](); $('grid').value=S.n; } setView(SHOT); if (QP.get('plus')) setTimeout(openPlus,50); if (QP.get('tour')) setTimeout(()=>{ tourStart(); const n=+QP.get('tour'); if (n>1) tourGo(n-1); },200); }
 else { try { if (localStorage.getItem('qb_welcomed')!=='1') showWelcome(); } catch(e){ showWelcome(); } }
 $('tip').innerHTML='<b>Half triangle</b> is picked. Tap a square on the block to place it. Tap it again to turn it.';
 render();
