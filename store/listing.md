@@ -19,7 +19,7 @@ Lay out the quilt
 Rows and columns, sashing with cornerstones, up to three borders, and an on-point setting for diamonds. See the whole quilt as you change it.
 
 Cut with confidence
-Pieces to cut lists every piece by fabric with the cut sizes quilters use — plus ⅞ for half-square triangles, plus 1¼ for quarter-squares and geese — and how much of each fabric to buy, with binding and backing.
+Pieces to cut lists every piece by fabric with the cut sizes quilters use — plus ⅞ for half-square triangles, plus 1¼ for quarter-squares and geese — and how much of each fabric to buy, with binding and backing. Print makes a PDF with the block, the quilt and a cutting plan for each fabric, ready to print, save or send.
 
 Made for the sewing table
 Big type, large buttons, no accounts and no sign-in. Everything you make stays on your device.
