@@ -10,4 +10,4 @@ Quilt block designer and quilt planner. The app is a single HTML file with no bu
 - `codemagic.yaml` — builds and signs on Codemagic and uploads to TestFlight on every push to master.
 - `research/` — the niche validation report and the scripts behind it.
 
-Free: baby and lap quilts, and the first throw. Quilt Bee Plus ($19.99 once): bed sizes and unlimited throws.
+Free: 3 quilts, baby or lap size (up to 60"); a quilt counts when saved under a new name or printed, deletes never refund, and the count is kept in the keychain so a reinstall does not reset it. People who had 1.0 keep unlimited baby and lap quilts. Quilt Bee Plus ($19.99 once): unlimited quilts and printing in every size. Native bits (keychain counter, PDF share sheet) are the local Capacitor plugin in `plugins/quiltbee-native`.

@@ -1,0 +1,8 @@
+{
+  "name": "quiltbee-native",
+  "version": "1.0.0",
+  "description": "Quilt Bee's own native bits: a keychain counter that survives reinstall, and the print sheet as a PDF in the share sheet",
+  "private": true,
+  "license": "UNLICENSED",
+  "capacitor": { "ios": { "src": "ios" } }
+}

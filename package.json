@@ -17,6 +17,7 @@
     "@capacitor/cli": "^6.2.2",
     "@capacitor/core": "^6.2.2",
     "@capacitor/ios": "^6.2.2",
-    "cordova-plugin-purchase": "^13.18.0"
+    "cordova-plugin-purchase": "^13.18.0",
+    "quiltbee-native": "file:plugins/quiltbee-native"
   }
 }
